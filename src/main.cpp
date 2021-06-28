@@ -13,8 +13,8 @@ int main() {
     std::cout << "Starting application." << std::endl; 
 
     Window window;
-    VulkanInstance vulkanInstance;
-    PhysicalDevice physicalDevice(vulkanInstance.instance);
+    VulkanInstance vulkanInstance(*(window.glfwWindow));
+    PhysicalDevice physicalDevice(vulkanInstance);
     LogicalDevice logicalDevice(physicalDevice); 
 
     while (!glfwWindowShouldClose(window.glfwWindow)) { 

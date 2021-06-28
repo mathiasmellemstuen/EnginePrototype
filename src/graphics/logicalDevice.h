@@ -10,6 +10,7 @@
         public: 
             VkDevice device;
             VkQueue graphicsQueue;
+            VkQueue presentQueue;
             LogicalDevice(PhysicalDevice& physicalDevice);
             ~LogicalDevice();
     };

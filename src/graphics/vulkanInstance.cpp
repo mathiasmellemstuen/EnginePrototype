@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include "validationLayers.h"
 
-VulkanInstance::VulkanInstance() {
+VulkanInstance::VulkanInstance(GLFWwindow& window) {
 
     VkApplicationInfo appInfo{}; 
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
@@ -43,9 +43,13 @@ VulkanInstance::VulkanInstance() {
     if (result != VK_SUCCESS)  { 
         throw std::runtime_error("Failed to create instance!");
     }
+
+    if (glfwCreateWindowSurface(instance, &window, nullptr, &surface)  != VK_SUCCESS) { 
+        throw std::runtime_error("Failed to create window surface!"); 
+    }
 };
 
 VulkanInstance::~VulkanInstance() {
-
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 };

@@ -7,7 +7,8 @@
 class VulkanInstance {
     public: 
         VkInstance instance;
-        VulkanInstance(); 
+        VkSurfaceKHR surface;
+        VulkanInstance(GLFWwindow& window); 
         ~VulkanInstance(); 
 };
 
