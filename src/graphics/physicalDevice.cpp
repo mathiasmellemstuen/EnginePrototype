@@ -5,9 +5,28 @@
 #include <stdexcept>
 #include <vector>
 #include <optional>
+#include <set>
+#include "swapChainSupport.h"
+#include "deviceExtensions.h"
 
 #include "vulkanInstance.h"
 
+bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    
+    uint32_t extensionCount; 
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr); 
+    
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount); 
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data()); 
+    
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end()); 
+    
+    for (const auto& extension : availableExtensions) { 
+        requiredExtensions.erase(extension.extensionName); 
+    } 
+     
+    return requiredExtensions.empty();
+};
 QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
@@ -43,10 +62,19 @@ QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
     
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device); 
+    bool extensionsSupported = checkDeviceExtensionSupport(device); 
 
-    return indices.isComplete();
+    bool swapChainAdequate = false; 
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(device, *surface); 
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty(); 
+    }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate; 
 };
+
+
 
 PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {  
     surface = &instance.surface;

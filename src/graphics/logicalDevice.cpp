@@ -7,6 +7,7 @@
 
 #include "physicalDevice.h"
 #include "validationLayers.h"
+#include "deviceExtensions.h"
 
 LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
     QueueFamilyIndices indices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
@@ -38,7 +39,8 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
     createInfo.queueCreateInfoCount = 1;
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount =  static_cast<uint32_t>(deviceExtensions.size()); 
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()); 
     createInfo.pQueueCreateInfos = queueCreateInfos.data();

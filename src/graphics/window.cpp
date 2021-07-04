@@ -14,8 +14,6 @@ Window::Window() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     glfwWindow = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
-
-
 };
 
 Window::~Window() {
