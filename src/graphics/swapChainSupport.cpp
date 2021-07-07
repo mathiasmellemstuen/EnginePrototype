@@ -1,7 +1,9 @@
 #include "swapChainSupport.h"
 #include "physicalDevice.h"
+#include "../utility/log.h"
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR& surface) {
+    log(INFO, "Querying for swap chain support"); 
     SwapChainSupportDetails details; 
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,  &details.capabilities);
@@ -21,5 +23,6 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data()); 
     }
 
+    log(SUCCESS, "Swap chain support query done!"); 
     return details; 
 };

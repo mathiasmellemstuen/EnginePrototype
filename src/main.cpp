@@ -7,25 +7,31 @@
 #include "graphics/logicalDevice.h"
 #include "graphics/swapChain.h"
 #include "utility/properties.h"
+#include "graphics/imageViews.h"
+#include "graphics/shader.h"
+#include "utility/log.h"
 
 #include <iostream>
 
 int main() {
     std::cout << "Starting application." << std::endl; 
+    log(INFO, "Starting application."); 
+
     loadPropertiesFromFile();
+    printProperties();
 
     Window window;
     VulkanInstance vulkanInstance(*(window.glfwWindow));
     PhysicalDevice physicalDevice(vulkanInstance);
     LogicalDevice logicalDevice(physicalDevice); 
-    SwapChain swapChain(physicalDevice, logicalDevice, 800, 600);
-
-    properties->print(); 
+    SwapChain swapChain(physicalDevice, logicalDevice);
+    ImageViews ImageViews(swapChain, logicalDevice);
+    Shader shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv");
 
     while (!glfwWindowShouldClose(window.glfwWindow)) { 
         glfwPollEvents(); 
     }
 
-    std::cout << "Exiting application." << std::endl; 
+    log(INFO, "Exiting application!"); 
     return 0;
 }

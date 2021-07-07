@@ -12,12 +12,12 @@ class SwapChain {
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-        SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, const uint32_t windowWidth, const uint32_t windowHeight);
+        SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice);
         ~SwapChain();
     private:
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities, const uint32_t width, const uint32_t height);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities);
         VkDevice* device;
 };
 

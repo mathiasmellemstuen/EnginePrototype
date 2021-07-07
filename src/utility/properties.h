@@ -1,7 +1,6 @@
 #ifndef ENGINEPROTOTYPE_PROPERTIES
 #define ENGINEPROTOTYPE_PROPERTIES
 
-#define ENGINEPROTOTYPE_PROPERTIES_FILE_LOCATION "properties.yaml"
 #define ENGINEPROTOTYPE_TITLE "title"
 #define ENGINEPROTOTYPE_SCREEN_WIDTH "screenWidth"
 #define ENGINEPROTOTYPE_SCREEN_HEIGHT "screenHeight"
@@ -11,14 +10,11 @@
 
 struct Properties {
     std::string title; 
-    int screenWidth; 
-    int screenHeight;
-
-    void print();
+    uint32_t screenWidth; 
+    uint32_t screenHeight;
 };
-
-extern Properties* properties;
+extern Properties properties;
 
 void loadPropertiesFromFile();
-
+void printProperties(); 
 #endif

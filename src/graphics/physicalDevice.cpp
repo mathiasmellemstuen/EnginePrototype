@@ -8,6 +8,8 @@
 #include <set>
 #include "swapChainSupport.h"
 #include "deviceExtensions.h"
+#include <iostream>
+#include "../utility/log.h"
 
 #include "vulkanInstance.h"
 
@@ -23,8 +25,8 @@ bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     
     for (const auto& extension : availableExtensions) { 
         requiredExtensions.erase(extension.extensionName); 
-    } 
-     
+    }
+
     return requiredExtensions.empty();
 };
 QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
@@ -62,6 +64,8 @@ QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
     
+    log(INFO, "Checking if device is suitable."); 
+
     QueueFamilyIndices indices = findQueueFamilies(device); 
     bool extensionsSupported = checkDeviceExtensionSupport(device); 
 
@@ -76,13 +80,16 @@ bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
 
 
 
-PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {  
+PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {
+
+    log(INFO, "Checking and creating physical device context"); 
     surface = &instance.surface;
 
     uint32_t deviceCount = 0; 
     vkEnumeratePhysicalDevices(instance.instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) { 
+        log(ERROR, "Failed to find GPUs with Vulkan support!"); 
         throw std::runtime_error("Failed to find GPUs with Vulkan support!"); 
     }
 
@@ -97,8 +104,16 @@ PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {
     } 
 
     if (physicalDevice == VK_NULL_HANDLE) { 
+        
+        log(ERROR, "Failed to find a suitable GPU!"); 
         throw std::runtime_error("Failed to find a suitable GPU!");
+  
+    } else {
+    
+        vkGetPhysicalDeviceProperties(physicalDevice,&physicalDeviceProperties);
+        log(SUCCESS, "Selected GPU: " + std::string(physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
     }
+    
 };
 
 PhysicalDevice::~PhysicalDevice() {

@@ -20,6 +20,7 @@ struct QueueFamilyIndices {
 class PhysicalDevice {
     public:
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkPhysicalDeviceProperties physicalDeviceProperties; 
         PhysicalDevice(VulkanInstance& instance);
         ~PhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

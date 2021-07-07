@@ -7,15 +7,20 @@
 #include "swapChainSupport.h"
 #include "logicalDevice.h"
 #include <stdexcept>
+#include "../utility/properties.h"
+#include "../utility/log.h"
 
-SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, const uint32_t windowWith, const uint32_t windowHeight) {
+SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
+
+    log(INFO, "Setting up swap chain"); 
+
     device = &logicalDevice.device;
 
     SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(physicalDevice.physicalDevice, *physicalDevice.surface); 
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode =  chooseSwapPresentMode(swapChainSupport.presentModes); 
-    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities, windowWith, windowHeight);
+    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
@@ -54,6 +59,7 @@ SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     if (vkCreateSwapchainKHR(*device, &createInfo, nullptr, &swapChain)  != VK_SUCCESS) { 
+        log(ERROR, "Failed to create swap chain!"); 
         throw std::runtime_error("failed to create swap chain!");
     }
 
@@ -64,14 +70,18 @@ SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
 
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
+
+    log(SUCCESS, "Created swap chain"); 
 };
 
 SwapChain::~SwapChain() {
+    log(INFO, "Destroying swap chain"); 
     vkDestroySwapchainKHR(*device, swapChain, nullptr);
+    log(SUCCESS, "Swap chain destroyed"); 
 };
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
-    
+
     for (const auto& availableFormat : availableFormats) { 
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&  availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) { 
             return availableFormat; 
@@ -92,13 +102,13 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const  std::vector<VkPresentMo
     return VK_PRESENT_MODE_FIFO_KHR;
 };
 
-VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities, const uint32_t width, const uint32_t height) { 
+VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities) { 
 
     if (capabilities.currentExtent.width != UINT32_MAX) {
         return capabilities.currentExtent;
     }
 
-    VkExtent2D actualExtent = {width, height};
+    VkExtent2D actualExtent = {properties.screenWidth, properties.screenHeight};
 
     actualExtent.width =  std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width,  actualExtent.width)); 
     actualExtent.height =  std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height,  actualExtent.height)); 

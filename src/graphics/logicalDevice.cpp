@@ -8,8 +8,12 @@
 #include "physicalDevice.h"
 #include "validationLayers.h"
 #include "deviceExtensions.h"
+#include "../utility/log.h"
 
 LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
+
+    log(INFO, "Setting up a logical device"); 
+
     QueueFamilyIndices indices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -54,13 +58,20 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
     }
 
     if (vkCreateDevice(physicalDevice.physicalDevice, &createInfo, nullptr, &device) !=  VK_SUCCESS) { 
+        
+        log(ERROR, "Failed to create logical device!"); 
         throw std::runtime_error("Failed to create logical device!"); 
     }
 
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0,  &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0,  &presentQueue);
+
+    log(SUCCESS, "Created logical device!"); 
+
 };
 
 LogicalDevice::~LogicalDevice() {
+    log(INFO, "Destroying logical device"); 
     vkDestroyDevice(device, nullptr);
+    log(SUCCESS, "Logical device destroyed"); 
 };
