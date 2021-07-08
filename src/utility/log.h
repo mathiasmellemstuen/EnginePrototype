@@ -23,7 +23,7 @@ void log(LogLevel logLevel, int value);
 void log(LogLevel logLevel, float value); 
 
 void log(int value); 
-void log(float value); 
+void log(float value);
 
 void log(std::string message); 
 void log(glm::vec2 vec2); 
