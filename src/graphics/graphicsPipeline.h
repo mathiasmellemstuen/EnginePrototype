@@ -3,15 +3,20 @@
 
 #include "swapChain.h"
 #include "logicalDevice.h"
+#include "shader.h"
 
 #include <vulkan/vulkan.h>
 
 class GraphicsPipeline {
     public: 
+        VkPipeline graphicsPipeline;
         VkPipelineLayout pipelineLayout;
         VkDevice* device; 
-        GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain); 
+        VkRenderPass renderPass; 
+        GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader); 
         ~GraphicsPipeline();
+    private:
+        void createRenderPass(SwapChain& swapChain); 
 };
 
 #endif

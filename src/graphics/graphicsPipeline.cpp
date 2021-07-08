@@ -1,14 +1,17 @@
 #include "graphicsPipeline.h"
 #include "../utility/log.h"
+#include "shader.h"
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 
-GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain) {
+GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader) {
 
     log(INFO, "Starting to create graphics pipeline"); 
 
     this->device = &logicalDevice.device;  
+
+    this->createRenderPass(swapChain); 
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType =  VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO; 
@@ -119,11 +122,73 @@ GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swap
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
 
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO; 
+    pipelineInfo.stageCount = 2; 
+    pipelineInfo.pStages = shader.shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly; 
+    pipelineInfo.pViewportState = &viewportState; 
+    pipelineInfo.pRasterizationState = &rasterizer; 
+    pipelineInfo.pMultisampleState = &multisampling; 
+    pipelineInfo.pDepthStencilState = nullptr; // Optional 
+    pipelineInfo.pColorBlendState = &colorBlending; 
+    pipelineInfo.pDynamicState = nullptr; // Optional
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+    pipelineInfo.basePipelineIndex = -1; // Optional
+
+    if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        
+        log(ERROR, "Failed to create graphics pipeline!"); 
+        throw std::runtime_error("failed to create graphics pipeline!"); 
+    }
     log(SUCCESS, "Created graphics pipeline!"); 
 };
 
+void GraphicsPipeline::createRenderPass(SwapChain& swapChain) {
+    
+    log(INFO, "Creating render pass"); 
+
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format = swapChain.swapChainImageFormat; 
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0; 
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(*device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        log(ERROR, "Failed to create render pass!"); 
+        throw std::runtime_error("failed to create render pass!");
+    }
+
+    log(SUCCESS, "Successfully created render pass!"); 
+};
+
 GraphicsPipeline::~GraphicsPipeline() {
-    log(INFO, "Destroying pipeline layout"); 
+    log(INFO, "Destroying graphics pipeline"); 
+    vkDestroyPipeline(*device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(*device, pipelineLayout, nullptr);
-    log(SUCCESS, "Pipeline layout destroyed!"); 
+    vkDestroyRenderPass(*device, renderPass, nullptr);
+    log(SUCCESS, "Graphics pipeline destroyed!"); 
 };

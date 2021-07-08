@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     SwapChain swapChain(physicalDevice, logicalDevice);
     ImageViews ImageViews(swapChain, logicalDevice);
     Shader shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv");
-    GraphicsPipeline grapicsPipeline(logicalDevice, swapChain);
+    GraphicsPipeline grapicsPipeline(logicalDevice, swapChain, shader);
 
     while(window.running) {
         
