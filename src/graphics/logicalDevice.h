@@ -1,9 +1,7 @@
 #ifndef ENGINEPROTOTYPE_LOGICALDEVICE
 #define ENGINEPROTOTYPE_LOGICALDEVICE
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
+#include <vulkan/vulkan.h>
 #include "physicalDevice.h"
 
 class LogicalDevice {

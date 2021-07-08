@@ -1,8 +1,7 @@
 #ifndef ENGINEPROTOTYPE_SWAPCHAINSUPPORT
 #define ENGINEPROTOTYPE_SWAPCHAINSUPPORT
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <vector>
 
 struct SwapChainSupportDetails { 

@@ -1,8 +1,7 @@
 #ifndef ENGINEPROTOTYPE_PHYSICALDEVICE
 #define ENGINEPROTOTYPE_PHYSICALDEVICE
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <optional>
 #include <vector>
 #include "vulkanInstance.h"

@@ -1,30 +1,27 @@
 #include "window.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 #include "../utility/properties.h"
 #include "../utility/log.h"
 
 Window::Window() {
 
-    log(INFO, "Intializing GLFW"); 
+    log(INFO, "Intializing SDL2"); 
 
-    if(glfwInit() == GLFW_FALSE) {
-        log(ERROR, "Error while initializing GLFW!"); 
+    if(SDL_Init(SDL_INIT_EVERYTHING)) {
+        log(ERROR, "Error while initializing SDL2!"); 
     }
-    log(SUCCESS, "GLFW initiated!");
-    log(INFO, "Creating GLFW window context"); 
+    log(SUCCESS, "SDL2 initiated!");
+    log(INFO, "Creating SDL2 window context"); 
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindow = glfwCreateWindow(properties.screenWidth, properties.screenHeight, properties.title.c_str(), nullptr, nullptr);
+    sdlWindow = SDL_CreateWindow(properties.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,properties.screenWidth,properties.screenHeight,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN);
     log(SUCCESS, "Successfully created GLFW window context!"); 
 
 };
 
 Window::~Window() {
-    log(INFO, "Destroying GLFW window"); 
-    glfwDestroyWindow(glfwWindow);
-    glfwTerminate();
+    log(INFO, "Destroying GLFW window");
+    SDL_DestroyWindow(sdlWindow);
+    sdlWindow = nullptr; 
     log(SUCCESS, "Successfully destroyed GLFW window!"); 
 };

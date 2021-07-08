@@ -1,12 +1,13 @@
 #ifndef ENGINEPROTOTYPE_WINDOW
 #define ENGINEPROTOTYPE_WINDOW
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 
 class Window {
     public:
-        GLFWwindow* glfwWindow; 
+        SDL_Window* sdlWindow;
+        SDL_Event event;
+        bool running = true; 
         Window(); 
         ~Window();
 };

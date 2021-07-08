@@ -1,7 +1,6 @@
 #ifndef ENGINEPROTOTYPE_SWAPCHAIN
 #define ENGINEPROTOTYPE_SWAPCHAIN
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <vector>
 #include "physicalDevice.h"
 #include "logicalDevice.h"

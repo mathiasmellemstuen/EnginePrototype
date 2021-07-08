@@ -1,5 +1,4 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 
 #include "graphics/window.h"
 #include "graphics/vulkanInstance.h"
@@ -13,25 +12,28 @@
 
 #include <iostream>
 
-int main() {
-    std::cout << "Starting application." << std::endl; 
+int main(int argc, char *argv[]) {
     log(INFO, "Starting application."); 
 
     loadPropertiesFromFile();
     printProperties();
 
     Window window;
-    VulkanInstance vulkanInstance(*(window.glfwWindow));
+    VulkanInstance vulkanInstance(*(window.sdlWindow));
     PhysicalDevice physicalDevice(vulkanInstance);
     LogicalDevice logicalDevice(physicalDevice); 
     SwapChain swapChain(physicalDevice, logicalDevice);
     ImageViews ImageViews(swapChain, logicalDevice);
     Shader shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv");
 
-    while (!glfwWindowShouldClose(window.glfwWindow)) { 
-        glfwPollEvents(); 
+    while(window.running) {
+        
+        while(SDL_PollEvent(&window.event)) {
+            if(window.event.type == SDL_QUIT) {
+                window.running = false; 
+            }
+        }
     }
-
     log(INFO, "Exiting application!"); 
     return 0;
 }

@@ -1,7 +1,7 @@
 #include "swapChainSupport.h"
 #include "physicalDevice.h"
 #include "../utility/log.h"
-
+#include <vulkan/vulkan.h>
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR& surface) {
     log(INFO, "Querying for swap chain support"); 
     SwapChainSupportDetails details; 

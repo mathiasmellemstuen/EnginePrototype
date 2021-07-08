@@ -1,18 +1,20 @@
 #include "vulkanInstance.h"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
+#include <vulkan/vulkan.h>
 #include <stdexcept>
 #include "validationLayers.h"
 #include "../utility/log.h"
+#include "../utility/properties.h"
+#include <vector>
 
-VulkanInstance::VulkanInstance(GLFWwindow& window) {
+VulkanInstance::VulkanInstance(SDL_Window& window) {
 
     log(INFO, "Starting creation of a vulkan instance"); 
 
     VkApplicationInfo appInfo{}; 
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
-    appInfo.pApplicationName = "Hello Vulkan"; 
+    appInfo.pApplicationName = properties.title.c_str(); 
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); 
     appInfo.pEngineName = "No Engine"; 
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); 
@@ -22,14 +24,14 @@ VulkanInstance::VulkanInstance(GLFWwindow& window) {
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; 
     createInfo.pApplicationInfo = &appInfo;
 
-    uint32_t glfwExtensionCount = 0; 
-    const char** glfwExtensions; 
+    unsigned int extensionCount = 0;
+    SDL_Vulkan_GetInstanceExtensions(&window, &extensionCount, nullptr);
 
+    std::vector<const char *> extensionNames(extensionCount);
+    SDL_Vulkan_GetInstanceExtensions(&window, &extensionCount, extensionNames.data());
 
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount); 
-    createInfo.enabledExtensionCount = glfwExtensionCount; 
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-
+    createInfo.enabledExtensionCount = extensionNames.size(); 
+    createInfo.ppEnabledExtensionNames = extensionNames.data(); 
 
     if (enableValidationLayers && !checkValidationLayerSupport()) {
         log(ERROR, "Validation layers requested, but not avaiable!"); 
@@ -52,9 +54,9 @@ VulkanInstance::VulkanInstance(GLFWwindow& window) {
         log(ERROR, "Failed to create instance!"); 
     }
 
-    if (glfwCreateWindowSurface(instance, &window, nullptr, &surface)  != VK_SUCCESS) { 
-        throw std::runtime_error("Failed to create window surface!"); 
+    if (SDL_Vulkan_CreateSurface(&window, instance, &surface) == SDL_FALSE) { 
         log(ERROR, "Failed to create window surface!"); 
+        throw std::runtime_error("Failed to create window surface!"); 
     }
 
     log(SUCCESS, "Successfully created a vulkan instance"); 
