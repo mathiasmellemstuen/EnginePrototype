@@ -10,6 +10,8 @@
 #include "graphics/shader.h"
 #include "utility/log.h"
 
+#include "utility/yamlParser.h"
+
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -17,6 +19,9 @@ int main(int argc, char *argv[]) {
 
     loadPropertiesFromFile();
     printProperties();
+
+    runTest();
+    printResult();
 
     Window window;
     VulkanInstance vulkanInstance(*(window.sdlWindow));
