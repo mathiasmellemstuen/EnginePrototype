@@ -9,11 +9,10 @@
 #include "../utility/properties.h"
 #include "../utility/log.h"
 
-SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
 
+
+void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
     log(INFO, "Setting up swap chain"); 
-
-    device = &logicalDevice.device;
 
     SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(physicalDevice.physicalDevice, *physicalDevice.surface); 
 
@@ -72,6 +71,11 @@ SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
 
     log(SUCCESS, "Created swap chain"); 
 };
+SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
+    
+    device = &logicalDevice.device;
+    create(physicalDevice, logicalDevice); 
+};
 
 SwapChain::~SwapChain() {
     log(INFO, "Destroying swap chain"); 
@@ -79,6 +83,21 @@ SwapChain::~SwapChain() {
     log(SUCCESS, "Swap chain destroyed"); 
 };
 
+// void SwapChain::reCreate(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, ImageViews& imageViews, GraphicsPipeline& graphicsPipeline, Shader& shader, FrameBuffers& frameBuffers, CommandBuffers& commandBuffers) {
+//     vkDeviceWaitIdle(*device);
+
+//     create(physicalDevice, logicalDevice);
+//     imageViews.create(*this, logicalDevice);
+//     graphicsPipeline.createRenderPass(*this);
+//     graphicsPipeline.create(logicalDevice, *this, shader);
+//     frameBuffers.create(logicalDevice, imageViews, *this, graphicsPipeline);
+//     commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, *this, graphicsPipeline);
+
+// };
+
+void SwapChain::cleanUp() {
+
+};
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 
     for (const auto& availableFormat : availableFormats) { 

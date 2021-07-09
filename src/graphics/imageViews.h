@@ -11,7 +11,8 @@ class ImageViews {
     public: 
         std::vector<VkImageView> swapChainImageViews;
         ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice); 
-        ~ImageViews(); 
+        ~ImageViews();
+        void create(SwapChain& swapChain, LogicalDevice& logicalDevice); 
     private:
         VkDevice* device; 
 };

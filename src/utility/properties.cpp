@@ -28,6 +28,8 @@ void loadPropertiesFromFile() {
             properties.screenWidth = (uint32_t)std::stoi(right);
         } else if(left.compare(ENGINEPROTOTYPE_SCREEN_HEIGHT) == 0) {
             properties.screenHeight = (uint32_t)std::stoi(right);
+        } else if(left.compare(ENGINEPrOTOTYPE_MAX_FRAMES_IN_FLIGHT) == 0) {
+            properties.maxFramesInFlight = std::stoi(right); 
         }
     }
 

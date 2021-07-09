@@ -10,22 +10,26 @@
 #include "graphics/graphicsPipeline.h"
 #include "graphics/frameBuffers.h"
 #include "graphics/commandBuffer.h"
-#include "graphics/semaphores.h"
+#include "graphics/syncObjects.h"
 
 #include "utility/yamlParser.h"
 
+#include <vector>
 #include <iostream>
 #include <SDL2/SDL.h>
 
-void drawFrame(LogicalDevice& logicalDevice, SwapChain& swapChain, Semaphores& semaphores, CommandBuffers& commandBuffers, GraphicsPipeline& graphicsPipeline) {
+void drawFrame(LogicalDevice& logicalDevice, SwapChain& swapChain, SyncObjects& syncObjects, CommandBuffers& commandBuffers, GraphicsPipeline& graphicsPipeline) {
 
-    uint32_t imageIndex; 
-    vkAcquireNextImageKHR(logicalDevice.device, swapChain.swapChain, UINT64_MAX, semaphores.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); 
+    vkWaitForFences(logicalDevice.device, 1, &syncObjects.inFlightFences[syncObjects.currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(logicalDevice.device, 1, &syncObjects.inFlightFences[syncObjects.currentFrame]);
     
+    uint32_t imageIndex; 
+    vkAcquireNextImageKHR(logicalDevice.device, swapChain.swapChain, UINT64_MAX, syncObjects.imageAvailableSemaphores[syncObjects.currentFrame], VK_NULL_HANDLE, &imageIndex); 
+
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO; 
 
-    VkSemaphore waitSemaphores[] = {semaphores.imageAvailableSemaphore}; 
+    VkSemaphore waitSemaphores[] = {syncObjects.imageAvailableSemaphores[syncObjects.currentFrame]}; 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1; 
     submitInfo.pWaitSemaphores = waitSemaphores; 
@@ -33,13 +37,20 @@ void drawFrame(LogicalDevice& logicalDevice, SwapChain& swapChain, Semaphores& s
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffers.commandBuffers[imageIndex];
 
-    VkSemaphore signalSemaphores[] = {semaphores.renderFinishedSemaphore};
+    VkSemaphore signalSemaphores[] = {syncObjects.renderFinishedSemaphores[syncObjects.currentFrame]};
     submitInfo.signalSemaphoreCount = 1; 
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(logicalDevice.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) { 
-        throw std::runtime_error("failed to submit draw command buffer!"); 
+    if (vkQueueSubmit(logicalDevice.graphicsQueue, 1, &submitInfo, syncObjects.inFlightFences[syncObjects.currentFrame]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
     }
+
+    // Check if a previous frame is using this image (i.e. there is its fence to wait on)
+    if (syncObjects.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(logicalDevice.device, 1, &syncObjects.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    // Mark the image as now being in use by this frame
+    syncObjects.imagesInFlight[imageIndex] = syncObjects.inFlightFences[syncObjects.currentFrame]; 
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -54,7 +65,8 @@ void drawFrame(LogicalDevice& logicalDevice, SwapChain& swapChain, Semaphores& s
     presentInfo.pResults = nullptr; // Optional
 
     vkQueuePresentKHR(logicalDevice.presentQueue, &presentInfo);
-    vkQueueWaitIdle(logicalDevice.presentQueue);
+
+    syncObjects.currentFrame = (syncObjects.currentFrame + 1) % properties.maxFramesInFlight;
 };
 
 int main(int argc, char *argv[]) {
@@ -76,7 +88,7 @@ int main(int argc, char *argv[]) {
     GraphicsPipeline graphicsPipeline(logicalDevice, swapChain, shader);
     FrameBuffers frameBuffers(logicalDevice, ImageViews, swapChain, graphicsPipeline);
     CommandBuffers commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
-    Semaphores semaphores(logicalDevice);
+    SyncObjects semaphores(logicalDevice, swapChain);
 
     while(window.running) {
         

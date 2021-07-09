@@ -7,11 +7,14 @@
 #include "../utility/log.h"
 
 ImageViews::ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice) {
-
-    log(INFO, "Create image views"); 
-
-    this->device = &logicalDevice.device;  
+    this->device = &logicalDevice.device;
     swapChainImageViews.resize(swapChain.swapChainImages.size());
+    
+    create(swapChain, logicalDevice); 
+};
+
+void ImageViews::create(SwapChain& swapChain, LogicalDevice& logicalDevice) {
+    log(INFO, "Create image views"); 
 
     for (size_t i = 0; i < swapChain.swapChainImages.size(); i++) {
         

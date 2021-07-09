@@ -10,9 +10,12 @@
 
 CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
 
-    log(INFO, "Starting setup and execution of command buffers"); 
-    
     this->device = &logicalDevice.device; 
+    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
+}
+void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+
+    log(INFO, "Starting setup and execution of command buffers"); 
 
     QueueFamilyIndices queueFamilyIndices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
 
@@ -78,7 +81,6 @@ CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& phy
     }
     log(SUCCESS, "Successfully executed command buffers"); 
 }
-
 CommandBuffers::~CommandBuffers() {
     vkDestroyCommandPool(*device, commandPool, nullptr);
 }

@@ -6,13 +6,15 @@
 #include <stdexcept>
 
 GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader) {
-
-    log(INFO, "Starting to create graphics pipeline"); 
-
+    
     this->device = &logicalDevice.device;  
-
     this->createRenderPass(swapChain); 
+    this->create(logicalDevice, swapChain, shader); 
+};
 
+void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader) {
+    
+    log(INFO, "Starting to create graphics pipeline"); 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType =  VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO; 
     vertexInputInfo.vertexBindingDescriptionCount = 0;

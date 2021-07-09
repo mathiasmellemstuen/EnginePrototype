@@ -11,7 +11,8 @@
 class FrameBuffers {
     public:
         std::vector<VkFramebuffer> swapChainFramebuffers;
-        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
+        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
+        void create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
         ~FrameBuffers(); 
     private: 
         VkDevice* device; 

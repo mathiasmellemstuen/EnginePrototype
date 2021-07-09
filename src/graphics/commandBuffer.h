@@ -15,6 +15,7 @@ class CommandBuffers {
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
         CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
+        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
         ~CommandBuffers(); 
     private:
         VkDevice* device; 

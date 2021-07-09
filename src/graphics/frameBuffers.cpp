@@ -9,8 +9,12 @@
 
 FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
 
-    log(INFO, "Creating framebuffers"); 
     this->device = &logicalDevice.device; 
+    create(logicalDevice, imageViews, swapChain, graphicsPipeline); 
+};
+void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+
+    log(INFO, "Creating framebuffers"); 
 
     swapChainFramebuffers.resize(imageViews.swapChainImageViews.size());
 
@@ -42,3 +46,4 @@ FrameBuffers::~FrameBuffers() {
         vkDestroyFramebuffer(*device, framebuffer, nullptr); 
     }
 };
+

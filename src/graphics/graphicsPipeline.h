@@ -14,9 +14,10 @@ class GraphicsPipeline {
         VkDevice* device; 
         VkRenderPass renderPass; 
         GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader); 
+        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader);
         ~GraphicsPipeline();
-    private:
         void createRenderPass(SwapChain& swapChain); 
+    private:
 };
 
 #endif
