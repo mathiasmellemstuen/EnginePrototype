@@ -10,5 +10,6 @@ class Window {
         bool running = true; 
         Window(); 
         ~Window();
+        bool framebufferResized = false;
 };
 #endif

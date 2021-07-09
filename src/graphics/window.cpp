@@ -14,9 +14,8 @@ Window::Window() {
     log(SUCCESS, "SDL2 initiated!");
     log(INFO, "Creating SDL2 window context"); 
 
-    sdlWindow = SDL_CreateWindow(properties.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,properties.screenWidth,properties.screenHeight,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN);
+    sdlWindow = SDL_CreateWindow(properties.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,properties.screenWidth,properties.screenHeight,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     log(SUCCESS, "Successfully created SDL window context!"); 
-
 };
 
 Window::~Window() {

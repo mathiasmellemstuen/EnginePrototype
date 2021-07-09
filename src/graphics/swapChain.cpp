@@ -8,17 +8,31 @@
 #include <stdexcept>
 #include "../utility/properties.h"
 #include "../utility/log.h"
+#include "window.h"
+
+#include <SDL2/SDL.h>
 
 
+SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window) {
+    
+    device = &logicalDevice.device;
+    create(physicalDevice, logicalDevice, window); 
+};
 
-void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
+SwapChain::~SwapChain() {
+    log(INFO, "Destroying swap chain"); 
+    vkDestroySwapchainKHR(*device, swapChain, nullptr);
+    log(SUCCESS, "Swap chain destroyed"); 
+};
+
+void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window) {
     log(INFO, "Setting up swap chain"); 
 
     SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(physicalDevice.physicalDevice, *physicalDevice.surface); 
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode =  chooseSwapPresentMode(swapChainSupport.presentModes); 
-    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities);
+    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities, window);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
@@ -71,33 +85,7 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
 
     log(SUCCESS, "Created swap chain"); 
 };
-SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
-    
-    device = &logicalDevice.device;
-    create(physicalDevice, logicalDevice); 
-};
 
-SwapChain::~SwapChain() {
-    log(INFO, "Destroying swap chain"); 
-    vkDestroySwapchainKHR(*device, swapChain, nullptr);
-    log(SUCCESS, "Swap chain destroyed"); 
-};
-
-// void SwapChain::reCreate(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, ImageViews& imageViews, GraphicsPipeline& graphicsPipeline, Shader& shader, FrameBuffers& frameBuffers, CommandBuffers& commandBuffers) {
-//     vkDeviceWaitIdle(*device);
-
-//     create(physicalDevice, logicalDevice);
-//     imageViews.create(*this, logicalDevice);
-//     graphicsPipeline.createRenderPass(*this);
-//     graphicsPipeline.create(logicalDevice, *this, shader);
-//     frameBuffers.create(logicalDevice, imageViews, *this, graphicsPipeline);
-//     commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, *this, graphicsPipeline);
-
-// };
-
-void SwapChain::cleanUp() {
-
-};
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 
     for (const auto& availableFormat : availableFormats) { 
@@ -120,16 +108,18 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const  std::vector<VkPresentMo
     return VK_PRESENT_MODE_FIFO_KHR;
 };
 
-VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities) { 
+VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities, Window& window) { 
 
     if (capabilities.currentExtent.width != UINT32_MAX) {
         return capabilities.currentExtent;
     }
 
-    VkExtent2D actualExtent = {properties.screenWidth, properties.screenHeight};
+    int width, height;
+    SDL_GetWindowSize(window.sdlWindow, &width, &height);
+    VkExtent2D actualExtent = {static_cast<uint32_t>(width),static_cast<uint32_t>(height)};
 
-    actualExtent.width =  std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width,  actualExtent.width)); 
-    actualExtent.height =  std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height,  actualExtent.height)); 
+    actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width)); 
+    actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height)); 
 
     return actualExtent;
 };

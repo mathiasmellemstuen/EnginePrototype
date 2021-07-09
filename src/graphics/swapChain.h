@@ -5,6 +5,7 @@
 #include <vector>
 #include "physicalDevice.h"
 #include "logicalDevice.h"
+#include "window.h"
 
 class SwapChain {
     public:
@@ -12,16 +13,14 @@ class SwapChain {
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-        SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice);
+        SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window);
         ~SwapChain();
-        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice);
-        // void reCreate(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, ImageViews& imageViews, GraphicsPipeline& graphicsPipeline, Shader& shader, FrameBuffers& frameBuffers, CommandBuffers& commandBuffers);
+        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window);
     private:
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities, Window& window);
         VkDevice* device;
-        void cleanUp(); 
 };
 
 #endif
