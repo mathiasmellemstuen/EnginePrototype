@@ -9,9 +9,51 @@
 #include "utility/log.h"
 #include "graphics/graphicsPipeline.h"
 #include "graphics/frameBuffers.h"
+#include "graphics/commandBuffer.h"
+#include "graphics/semaphores.h"
 
 #include <iostream>
 #include <SDL2/SDL.h>
+
+void drawFrame(LogicalDevice& logicalDevice, SwapChain& swapChain, Semaphores& semaphores, CommandBuffers& commandBuffers, GraphicsPipeline& graphicsPipeline) {
+
+    uint32_t imageIndex; 
+    vkAcquireNextImageKHR(logicalDevice.device, swapChain.swapChain, UINT64_MAX, semaphores.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); 
+    
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO; 
+
+    VkSemaphore waitSemaphores[] = {semaphores.imageAvailableSemaphore}; 
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1; 
+    submitInfo.pWaitSemaphores = waitSemaphores; 
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers.commandBuffers[imageIndex];
+
+    VkSemaphore signalSemaphores[] = {semaphores.renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1; 
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(logicalDevice.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) { 
+        throw std::runtime_error("failed to submit draw command buffer!"); 
+    }
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain.swapChain};
+    presentInfo.swapchainCount = 1; 
+    presentInfo.pSwapchains = swapChains; 
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr; // Optional
+
+    vkQueuePresentKHR(logicalDevice.presentQueue, &presentInfo);
+    vkQueueWaitIdle(logicalDevice.presentQueue);
+};
 
 int main(int argc, char *argv[]) {
     log(INFO, "Starting application."); 
@@ -28,6 +70,8 @@ int main(int argc, char *argv[]) {
     Shader shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv");
     GraphicsPipeline graphicsPipeline(logicalDevice, swapChain, shader);
     FrameBuffers frameBuffers(logicalDevice, ImageViews, swapChain, graphicsPipeline);
+    CommandBuffers commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
+    Semaphores semaphores(logicalDevice);
 
     while(window.running) {
         
@@ -36,6 +80,9 @@ int main(int argc, char *argv[]) {
                 window.running = false;
             }
         }
+        drawFrame(logicalDevice, swapChain, semaphores, commandBuffers, graphicsPipeline);
+        vkDeviceWaitIdle(logicalDevice.device);
+
     }
 
     log(INFO, "Exiting application!"); 
