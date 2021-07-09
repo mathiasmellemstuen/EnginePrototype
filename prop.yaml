@@ -1,0 +1,9 @@
+firstTexst: "Hello world"
+secondTexst: "Hello other side"
+window:
+  title: "Hello vulkan"
+  width: 800
+  height: 600
+  test:
+    texst: "kake"
+lastTexst: "Bye Bye World"

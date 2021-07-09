@@ -12,6 +12,8 @@
 #include "graphics/commandBuffer.h"
 #include "graphics/semaphores.h"
 
+#include "utility/yamlParser.h"
+
 #include <iostream>
 #include <SDL2/SDL.h>
 
@@ -60,6 +62,9 @@ int main(int argc, char *argv[]) {
 
     loadPropertiesFromFile();
     printProperties();
+
+    runTest();
+    printResult();
 
     Window window;
     VulkanInstance vulkanInstance(*(window.sdlWindow));
