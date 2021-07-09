@@ -35,7 +35,11 @@ dye::R<const char*> logLevelToString(LogLevel logLevel) {
 };
 
 void log(LogLevel logLevel, std::string message) {
-    std::cout << "[" << logLevelToString(logLevel) << "] " << message << std::endl; 
+    
+    //We will not pring anything if NOTDEBUG is defined. This should in theory also make the compiler remove all the log functions under compiling if NOTDEBUG is defined.
+    #ifndef NOTDEBUG
+        std::cout << "[" << logLevelToString(logLevel) << "] " << message << std::endl; 
+    #endif
 };
 
 void log(LogLevel logLevel, glm::vec2 vec2) {
