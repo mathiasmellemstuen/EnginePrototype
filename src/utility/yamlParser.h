@@ -6,14 +6,17 @@
 #include <any>
 #include <map>
 
-std::map<std::string, std::any> loadPropFromFile(int tabulatorNr, int& lineNr, std::fstream& file);
+std::vector<std::string> getTabLevel(std::vector<std::string> lines, int tabLevel, int startLine);
+std::map<std::string, std::any> loadPropFromFile(int& tabulatorNr);
+std::vector<std::string> readFile(std::string fileName);
 
 template <typename T>
 std::optional<T> get_v_opt(const std::any &a);
 
-void runTest();
+std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
+std::string buildPrint(std::any object, int tab);
 
-std::string buildPrint(std::any object);
 void printResult();
+void runTest();
 
 #endif

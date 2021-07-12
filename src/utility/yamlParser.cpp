@@ -5,12 +5,9 @@
 #include <any>
 #include <fstream>
 #include <iostream>
-
+#include <vector>
 #include <sstream>
-
 #include <optional>
-
-#include <algorithm>
 #include <typeinfo>
 
 #include "log.h"
@@ -19,72 +16,96 @@ std::map<std::string, std::any> result;
 
 char delimeter = ':';
 int numSpaceForTab = 2;
+int debugInt = 0;
 
-std::map<std::string, std::any> loadPropFromFile(int spaceNr, int& lineNr, std::fstream& file) {
-    log(INFO, "Started new load func");
-    log(INFO, spaceNr);
+std::vector<std::string> getTabLevel(std::vector<std::string> lines, int tabLevel, int startLine) {
+    std::vector<std::string> returnString;
+    std::string line = "";
 
-    std::map<std::string, std::any> currentProp;
-    std::string line = "";  //TODO: I think the problem (does not read afther a object) is here?
+    for (int i = startLine; i < lines.size(); i++) {
+        line = lines[i];
+        int cTab = 0;
 
-    while (file.is_open() && std::getline(file, line)) {
-        int numOfSpaces;  // Numer of scases in front of a key
-
-        // Test if the first character is a space
-        if (line[0] == 32) {  // 32 == Askii for space
-            // Loop thrue all spaces to funde the tab level
-            for (int i = 0; i <= INT_MAX; i++) {
-                if (line[i] == 32)
-                    numOfSpaces++;
-                else 
-                    break; // Break if not found a space
-            }
-
-            if (numOfSpaces < spaceNr) {  // Return if going a tab level down
-                return currentProp;
+        // Finde the tab level for the current line
+        for (int l = 0; l < INT_MAX; l++) {
+            if (line[l] == ' ') {
+                cTab++;
+            } else {
+                break;
             }
         }
 
-        int delimeterIndex = line.find(delimeter);
-
-        // Split into key and value
-        std::string left = line.substr(0, delimeterIndex).erase(0, spaceNr);  // split on the delimeterIndex, then remove spaces inform of the key
-        std::string right = line.erase(0, delimeterIndex + 2);
-
-        log(ERROR, left);
-
-        // Check if right is a value or a object (right is "" if it is a object)
-        if (right != "") {
-            currentProp.insert({left, right});
+        if (cTab >= tabLevel) {
+            returnString.push_back(line);
         } else {
-            currentProp.insert({left, loadPropFromFile(spaceNr + numSpaceForTab, lineNr, file)});
+            return returnString;
         }
     }
 
-    log(INFO, "Ended load func");
-    log(INFO, spaceNr);
-    return currentProp;
+    return returnString;
 }
 
-void runTest() {
-    log(INFO, "started test");
+std::map<std::string, std::any> loadPropFromLines(std::vector<std::string> lines) {
+    std::map<std::string, std::any> currentMap;
 
+    for (int i = 0; i <= lines.size() - 1; i++) {
+        std::string line = lines[i];   
+        int cTab = 0;
+        int nTab = 0;
+        
+        // Finde the tab level for the current line
+        for (char c : line) {
+            if (c == ' ') {
+                cTab++;
+            } else {
+                break;
+            }
+        }
+
+        // find the tab level for the next line
+        for (char c : lines[i + 1]) {
+            if (c == ' ') {
+                nTab++;
+            } else {
+                break;
+            }
+        }       
+        
+        // Finde the index of the delimeter
+        int delimeterIndex = line.find(delimeter);
+        // Split into key and value
+        std::string left = line.substr(0, delimeterIndex).erase(0, cTab);  // split on the delimeterIndex, then remove spaces inform of the key
+        std::string right = line.erase(0, delimeterIndex + 2);
+
+        // Check if right is a value or a object (right is "" if it is a object)
+        if (right != "") {
+            currentMap.insert({left, right});
+        } else {
+            auto nextTabLines = getTabLevel(lines, nTab, i + 1);
+            auto nextObject = loadPropFromLines(nextTabLines);
+
+            currentMap.insert({left, nextObject});
+
+            i += nextTabLines.size();
+        }
+    }
+
+    return currentMap;
+}
+
+// Place each line of the file into a vector
+std::vector<std::string> readFile(std::string fileName) {
+    std::string line = "";
     std::fstream file;
-    file.open("prop.yaml", std::ios::in);
+    std::vector<std::string> outLines;
 
-    int spaceNum = 0;
-    int lineNum = 0;
+    file.open(fileName, std::ios::in);
 
-    result = loadPropFromFile(spaceNum, lineNum, file);
+    while (file.is_open() && std::getline(file, line)) {
+        outLines.push_back(line);
+    }
 
-    /*
-    std::for_each(result.begin(), result.end(), [](const std::pair<std::string, std::any> &p) {
-        //log(ERROR, p.first + " - " + typeid(p.second).name());
-        log(ERROR, p.first + " - " + p.second.type().name());
-    });
-    */
-
-    log(INFO, "Ended test");
+    return outLines;
 }
 
 // Convert a std::any to a optional, but with a type
@@ -96,8 +117,25 @@ std::optional<T> get_v_opt(const std::any &a) {
         return std::nullopt;
 }
 
+/*
+    Print thing
+*/
+std::string buildObjectPrint(std::map<std::string, std::any> object, int tab) {
+    std::string outString = "\n";
+
+    for (const auto& [key, value] : object) {
+        for (int i = 0; i < tab; i++) {
+            outString += "  ";
+        }
+
+        outString += key + ": " + buildPrint(value, tab) + "\n";
+    }
+
+    return outString;
+}
+
 // Convert the object to a string, so it can be printed
-std::string buildPrint(std::any object) {
+std::string buildPrint(std::any object, int tab) {
     std::string printString = "";
 
     // Test if the object is a int
@@ -112,53 +150,40 @@ std::string buildPrint(std::any object) {
         return opt_string.value();
     }
  
-    // Test if the object is a nother object
+    // Test if the object is another object
     std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
     if (opt_object.has_value()) {
-        printString = "is object";
+        printString = buildObjectPrint(opt_object.value(), tab + 1);
     }
 
     return printString;
 }
 
-/*
-std::string buildPrint(std::any object) {
-    std::string printString = "";
-
-    std::for_each(result.begin(), result.end(), [printString](const std::pair<std::string, std::any> &p) {
-        //printString = p.first + ": ";
-
-        
-
-        std::optional opt_int = get_v_opt<int>(p.second);
-        if (opt_int.has_value())
-            std::cout << opt_int.value();
-
-        std::optional opt_string = get_v_opt<std::string>(p.second);
-        if (opt_string.has_value())    
-            std::cout << opt_string.value();
-
-        std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(p.second);
-        if (opt_object.has_value())
-            std::cout << "is object";
-
-        std::cout << std::endl;
-
-    });
-
-    return printString;
-}
-*/
 void printResult() {
     std::cout << "--- New prop ---" << std::endl;
-    
-    std::for_each(result.begin(), result.end(), [](const std::pair<std::string, std::any> &p) {
-        std::cout << p.first << ": " << buildPrint(p.second) << std::endl;
-    });
+    std::string printString = "";    
+
+    for (const auto& [key, value] : result) {
+        printString += key + ": " + buildPrint(value, 0) + "\n";
+    }
+
+    std::cout << printString << std::endl;
 
     std::cout << "--- End of new prop ---" << std::endl;
 }
 
+void runTest() {
+    log(INFO, "Started test");
+
+    auto lines = readFile("prop.yaml");
+    result = loadPropFromLines(lines);
+
+    log(INFO, "Ended test");
+}
+
 /*
-TODO: Fix not reading object afther the first object
+TODO: Support arrays, not just object
+TODO: Make Yaml parcer into a class
+TODO?: Refactor some variables name?
+TODO: Make a findeTabLevel(std::string line){} function
 */
