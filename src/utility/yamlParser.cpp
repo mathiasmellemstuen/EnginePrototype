@@ -1,5 +1,4 @@
 #include "yamlParser.h"
-#include "log.h"
 
 #include <string>
 #include <map>
@@ -11,11 +10,16 @@
 #include <optional>
 #include <typeinfo>
 
+#include "log.h"
+#include <climits>
+
+
 std::map<std::string, std::any> result;
 const char delimeter = ':';
 
-std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine) {
-    std::vector<std::string> returnString;
+
+char delimeter = ':';
+int numSpaceForTab = 2;
 
     for (int i = startLine; i < lines.size(); i++) {
         int cTab = getTabLevel(lines[i]);

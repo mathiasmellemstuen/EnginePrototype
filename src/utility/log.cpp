@@ -6,39 +6,40 @@
 #include "glm/vec2.hpp"
 
 #include <iostream>
-#include <colors.hpp>
+#include <rang.hpp>
+std::string logLevelToString(LogLevel& logLevel) {
 
+    std::string temp = ""; 
 
-dye::R<const char*> logLevelToString(LogLevel logLevel) {
-    
-    dye::R<const char *> temp; 
-
-    switch (logLevel)
-    {
-        case 1:
-            temp = dye::blue("INFO");
-        break;
-        case 2: 
-            temp = dye::green("SUCCESS"); 
-        break; 
-        case 3:
-            temp = dye::yellow("WARNING"); 
-        break; 
-        case 4: 
-            temp = dye::red("ERROR"); 
-        break;
-        default:
-        break; 
-    }
 
     return temp; 
-};
+}
+
 
 void log(LogLevel logLevel, std::string message) {
     
     //We will not pring anything if NOTDEBUG is defined. This should in theory also make the compiler remove all the log functions under compiling if NOTDEBUG is defined.
     #ifndef NOTDEBUG
-        std::cout << "[" << logLevelToString(logLevel) << "] " << message << std::endl; 
+
+        std::cout << "["; 
+        switch (logLevel) {
+            case 1:
+                std::cout << rang::fg::blue << "INFO" << rang::fg::reset;
+            break;
+            case 2: 
+                std::cout << rang::fg::green << "SUCCESS" << rang::fg::reset; 
+            break; 
+            case 3:
+                std::cout << rang::fg::yellow << "WARNING" << rang::fg::reset; 
+            break; 
+            case 4: 
+                std::cout << rang::fg::red << "ERROR" << rang::fg::reset; 
+            break;
+            default:
+            break; 
+        }
+
+        std::cout << "] " << message << std::endl; 
     #endif
 };
 
