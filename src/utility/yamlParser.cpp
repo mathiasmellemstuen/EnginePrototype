@@ -1,4 +1,5 @@
 #include "yamlParser.h"
+#include "log.h"
 
 #include <string>
 #include <map>
@@ -10,33 +11,17 @@
 #include <optional>
 #include <typeinfo>
 
-#include "log.h"
-
 std::map<std::string, std::any> result;
+const char delimeter = ':';
 
-char delimeter = ':';
-int numSpaceForTab = 2;
-int debugInt = 0;
-
-std::vector<std::string> getTabLevel(std::vector<std::string> lines, int tabLevel, int startLine) {
+std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine) {
     std::vector<std::string> returnString;
-    std::string line = "";
 
     for (int i = startLine; i < lines.size(); i++) {
-        line = lines[i];
-        int cTab = 0;
-
-        // Finde the tab level for the current line
-        for (int l = 0; l < INT_MAX; l++) {
-            if (line[l] == ' ') {
-                cTab++;
-            } else {
-                break;
-            }
-        }
+        int cTab = getTabLevel(lines[i]);
 
         if (cTab >= tabLevel) {
-            returnString.push_back(line);
+            returnString.push_back(lines[i]);
         } else {
             return returnString;
         }
@@ -49,19 +34,10 @@ std::map<std::string, std::any> loadPropFromLines(std::vector<std::string> lines
     std::map<std::string, std::any> currentMap;
 
     for (int i = 0; i <= lines.size() - 1; i++) {
-        std::string line = lines[i];   
-        int cTab = 0;
+        std::string line = lines[i];
+        int cTab = getTabLevel(line);
         int nTab = 0;
         
-        // Finde the tab level for the current line
-        for (char c : line) {
-            if (c == ' ') {
-                cTab++;
-            } else {
-                break;
-            }
-        }
-
         // find the tab level for the next line
         for (char c : lines[i + 1]) {
             if (c == ' ') {
@@ -81,7 +57,7 @@ std::map<std::string, std::any> loadPropFromLines(std::vector<std::string> lines
         if (right != "") {
             currentMap.insert({left, right});
         } else {
-            auto nextTabLines = getTabLevel(lines, nTab, i + 1);
+            auto nextTabLines = getTabedStrings(lines, nTab, i + 1);
             auto nextObject = loadPropFromLines(nextTabLines);
 
             currentMap.insert({left, nextObject});
@@ -91,6 +67,20 @@ std::map<std::string, std::any> loadPropFromLines(std::vector<std::string> lines
     }
 
     return currentMap;
+}
+
+int getTabLevel(std::string line) {
+    int tabLevel = 0;
+
+    for (char c : line) {
+        if (c == ' ') {
+            tabLevel++;
+        } else {
+            return tabLevel;
+        }
+    }
+
+    return tabLevel;
 }
 
 // Place each line of the file into a vector
@@ -108,6 +98,9 @@ std::vector<std::string> readFile(std::string fileName) {
     return outLines;
 }
 
+/*
+    Print thing
+*/
 // Convert a std::any to a optional, but with a type
 template <typename T>
 std::optional<T> get_v_opt(const std::any &a) {
@@ -117,9 +110,6 @@ std::optional<T> get_v_opt(const std::any &a) {
         return std::nullopt;
 }
 
-/*
-    Print thing
-*/
 std::string buildObjectPrint(std::map<std::string, std::any> object, int tab) {
     std::string outString = "\n";
 
@@ -138,22 +128,16 @@ std::string buildObjectPrint(std::map<std::string, std::any> object, int tab) {
 std::string buildPrint(std::any object, int tab) {
     std::string printString = "";
 
-    // Test if the object is a int
-    std::optional opt_int = get_v_opt<int>(object);
-    if (opt_int.has_value()) {
-        return  "" + opt_int.value();
-    }
-    
     // Test if the object is a string
     std::optional opt_string = get_v_opt<std::string>(object);
     if (opt_string.has_value()) {
-        return opt_string.value();
+        return "(std::string) " + opt_string.value();
     }
  
     // Test if the object is another object
     std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
     if (opt_object.has_value()) {
-        printString = buildObjectPrint(opt_object.value(), tab + 1);
+        return buildObjectPrint(opt_object.value(), tab + 1);
     }
 
     return printString;
@@ -168,7 +152,6 @@ void printResult() {
     }
 
     std::cout << printString << std::endl;
-
     std::cout << "--- End of new prop ---" << std::endl;
 }
 
