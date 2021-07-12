@@ -2,6 +2,7 @@
 #define ENGINEPROTOTYPE_YAMLPARSER
 
 #include <string>
+#include <vector>
 #include <fstream>
 #include <any>
 #include <map>
