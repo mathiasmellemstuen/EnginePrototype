@@ -16,7 +16,11 @@ std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tab
 std::map<std::string, std::any> loadPropFromFile(int& tabulatorNr);
 std::vector<std::string> readFile(std::string fileName);
 
+std::map<std::string, std::any> parseInlineObject(std::string line);
+std::vector<std::any> parseInlineVector(std::string line);
+
 int getTabLevel(std::string line);
+char getFirstCharacter(std::string line);
 
 template <typename T>
 std::optional<T> get_v_opt(const std::any &a);

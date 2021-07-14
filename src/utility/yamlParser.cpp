@@ -67,7 +67,17 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
 
             // Check if right is a value or a object (right is "" if it is a object)
             if (right != "") {
-                currentYaml.map.insert({left, right});
+                switch(getFirstCharacter(line)) {
+                    case '[':
+                        currentYaml.map.insert({left, parseInlineVector(line)});
+                    break;
+                    case '{':
+                        currentYaml.map.insert({left, parseInlineObject(line)});
+                    break;
+                    default:
+                        currentYaml.map.insert({left, right});
+                    break;
+                }                
             } else {
                 auto nextTabLines = getTabedStrings(lines, nTab, i + 1);
                 auto nextObject = loadPropFromLines(nextTabLines);
@@ -82,6 +92,22 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
     return currentYaml;
 }
 
+std::map<std::string, std::any> parseInlineObject(std::string line) {
+    std::map<std::string, std::any> currentMap;
+
+    std::cout << "(object)" << line << std::endl;
+
+    return currentMap;
+}
+
+std::vector<std::any> parseInlineVector(std::string line) {
+    std::vector<std::any> currentVec;
+
+    std::cout << "(vector)" << line << std::endl;
+
+    return currentVec;
+}
+
 int getTabLevel(std::string line) {
     int tabLevel = 0;
 
@@ -94,6 +120,18 @@ int getTabLevel(std::string line) {
     }
 
     return tabLevel;
+}
+
+char getFirstCharacter(std::string line) {
+    char retrunChar;
+
+    for (char c : line) {
+        if (c != ' ') {
+            return c;
+        }
+    }
+
+    return ' ';
 }
 
 // Place each line of the file into a vector
@@ -221,5 +259,4 @@ TODO: Support arrays, not just object
 TODO: Parse value string to correct type
 TODO: Make Yaml parcer into a class
 TODO?: Refactor some variables name?
-TODO: Make a findeTabLevel(std::string line){} function
 */
