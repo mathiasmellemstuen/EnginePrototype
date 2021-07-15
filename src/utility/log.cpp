@@ -1,20 +1,11 @@
 #include "log.h"
 
 #include <string>
-#include "glm/vec4.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec2.hpp"
-
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <iostream>
 #include <rang.hpp>
-std::string logLevelToString(LogLevel& logLevel) {
-
-    std::string temp = ""; 
-
-
-    return temp; 
-}
-
 
 void log(LogLevel logLevel, std::string message) {
     
