@@ -12,22 +12,22 @@
 #include <typeinfo>
 
 YamlField YamlField::operator[](const std::string& str) {
-    std::optional optionalMap = std::any_cast<std::map<std::string, std::any>>(data)[str];
+    std::optional optionalMap = std::any_cast<std::map<std::string, std::any>>(*data)[str];
     
     if(optionalMap.has_value()) {
-        return { std::any_cast<std::map<std::string, std::any>>(data)[str] };
+        return { &std::any_cast<std::map<std::string, std::any>>(*data)[str] };
     }
      
     return *this;
 };
 YamlField::operator int() {
-    return std::any_cast<int>(data); 
+    return std::any_cast<int>(*data); 
 }
 //std::string YamlField::operator=(const YamlField& field) {
 //    return std::any_cast<std::string>(field.data);
 //};
 YamlField YamlParser::operator[](const std::string& str) {
-    return {data[str]};  
+    return {&data[str]};  
 };
 
 YamlParser::YamlParser(const std::string& filePath) {

@@ -9,7 +9,7 @@
 #include <map>
 
 struct YamlField {
-    std::any& data;
+    std::any* data;
 
     YamlField operator[](const std::string& str);
     explicit operator int(); 
