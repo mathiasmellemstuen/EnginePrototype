@@ -131,7 +131,8 @@ int main(int argc, char *argv[]) {
     YamlParser properties2("prop.yaml");
     log(INFO, properties2.toString());
 
-    std::any a = properties2["window"]["height"].data;
+    YamlField field = properties2["window"]["height"];
+    int i = (int)field; 
 
     Window window;
     VulkanInstance vulkanInstance(*(window.sdlWindow));

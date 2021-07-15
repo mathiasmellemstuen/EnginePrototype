@@ -12,7 +12,7 @@ struct YamlField {
     std::any& data;
 
     YamlField operator[](const std::string& str);
-    //std::string operator=(const YamlField& field);
+    explicit operator int(); 
 };
 
 class YamlParser {
