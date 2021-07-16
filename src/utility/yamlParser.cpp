@@ -13,6 +13,7 @@
 
 YamlType result;
 const char delimeter = ':';
+const std::string commnetStart = " #";
 
 std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine) {
     std::vector<std::string> returnString;
@@ -93,8 +94,6 @@ std::map<std::string, std::any> parseInlineObject(std::string line) {
     auto currentString = splitString(line, ',');
 
     for (std::string part : currentString) {
-        std::cout << part << std::endl;
-
         std::size_t delimeterIndex = part.find(delimeter);
         std::string left = part.substr(0, delimeterIndex);
         std::string right = part.erase(0, delimeterIndex + 2);
@@ -164,12 +163,26 @@ std::vector<std::string> readFile(std::string fileName) {
     std::string line = "";
     std::fstream file;
     std::vector<std::string> outLines;
+    std::size_t commnetIndex;
 
     file.open(fileName, std::ios::in);
 
     while (file.is_open() && std::getline(file, line)) {
-        if (!line.empty())        
-            outLines.push_back(line);
+        if (!line.empty()) {
+            if (line[0] == '#')  // Skip lines that start with a #, because that line is a commnent
+                continue;
+
+            // Find the index of " #" because that indicates that there is a comment from that index
+            commnetIndex = line.find(commnetStart);
+
+            // If no idex is found then push the entire string, else remove the commnet, then push
+            if (commnetIndex == std::string::npos) {
+                outLines.push_back(line);
+            } else {
+                line.erase(commnetIndex);
+                outLines.push_back(line);
+            }
+        }            
     }
 
     return outLines;
