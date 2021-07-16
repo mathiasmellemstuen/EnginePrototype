@@ -36,20 +36,11 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
     for (int i = 0; i <= lines.size() - 1; i++) {
         std::string line = lines[i];
         int cTab = getTabLevel(line);
-        int nTab = 0;
+        int nTab = i + 1 <= lines.size() - 1 ? getTabLevel(lines[i + 1]) : -1;
         bool lineIsArray = false;
 
         log(line);
-
-        // find the tab level for the next line
-        for (char c : lines[i + 1]) {
-            if (c == ' ') {
-                nTab++;
-            } else {
-                break;
-            }
-        }       
-        
+      
         if (line[cTab + 1] == '-') {
             lineIsArray = true;
         }
@@ -77,7 +68,7 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
                     default:
                         currentYaml.map.insert({left, right});
                     break;
-                }                
+                }             
             } else {
                 auto nextTabLines = getTabedStrings(lines, nTab, i + 1);
                 auto nextObject = loadPropFromLines(nextTabLines);
@@ -95,7 +86,21 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
 std::map<std::string, std::any> parseInlineObject(std::string line) {
     std::map<std::string, std::any> currentMap;
 
-    std::cout << "(object)" << line << std::endl;
+    // Trim the string
+    line.erase(0,1);
+    line.erase(line.size() - 1);
+
+    auto currentString = splitString(line, ',');
+
+    for (std::string part : currentString) {
+        std::cout << part << std::endl;
+
+        std::size_t delimeterIndex = part.find(delimeter);
+        std::string left = part.substr(0, delimeterIndex);
+        std::string right = part.erase(0, delimeterIndex + 2);
+
+        currentMap.insert({left, right});
+    }
 
     return currentMap;
 }
@@ -103,7 +108,15 @@ std::map<std::string, std::any> parseInlineObject(std::string line) {
 std::vector<std::any> parseInlineVector(std::string line) {
     std::vector<std::any> currentVec;
 
-    std::cout << "(vector)" << line << std::endl;
+    // Trim the string
+    line.erase(0,1);
+    line.erase(line.size() - 1);
+
+    auto currentString = splitString(line, ',');
+
+    for (std::string part : currentString) {
+        currentVec.push_back(part);
+    }
 
     return currentVec;
 }
@@ -132,6 +145,18 @@ char getFirstCharacter(std::string line) {
     }
 
     return ' ';
+}
+
+std::vector<std::string> splitString(std::string line, char splitChar) {
+    std::stringstream stream(line);
+    std::string segment;
+    std::vector<std::string> splitString;
+
+    while (std::getline(stream, segment, splitChar)) {
+        splitString.push_back(segment);
+    }
+
+    return splitString;
 }
 
 // Place each line of the file into a vector
@@ -255,7 +280,6 @@ void runTest() {
 }
 
 /*
-TODO: Support arrays, not just object
 TODO: Parse value string to correct type
 TODO: Make Yaml parcer into a class
 TODO?: Refactor some variables name?

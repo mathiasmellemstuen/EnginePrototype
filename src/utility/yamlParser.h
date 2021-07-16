@@ -13,7 +13,7 @@ struct YamlType {
 };
 
 std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine);
-std::map<std::string, std::any> loadPropFromFile(int& tabulatorNr);
+YamlType loadPropFromLines(std::vector<std::string> lines);
 std::vector<std::string> readFile(std::string fileName);
 
 std::map<std::string, std::any> parseInlineObject(std::string line);
@@ -21,6 +21,7 @@ std::vector<std::any> parseInlineVector(std::string line);
 
 int getTabLevel(std::string line);
 char getFirstCharacter(std::string line);
+std::vector<std::string> splitString(std::string line, char splitChar);
 
 template <typename T>
 std::optional<T> get_v_opt(const std::any &a);
