@@ -13,11 +13,14 @@
 
 YamlField YamlField::operator[](const std::string& str) {
     std::optional optionalMap = std::any_cast<std::map<std::string, std::any>>(*data)[str];
-    
+
     if(optionalMap.has_value()) {
+        log(INFO, "Returning a any cast to a map."); 
+        log(std::any_cast<std::string>(std::any_cast<std::map<std::string, std::any>>(*data)["title"]));
         return { &std::any_cast<std::map<std::string, std::any>>(*data)[str] };
     }
-     
+    
+    log(INFO, "Returning something else instead."); 
     return *this;
 };
 YamlField::operator int() {
