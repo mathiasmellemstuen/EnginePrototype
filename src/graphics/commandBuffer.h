@@ -9,15 +9,16 @@
 #include "graphicsPipeline.h"
 #include "vertex.h"
 #include "vertexBuffer.h"
+#include "commandPool.h"
 
 #include <vector>
 
 class CommandBuffers {
     public:
-        VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
-        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer); 
-        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer);
+        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool); 
+        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool);
+        static void copyBuffer(LogicalDevice& logicalDevice, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         ~CommandBuffers(); 
     private:
         VkDevice* device; 

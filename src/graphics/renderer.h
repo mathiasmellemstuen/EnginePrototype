@@ -10,9 +10,10 @@
 #include "shader.h"
 #include "graphicsPipeline.h"
 #include "frameBuffers.h"
-#include "commandBuffer.h"
 #include "syncObjects.h"
+#include "commandPool.h"
 #include "vertexBuffer.h"
+#include "commandBuffer.h"
 
 #include <vector>
 
@@ -27,11 +28,12 @@ class Renderer {
         Shader shader;
         GraphicsPipeline graphicsPipeline;
         FrameBuffers frameBuffers;
+        CommandPool commandPool;
         VertexBuffer vertexBuffer;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
 
-        Renderer(Window& window, std::vector<Vertex>& verticies);
+        Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices);
         void loop(); 
     private: 
         void cleanupSwapChain();

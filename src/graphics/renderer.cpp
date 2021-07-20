@@ -3,8 +3,9 @@
 #include "vertexBuffer.h"
 #include "vertex.h"
 #include "../utility/log.h"
+#include "commandPool.h"
 
-Renderer::Renderer(Window& window, std::vector<Vertex>& verticies):
+Renderer::Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices):
 
 vulkanInstance(*window.sdlWindow),
 
@@ -22,12 +23,16 @@ graphicsPipeline(logicalDevice, swapChain, shader),
 
 frameBuffers(logicalDevice, imageViews, swapChain, graphicsPipeline),
 
-vertexBuffer(physicalDevice, logicalDevice, verticies),
+commandPool(physicalDevice, logicalDevice), 
 
-commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer),
+vertexBuffer(physicalDevice, commandPool, logicalDevice, verticies, indices),
+
+commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool),
 
 syncObjects(logicalDevice,swapChain), window(window)
+
 {
+
 };
 
 void Renderer::loop() {
@@ -54,7 +59,7 @@ void Renderer::cleanupSwapChain() {
         vkDestroyFramebuffer(logicalDevice.device, frameBuffers.swapChainFramebuffers[i], nullptr);
     }
 
-    vkFreeCommandBuffers(logicalDevice.device, commandBuffers.commandPool, static_cast<uint32_t>(commandBuffers.commandBuffers.size()), commandBuffers.commandBuffers.data());
+    vkFreeCommandBuffers(logicalDevice.device, commandPool.commandPool, static_cast<uint32_t>(commandBuffers.commandBuffers.size()), commandBuffers.commandBuffers.data());
 
     vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(logicalDevice.device, graphicsPipeline.pipelineLayout, nullptr);
@@ -87,7 +92,7 @@ void Renderer::reCreateSwapChain() {
     graphicsPipeline.create(logicalDevice, swapChain, shader);
     frameBuffers.create(logicalDevice, imageViews, swapChain, graphicsPipeline);
 
-    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer);
+    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool);
 };
 
 void Renderer::drawFrame() {

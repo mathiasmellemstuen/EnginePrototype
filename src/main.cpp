@@ -18,14 +18,19 @@ int main(int argc, char *argv[]) {
     //YamlField field = properties2["window"]["height"];
     //int i = (int)field; 
 
-    std::vector<Vertex> verticies = {
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+     std::vector<Vertex> verticies = {
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+
+    std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
     };
 
     Window window;
-    Renderer renderer(window, verticies); 
+    Renderer renderer(window, verticies, indices); 
 
     renderer.loop(); 
 

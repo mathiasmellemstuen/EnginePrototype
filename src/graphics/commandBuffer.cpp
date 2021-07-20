@@ -4,37 +4,26 @@
 #include "frameBuffers.h"
 #include "graphicsPipeline.h"
 #include "../utility/log.h"
+#include "commandPool.h"
 #include "vertexBuffer.h"
 
 #include <stdexcept>
 #include <vector>
 
-CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer) {
+CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool) {
 
     this->device = &logicalDevice.device; 
-    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer);
+    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool);
 }
-void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer) {
+void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool) {
 
     log(INFO, "Starting setup and execution of command buffers"); 
-
-    QueueFamilyIndices queueFamilyIndices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
-
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(); 
-    poolInfo.flags = 0; // Optional
-
-    if (vkCreateCommandPool(*device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-        log(ERROR, "Failed to create command pool!"); 
-        throw std::runtime_error("failed to create command pool!");
-    }
 
     commandBuffers.resize(frameBuffers.swapChainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = commandPool.commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
@@ -70,10 +59,12 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
 
 
             vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
-            VkBuffer vertexBuffers[] = {vertexBuffer.buffer};
+            VkBuffer vertexBuffers[] = {vertexBuffer.vertexBuffer};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.vertices.size()),1, 0, 0); 
+            vkCmdBindIndexBuffer(commandBuffers[i], vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -86,6 +77,7 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     }
     log(SUCCESS, "Successfully executed command buffers"); 
 }
+
 CommandBuffers::~CommandBuffers() {
-    vkDestroyCommandPool(*device, commandPool, nullptr);
+
 }
