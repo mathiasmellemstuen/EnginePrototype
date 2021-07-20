@@ -7,6 +7,8 @@
 #include "frameBuffers.h"
 #include "swapChain.h"
 #include "graphicsPipeline.h"
+#include "vertex.h"
+#include "vertexBuffer.h"
 
 #include <vector>
 
@@ -14,8 +16,8 @@ class CommandBuffers {
     public:
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
-        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
-        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
+        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer); 
+        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer);
         ~CommandBuffers(); 
     private:
         VkDevice* device; 

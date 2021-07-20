@@ -12,6 +12,9 @@
 #include "frameBuffers.h"
 #include "commandBuffer.h"
 #include "syncObjects.h"
+#include "vertexBuffer.h"
+
+#include <vector>
 
 class Renderer {
     public:
@@ -24,12 +27,12 @@ class Renderer {
         Shader shader;
         GraphicsPipeline graphicsPipeline;
         FrameBuffers frameBuffers;
+        VertexBuffer vertexBuffer;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
 
-        Renderer(Window& window);
+        Renderer(Window& window, std::vector<Vertex>& verticies);
         void loop(); 
-    
     private: 
         void cleanupSwapChain();
         void reCreateSwapChain();

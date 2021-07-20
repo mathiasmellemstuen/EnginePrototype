@@ -1,18 +1,34 @@
 #include "renderer.h"
 #include "vulkanInstance.h"
+#include "vertexBuffer.h"
+#include "vertex.h"
+#include "../utility/log.h"
 
-Renderer::Renderer(Window& window):
+Renderer::Renderer(Window& window, std::vector<Vertex>& verticies):
+
 vulkanInstance(*window.sdlWindow),
+
 physicalDevice(vulkanInstance),
+
 logicalDevice(physicalDevice),
+
 swapChain(physicalDevice, logicalDevice, window),
+
 imageViews(swapChain, logicalDevice),
+
 shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv"),
+
 graphicsPipeline(logicalDevice, swapChain, shader),
+
 frameBuffers(logicalDevice, imageViews, swapChain, graphicsPipeline),
-commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline),
+
+vertexBuffer(physicalDevice, logicalDevice, verticies),
+
+commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer),
+
 syncObjects(logicalDevice,swapChain), window(window)
-{};
+{
+};
 
 void Renderer::loop() {
     while(window.running) {
@@ -70,7 +86,8 @@ void Renderer::reCreateSwapChain() {
     graphicsPipeline.createRenderPass(swapChain);
     graphicsPipeline.create(logicalDevice, swapChain, shader);
     frameBuffers.create(logicalDevice, imageViews, swapChain, graphicsPipeline);
-    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
+
+    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer);
 };
 
 void Renderer::drawFrame() {
@@ -125,16 +142,18 @@ void Renderer::drawFrame() {
 
     presentInfo.pImageIndices = &imageIndex;
 
-    result = vkQueuePresentKHR(logicalDevice.presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(this->logicalDevice.presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.framebufferResized) {
+
         window.framebufferResized = false;
         reCreateSwapChain(); 
+
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
     
-    //TODO: Change this to properties.maxFramesInFlight when yamlparser is done. 
+    //TODO: Change 2 to properties.maxFramesInFlight when yamlparser is done. 
     syncObjects.currentFrame = (syncObjects.currentFrame + 1) % 2;
 };
 

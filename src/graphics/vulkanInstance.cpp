@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include "validationLayers.h"
 #include "../utility/log.h"
-#include "../utility/properties.h"
 #include <vector>
 
 VulkanInstance::VulkanInstance(SDL_Window& window) {
@@ -14,7 +13,7 @@ VulkanInstance::VulkanInstance(SDL_Window& window) {
 
     VkApplicationInfo appInfo{}; 
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
-    appInfo.pApplicationName = properties.title.c_str(); 
+    appInfo.pApplicationName = "Vulkan tutorial"; // TODO: Change this to app title properties. 
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); 
     appInfo.pEngineName = "No Engine"; 
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); 

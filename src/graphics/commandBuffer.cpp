@@ -4,16 +4,17 @@
 #include "frameBuffers.h"
 #include "graphicsPipeline.h"
 #include "../utility/log.h"
+#include "vertexBuffer.h"
 
 #include <stdexcept>
 #include <vector>
 
-CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer) {
 
     this->device = &logicalDevice.device; 
-    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
+    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer);
 }
-void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer) {
 
     log(INFO, "Starting setup and execution of command buffers"); 
 
@@ -43,10 +44,9 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     }
 
     for (size_t i = 0; i < commandBuffers.size(); i++) {
+        
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO; 
-        beginInfo.flags = 0; // Optional 
-        beginInfo.pInheritanceInfo = nullptr; // Optional 
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     
         if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
             log(ERROR, "Failed to begin recording command buffers!"); 
@@ -68,16 +68,22 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
 
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
+            VkBuffer vertexBuffers[] = {vertexBuffer.buffer};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.vertices.size()),1, 0, 0); 
+           //vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
+
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
             log(ERROR, "Failed to record command buffer!"); 
             throw std::runtime_error("failed to record command buffer!"); 
         }
+
     }
     log(SUCCESS, "Successfully executed command buffers"); 
 }
