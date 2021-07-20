@@ -11,6 +11,17 @@ VertexBuffer::VertexBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logica
 
 void VertexBuffer::create(PhysicalDevice& physicalDevice, std::vector<Vertex>& vertices) {
     this->vertices = vertices;  
+
+    VkDeviceSize bufferSize = sizeof(this->vertices[0]) * this->vertices.size();
+    createBuffer(physicalDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    
+    void* data;
+    vkMapMemory(*device, vertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, this->vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(*device, vertexBufferMemory);
+};
+
+void VertexBuffer::createBuffer(PhysicalDevice& physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = sizeof(vertices[0]) * vertices.size();
@@ -34,13 +45,7 @@ void VertexBuffer::create(PhysicalDevice& physicalDevice, std::vector<Vertex>& v
     }
     
     vkBindBufferMemory(*device, buffer, vertexBufferMemory, 0);
-
-    void* data;
-    vkMapMemory(*device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
-    vkUnmapMemory(*device, vertexBufferMemory);
-};
-
+}
 uint32_t VertexBuffer::findMemoryType(PhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice.physicalDevice, &memProperties);

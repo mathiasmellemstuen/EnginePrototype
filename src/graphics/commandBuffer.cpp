@@ -74,7 +74,6 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
             vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.vertices.size()),1, 0, 0); 
-           //vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
