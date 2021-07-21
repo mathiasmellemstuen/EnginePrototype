@@ -19,6 +19,10 @@ std::vector<std::string> readFile(std::string fileName);
 std::map<std::string, std::any> parseInlineObject(std::string line);
 std::vector<std::any> parseInlineVector(std::string line);
 
+std::any parseValue(std::string line);
+bool isBool(std::any value);
+bool parseBool(std::any value);
+
 int getTabLevel(std::string line);
 char getFirstCharacter(std::string line);
 std::vector<std::string> splitString(std::string line, char splitChar);

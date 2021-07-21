@@ -11,9 +11,14 @@
 #include <optional>
 #include <typeinfo>
 
+#include <algorithm>
+
 YamlType result;
 const char delimeter = ':';
 const std::string commnetStart = " #";
+
+std::array<std::string, 3> trueString = { "true", "yes", "on" };
+std::array<std::string, 3> falseString = { "false", "no", "off" };
 
 std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine) {
     std::vector<std::string> returnString;
@@ -49,9 +54,9 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
         // Finde the index of the delimeter
         std::size_t delimeterIndex = line.find(delimeter);
 
-        if (delimeterIndex == std::string::npos) {  // There is no delimeter in the line, so this value most be a array (val)/(- val)!
+        if (delimeterIndex == std::string::npos) {  // There is no delimeter in the line, so this value most be a array (- val)!
             std::string val = line.erase(0, cTab + 2);
-            currentYaml.vec.push_back(val);
+            currentYaml.vec.push_back(parseValue(val));
         } else {  // The value most be an object (key: val)!
             // Split into key and value
             std::string left = line.substr(0, delimeterIndex).erase(0, cTab);  // split on the delimeterIndex, then remove spaces inform of the key
@@ -59,7 +64,7 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
 
             // Check if right is a value or a object (right is "" if it is a object)
             if (right != "") {
-                switch(getFirstCharacter(line)) {
+                switch (getFirstCharacter(line)) {
                     case '[':
                         currentYaml.map.insert({left, parseInlineVector(line)});
                     break;
@@ -67,7 +72,7 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
                         currentYaml.map.insert({left, parseInlineObject(line)});
                     break;
                     default:
-                        currentYaml.map.insert({left, right});
+                        currentYaml.map.insert({left, parseValue(right)});
                     break;
                 }             
             } else {
@@ -82,6 +87,60 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
     }
 
     return currentYaml;
+}
+
+// Parse the value, then return it as a std::any. This wil store the "true" value in the std::any value
+std::any parseValue(std::string line) {
+    std::any returnValue;
+
+    char firstCharacter = getFirstCharacter(line);
+
+    // Check if the value is a string ('' or "") or if it is something else
+    if (firstCharacter == '\'' || firstCharacter == '"') {  // The value is a string ('' or ""), so remove the quotation mark from the value
+        returnValue = std::make_any<std::string>(line.substr(1, line.size() - 2));
+        std::cout << line << " - Is a string" << std::endl;
+    } else if (isBool(line)) {
+        returnValue = std::make_any<bool>(parseBool(line));
+        std::cout << line << " - Is a bool = " << parseBool(line) << std::endl;
+    }
+    
+    return returnValue;
+}
+
+bool isBool(std::any value) {
+    std::string valueString = std::any_cast<std::string>(value);
+
+    // Turn string to lower
+    std::transform(valueString.begin(), valueString.end(), valueString.begin(), [](unsigned char c){return std::tolower(c);});
+
+    // Find if valueString is a boolean
+    if (std::find(std::begin(trueString), std::end(trueString), valueString) != std::end(trueString)) {
+        // valueString is part of the trueString list
+        return true;
+    } else if (std::find(std::begin(falseString), std::end(falseString), valueString) != std::end(falseString)) {
+        // valueString is part of the falseString list 
+        return true;
+    }
+
+    return false;
+}
+
+bool parseBool(std::any value) {
+    std::string valueString = std::any_cast<std::string>(value);
+
+    // Turn string to lower
+    std::transform(valueString.begin(), valueString.end(), valueString.begin(), [](unsigned char c){return std::tolower(c);});
+
+    // Find if valueString is a boolean
+    if (std::find(std::begin(trueString), std::end(trueString), valueString) != std::end(trueString)) {
+        // valueString is part of the trueString list
+        return true;
+    } else if (std::find(std::begin(falseString), std::end(falseString), valueString) != std::end(falseString)) {
+        // valueString is part of the falseString list 
+        return false;
+    }
+
+    return true;
 }
 
 std::map<std::string, std::any> parseInlineObject(std::string line) {
@@ -249,7 +308,15 @@ std::string buildPrint(std::any object, int tab) {
     // Test if the object is a string
     std::optional opt_string = get_v_opt<std::string>(object);
     if (opt_string.has_value()) {
-        return /*"(std::string) " + */opt_string.value();
+        return "(std::string) " + opt_string.value();
+    }
+
+    // Test if the object is a bool
+    std::optional opt_bool = get_v_opt<bool>(object);
+    if (opt_bool.has_value()) {
+        std::cout << (opt_bool.value() == 0) << std::endl;
+
+        return "(bool)";
     }
  
     // Test if the object is another object
