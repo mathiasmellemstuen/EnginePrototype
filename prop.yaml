@@ -1,8 +1,0 @@
-window:
-  title: Hello vulkan
-  width: 800
-  height: 600
-test types:
-  string: Test string
-  int: 123456
-  bool: true
