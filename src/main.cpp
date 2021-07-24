@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
     //YamlField field = properties2["window"]["height"];
     //int i = (int)field; 
 
-    YamlParser parser("test.yaml");
-    parser.print();
+    //YamlParser parser("test.yaml");
+    //parser.print();
 
      std::vector<Vertex> verticies = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},

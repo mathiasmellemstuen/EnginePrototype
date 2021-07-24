@@ -8,30 +8,19 @@
 #include <optional>
 #include <map>
 
-struct YamlType {
-    std::map<std::string, std::any> map;
-    std::vector<std::any> vec;
+#include <utility>
+
+enum Types {
+    ARRAY,
+    MAP
 };
-
-std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine);
-YamlType loadPropFromLines(std::vector<std::string> lines);
-std::vector<std::string> readFile(std::string fileName);
-
-std::map<std::string, std::any> parseInlineObject(std::string line);
-std::vector<std::any> parseInlineVector(std::string line);
-
-int getTabLevel(std::string line);
-char getFirstCharacter(std::string line);
-std::vector<std::string> splitString(std::string line, char splitChar);
 
 struct YamlType {
     std::any data;
     Types type;
 
-std::string buildPrint(std::any object, int tab);
-std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
-std::string buildVectorPrint(std::vector<std::any> vec, int tab);
-std::string buildYamlTypePrint(YamlType yamlType, int tab);
+    // For type ARRAY
+    void add(std::any val);
 
     // For type MAP
     void add(std::pair<std::string, std::any> val);
