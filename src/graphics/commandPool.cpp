@@ -7,7 +7,7 @@
 
 CommandPool::CommandPool(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
     this->device = &logicalDevice.device; 
-    create(physicalDevice); 
+    create(physicalDevice);
 }
 void CommandPool::create(PhysicalDevice& physicalDevice) {
 

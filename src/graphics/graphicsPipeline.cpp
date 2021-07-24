@@ -6,14 +6,14 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 
-GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader) {
+GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout) {
     
     this->device = &logicalDevice.device;  
     this->createRenderPass(swapChain); 
-    this->create(logicalDevice, swapChain, shader); 
+    this->create(logicalDevice, swapChain, shader, descriptorSetLayout); 
 };
 
-void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader) {
+void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout) {
     
     log(INFO, "Starting to create graphics pipeline"); 
 
@@ -61,8 +61,9 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
 
     rasterizer.lineWidth = 1.0f;
 
+
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -119,10 +120,8 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0; // Optional 
-    pipelineLayoutInfo.pSetLayouts = nullptr; // Optional 
-    pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-    pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.descriptorSetLayout;
 
     if (vkCreatePipelineLayout(*device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
         log(ERROR, "Failed to create pipeline layout!"); 
@@ -130,22 +129,19 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO; 
-    pipelineInfo.stageCount = 2; 
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shader.shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly; 
-    pipelineInfo.pViewportState = &viewportState; 
-    pipelineInfo.pRasterizationState = &rasterizer; 
-    pipelineInfo.pMultisampleState = &multisampling; 
-    pipelineInfo.pDepthStencilState = nullptr; // Optional 
-    pipelineInfo.pColorBlendState = &colorBlending; 
-    pipelineInfo.pDynamicState = nullptr; // Optional
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = pipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
-    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-    pipelineInfo.basePipelineIndex = -1; // Optional
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         

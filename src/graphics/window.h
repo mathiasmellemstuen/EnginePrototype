@@ -8,8 +8,8 @@ class Window {
         SDL_Window* sdlWindow;
         SDL_Event event;
         bool running = true; 
+        bool framebufferResized = false;
         Window(); 
         ~Window();
-        bool framebufferResized = false;
 };
 #endif

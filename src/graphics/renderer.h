@@ -8,12 +8,15 @@
 #include "swapChain.h"
 #include "imageViews.h"
 #include "shader.h"
+#include "descriptorSetLayout.h"
 #include "graphicsPipeline.h"
 #include "frameBuffers.h"
-#include "syncObjects.h"
 #include "commandPool.h"
 #include "vertexBuffer.h"
+#include "uniformBuffer.h"
+#include "descriptorPool.h"
 #include "commandBuffer.h"
+#include "syncObjects.h"
 
 #include <vector>
 
@@ -26,10 +29,13 @@ class Renderer {
         SwapChain swapChain;
         ImageViews imageViews;
         Shader shader;
+        DescriptorSetLayout descriptorSetLayout; 
         GraphicsPipeline graphicsPipeline;
         FrameBuffers frameBuffers;
         CommandPool commandPool;
         VertexBuffer vertexBuffer;
+        UniformBuffer uniformBuffer; 
+        DescriptorPool descriptorPool;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
 

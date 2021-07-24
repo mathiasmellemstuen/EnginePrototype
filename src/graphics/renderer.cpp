@@ -19,7 +19,9 @@ imageViews(swapChain, logicalDevice),
 
 shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv"),
 
-graphicsPipeline(logicalDevice, swapChain, shader),
+descriptorSetLayout(logicalDevice),
+
+graphicsPipeline(logicalDevice, swapChain, shader, descriptorSetLayout),
 
 frameBuffers(logicalDevice, imageViews, swapChain, graphicsPipeline),
 
@@ -27,9 +29,15 @@ commandPool(physicalDevice, logicalDevice),
 
 vertexBuffer(physicalDevice, commandPool, logicalDevice, verticies, indices),
 
-commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool),
+uniformBuffer(physicalDevice, logicalDevice, swapChain, vertexBuffer),
 
-syncObjects(logicalDevice,swapChain), window(window)
+descriptorPool(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout),
+
+commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool),
+
+syncObjects(logicalDevice,swapChain),
+
+window(window)
 
 {
 
@@ -89,10 +97,11 @@ void Renderer::reCreateSwapChain() {
     swapChain.create(physicalDevice, logicalDevice, window);
     imageViews.create(swapChain, logicalDevice);
     graphicsPipeline.createRenderPass(swapChain);
-    graphicsPipeline.create(logicalDevice, swapChain, shader);
+    graphicsPipeline.create(logicalDevice, swapChain, shader, descriptorSetLayout);
     frameBuffers.create(logicalDevice, imageViews, swapChain, graphicsPipeline);
-
-    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool);
+    uniformBuffer.create(physicalDevice, logicalDevice, swapChain, vertexBuffer); 
+    descriptorPool.create(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout); 
+    commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool);
 };
 
 void Renderer::drawFrame() {
@@ -112,6 +121,8 @@ void Renderer::drawFrame() {
         vkWaitForFences(logicalDevice.device, 1, &syncObjects.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     }
     syncObjects.imagesInFlight[imageIndex] = syncObjects.inFlightFences[syncObjects.currentFrame];
+
+    uniformBuffer.update(imageIndex); 
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
