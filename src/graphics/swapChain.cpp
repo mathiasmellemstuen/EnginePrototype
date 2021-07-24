@@ -6,7 +6,6 @@
 #include "swapChainSupport.h"
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/properties.h"
 #include "../utility/log.h"
 #include "window.h"
 

@@ -4,36 +4,27 @@
 #include "frameBuffers.h"
 #include "graphicsPipeline.h"
 #include "../utility/log.h"
+#include "commandPool.h"
+#include "vertexBuffer.h"
+#include "descriptorPool.h"
 
 #include <stdexcept>
 #include <vector>
 
-CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
 
     this->device = &logicalDevice.device; 
-    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline);
+    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool);
 }
-void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
 
     log(INFO, "Starting setup and execution of command buffers"); 
-
-    QueueFamilyIndices queueFamilyIndices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
-
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(); 
-    poolInfo.flags = 0; // Optional
-
-    if (vkCreateCommandPool(*device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-        log(ERROR, "Failed to create command pool!"); 
-        throw std::runtime_error("failed to create command pool!");
-    }
-
+    
     commandBuffers.resize(frameBuffers.swapChainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = commandPool.commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
@@ -43,16 +34,14 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     }
 
     for (size_t i = 0; i < commandBuffers.size(); i++) {
+        
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO; 
-        beginInfo.flags = 0; // Optional 
-        beginInfo.pInheritanceInfo = nullptr; // Optional 
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     
         if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
             log(ERROR, "Failed to begin recording command buffers!"); 
             throw std::runtime_error("failed to begin recording command buffer!");
         } 
-
         
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -62,15 +51,20 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapChain.swapChainExtent;
 
-        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1; 
         renderPassInfo.pClearValues = &clearColor;
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
+            VkBuffer vertexBuffers[] = {vertexBuffer.vertexBuffer};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(commandBuffers[i], vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &descriptorPool.descriptorSets[i], 0, nullptr);
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -78,9 +72,11 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
             log(ERROR, "Failed to record command buffer!"); 
             throw std::runtime_error("failed to record command buffer!"); 
         }
+
     }
     log(SUCCESS, "Successfully executed command buffers"); 
 }
+
 CommandBuffers::~CommandBuffers() {
-    vkDestroyCommandPool(*device, commandPool, nullptr);
+
 }

@@ -4,6 +4,7 @@
 #include "swapChain.h"
 #include "logicalDevice.h"
 #include "shader.h"
+#include "descriptorSetLayout.h"
 
 #include <vulkan/vulkan.h>
 
@@ -13,8 +14,8 @@ class GraphicsPipeline {
         VkPipelineLayout pipelineLayout;
         VkDevice* device; 
         VkRenderPass renderPass; 
-        GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader); 
-        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader);
+        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout);
+        GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout); 
         ~GraphicsPipeline();
         void createRenderPass(SwapChain& swapChain); 
     private:

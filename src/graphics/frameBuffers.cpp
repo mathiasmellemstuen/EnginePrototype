@@ -46,4 +46,3 @@ FrameBuffers::~FrameBuffers() {
         vkDestroyFramebuffer(*device, framebuffer, nullptr); 
     }
 };
-

@@ -35,7 +35,9 @@ YamlType loadPropFromLines(std::vector<std::string> lines) {
     YamlType currentYaml;
 
     for (int i = 0; i <= lines.size() - 1; i++) {
+        
         std::string line = lines[i];
+        
         int cTab = getTabLevel(line);
         int nTab = i + 1 <= lines.size() - 1 ? getTabLevel(lines[i + 1]) : -1;
         bool lineIsArray = false;
@@ -124,7 +126,7 @@ int getTabLevel(std::string line) {
     int tabLevel = 0;
 
     for (char c : line) {
-        if (c == ' ') {
+        if (c == 9) { //9 is the ascii code for horizontal tab.
             tabLevel++;
         } else {
             return tabLevel;
@@ -159,7 +161,8 @@ std::vector<std::string> splitString(std::string line, char splitChar) {
 }
 
 // Place each line of the file into a vector
-std::vector<std::string> readFile(std::string fileName) {
+std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
+    log(INFO, "Starting reading file!"); 
     std::string line = "";
     std::fstream file;
     std::vector<std::string> outLines;
@@ -184,35 +187,35 @@ std::vector<std::string> readFile(std::string fileName) {
             }
         }            
     }
-
+    
+    log(SUCCESS, "File reading done."); 
     return outLines;
 }
 
-/*
-    Print thing
-*/
+
 // Convert a std::any to a optional, but with a type
-template <typename T>
-std::optional<T> get_v_opt(const std::any &a) {
+template <typename T> std::optional<T> YamlParser::get_v_opt(const std::any &a) {
     if (const T *v = std::any_cast<T>(&a))
         return std::optional<T>(*v);
     else
         return std::nullopt;
 }
 
-std::string buildObjectPrint(std::map<std::string, std::any> object, int tab) {
-    std::string outString = "\n";
+std::string YamlParser::toString() {
+    return toStringRecursive(data); 
+};
 
-    for (const auto& [key, value] : object) {
-        for (int i = 0; i < tab; i++) {
-            outString += "  ";
+// Convert the object to a string, so it can be printed
+std::string YamlParser::toStringRecursive(std::map<std::string, std::any>& obj) {
+    std::string value = "";
+
+    for(const auto& [key, value] : obj) {
+
+        // Test if the object is a string
+        std::optional opt_string = get_v_opt<std::string>(value);
+        if (opt_string.has_value()) {
+            value += "\n" + key + " : " + opt_string.value();
         }
-
-        outString += key + ": " + buildPrint(value, tab) + "\n";
-    }
-
-    return outString;
-}
 
 std::string buildVectorPrint(std::vector<std::any> vec, int tab) {
     std::string outString = "\n";

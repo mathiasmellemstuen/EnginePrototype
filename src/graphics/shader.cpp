@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include "../utility/log.h"
+#include <iostream>
 
 Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::string fragmentShaderPath) {
     
@@ -21,12 +22,11 @@ Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-
     vertShaderStageInfo.module = this->vertexShaderModule;
     vertShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; 
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragShaderStageInfo.module = this->fragmentShaderModule;
     fragShaderStageInfo.pName = "main";
@@ -64,7 +64,7 @@ std::vector<char> Shader::readFile(const std::string& fileName) {
 };
 
 VkShaderModule Shader::createShaderModule(const std::vector<char>& code) {
-
+            
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO; 
     createInfo.codeSize = code.size(); 
