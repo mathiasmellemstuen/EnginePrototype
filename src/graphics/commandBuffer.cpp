@@ -3,7 +3,7 @@
 #include "physicalDevice.h"
 #include "frameBuffers.h"
 #include "graphicsPipeline.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "commandPool.h"
 #include "vertexBuffer.h"
 #include "descriptorPool.h"
@@ -18,7 +18,7 @@ CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& phy
 }
 void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
 
-    log(INFO, "Starting setup and execution of command buffers"); 
+    Debug::log(INFO, "Starting setup and execution of command buffers"); 
     
     commandBuffers.resize(frameBuffers.swapChainFramebuffers.size());
 
@@ -29,7 +29,7 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
     if (vkAllocateCommandBuffers(*device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-        log(ERROR, "Failed to allocate command buffers!"); 
+        Debug::log(ERROR, "Failed to allocate command buffers!"); 
         throw std::runtime_error("failed to allocate command buffers!"); 
     }
 
@@ -39,7 +39,7 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     
         if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
-            log(ERROR, "Failed to begin recording command buffers!"); 
+            Debug::log(ERROR, "Failed to begin recording command buffers!"); 
             throw std::runtime_error("failed to begin recording command buffer!");
         } 
         
@@ -69,12 +69,12 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-            log(ERROR, "Failed to record command buffer!"); 
+            Debug::log(ERROR, "Failed to record command buffer!"); 
             throw std::runtime_error("failed to record command buffer!"); 
         }
 
     }
-    log(SUCCESS, "Successfully executed command buffers"); 
+    Debug::log(SUCCESS, "Successfully executed command buffers"); 
 }
 
 CommandBuffers::~CommandBuffers() {

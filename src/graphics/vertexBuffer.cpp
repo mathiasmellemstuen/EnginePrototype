@@ -1,7 +1,7 @@
 #include "vertexBuffer.h"
 #include <stdexcept>
 #include <cstring>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include <iostream>
 #include "commandPool.h"
 
@@ -15,7 +15,7 @@ VertexBuffer::VertexBuffer(PhysicalDevice& physicalDevice, CommandPool& commandP
 };
 
 void VertexBuffer::createVertexBuffer(PhysicalDevice& physicalDevice, CommandPool& commandPool, LogicalDevice& logicalDevice, std::vector<Vertex>& vertices) {
-    log(INFO, "Creating vertex buffer.");
+    Debug::log(INFO, "Creating vertex buffer.");
 
     
     VkDeviceSize bufferSize = sizeof(this->vertices[0]) * this->vertices.size();
@@ -36,7 +36,7 @@ void VertexBuffer::createVertexBuffer(PhysicalDevice& physicalDevice, CommandPoo
     vkDestroyBuffer(*device, stagingBuffer, nullptr);
     vkFreeMemory(*device, stagingBufferMemory, nullptr);
 
-    log(SUCCESS, "Vertex buffer created!"); 
+    Debug::log(SUCCESS, "Vertex buffer created!"); 
 };
 
 void VertexBuffer::createIndexBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, std::vector<uint16_t>& indices) {

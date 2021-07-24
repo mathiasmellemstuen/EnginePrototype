@@ -1,5 +1,5 @@
 #include "graphicsPipeline.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "shader.h"
 #include "vertex.h"
 
@@ -15,7 +15,7 @@ GraphicsPipeline::GraphicsPipeline(LogicalDevice& logicalDevice, SwapChain& swap
 
 void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout) {
     
-    log(INFO, "Starting to create graphics pipeline"); 
+    Debug::log(INFO, "Starting to create graphics pipeline"); 
 
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions(); 
@@ -124,7 +124,7 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.descriptorSetLayout;
 
     if (vkCreatePipelineLayout(*device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
-        log(ERROR, "Failed to create pipeline layout!"); 
+        Debug::log(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
 
@@ -145,15 +145,15 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
 
     if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         
-        log(ERROR, "Failed to create graphics pipeline!"); 
+        Debug::log(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
     }
-    log(SUCCESS, "Created graphics pipeline!"); 
+    Debug::log(SUCCESS, "Created graphics pipeline!"); 
 };
 
 void GraphicsPipeline::createRenderPass(SwapChain& swapChain) {
     
-    log(INFO, "Creating render pass"); 
+    Debug::log(INFO, "Creating render pass"); 
 
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapChain.swapChainImageFormat; 
@@ -195,17 +195,17 @@ void GraphicsPipeline::createRenderPass(SwapChain& swapChain) {
     renderPassInfo.pDependencies = &dependency;
 
     if (vkCreateRenderPass(*device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
-        log(ERROR, "Failed to create render pass!"); 
+        Debug::log(ERROR, "Failed to create render pass!"); 
         throw std::runtime_error("failed to create render pass!");
     }
 
-    log(SUCCESS, "Successfully created render pass!"); 
+    Debug::log(SUCCESS, "Successfully created render pass!"); 
 };
 
 GraphicsPipeline::~GraphicsPipeline() {
-    log(INFO, "Destroying graphics pipeline"); 
+    Debug::log(INFO, "Destroying graphics pipeline"); 
     vkDestroyPipeline(*device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(*device, pipelineLayout, nullptr);
     vkDestroyRenderPass(*device, renderPass, nullptr);
-    log(SUCCESS, "Graphics pipeline destroyed!"); 
+    Debug::log(SUCCESS, "Graphics pipeline destroyed!"); 
 };

@@ -3,14 +3,14 @@
 #include "graphics/vertex.h"
 
 #include "utility/yamlParser.h"
-#include "utility/log.h"
+#include "utility/debug.h"
 #include <any>
 #include <vector>
 #include <iostream>
 #include <SDL2/SDL.h>
 
 int main(int argc, char *argv[]) {
-    log(INFO, "Starting application."); 
+    Debug::log(INFO, "Starting application."); 
 
     //YamlParser properties2("prop.yaml");
     //log(INFO, properties2.toString());
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     renderer.loop(); 
 
-    log(INFO, "Exiting application!"); 
+    Debug::log(INFO, "Exiting application!"); 
     return 0;
 }
 

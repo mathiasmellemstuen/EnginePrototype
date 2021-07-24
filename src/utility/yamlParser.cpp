@@ -1,5 +1,5 @@
 #include "yamlParser.h"
-#include "log.h"
+#include "debug.h"
 
 #include <string>
 #include <map>
@@ -60,11 +60,11 @@ std::vector<std::string> YamlParser::readFile(const std::string fileName) {
 
     while (file.is_open() && std::getline(file, line)) {
         if (line.compare(0, 3, fileStart) == 0) {
-            log("Start Parsing");
+            Debug::log("Start Parsing");
             isReading = true;
             continue;
         } else if (line.compare(0, 3, fileEnd) == 0) {
-            log("End Parsing");
+            Debug::log("End Parsing");
             return outLines;
         }
 
@@ -449,12 +449,12 @@ YamlField YamlField::operator[](const std::string& str) {
     std::optional optionalMap = std::any_cast<std::map<std::string, std::any>>(*data)[str];
 
     if(optionalMap.has_value()) {
-        log(INFO, "Returning a any cast to a map."); 
+        Debug::log(INFO, "Returning a any cast to a map."); 
         log(std::any_cast<std::string>(std::any_cast<std::map<std::string, std::any>>(*data)["title"]));
         return { &std::any_cast<std::map<std::string, std::any>>(*data)[str] };
     }
     
-    log(INFO, "Returning something else instead."); 
+    Debug::log(INFO, "Returning something else instead."); 
     return *this;
 };
 YamlField::operator int() {
@@ -540,7 +540,7 @@ int YamlParser::getTabLevel(std::string& line) {
 
 // Place each line of the file into a vector
 std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
-    log(INFO, "Starting reading file!"); 
+    Debug::log(INFO, "Starting reading file!"); 
     std::string line = "";
     std::fstream file;
     std::vector<std::string> outLines;
@@ -551,7 +551,7 @@ std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
         outLines.push_back(line);
     }
     
-    log(SUCCESS, "File reading done."); 
+    Debug::log(SUCCESS, "File reading done."); 
     return outLines;
 }
 

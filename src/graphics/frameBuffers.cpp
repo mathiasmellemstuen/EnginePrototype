@@ -5,7 +5,7 @@
 #include "logicalDevice.h"
 #include "swapChain.h"
 #include "graphicsPipeline.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
 FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
 
@@ -14,7 +14,7 @@ FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews,
 };
 void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
 
-    log(INFO, "Creating framebuffers"); 
+    Debug::log(INFO, "Creating framebuffers"); 
 
     swapChainFramebuffers.resize(imageViews.swapChainImageViews.size());
 
@@ -34,11 +34,11 @@ void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, 
         framebufferInfo.layers = 1;
         
         if (vkCreateFramebuffer(*device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-            log(ERROR, "Failed to create framebuffer!"); 
+            Debug::log(ERROR, "Failed to create framebuffer!"); 
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
-    log(SUCCESS, "Successfully created all framebuffers."); 
+    Debug::log(SUCCESS, "Successfully created all framebuffers."); 
 };
 
 FrameBuffers::~FrameBuffers() {

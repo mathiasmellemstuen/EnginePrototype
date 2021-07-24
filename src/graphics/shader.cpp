@@ -4,12 +4,12 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include <iostream>
 
 Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::string fragmentShaderPath) {
     
-    log(INFO, "Creating shader"); 
+    Debug::log(INFO, "Creating shader"); 
 
     this->device = &logicalDevice.device; 
 
@@ -34,7 +34,7 @@ Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::
     this->shaderStages[0] = vertShaderStageInfo;
     this->shaderStages[1] = fragShaderStageInfo; 
 
-    log(SUCCESS, "Successfully created shader!"); 
+    Debug::log(SUCCESS, "Successfully created shader!"); 
 };
 
 Shader::~Shader() {
@@ -48,7 +48,7 @@ std::vector<char> Shader::readFile(const std::string& fileName) {
     std::ifstream file(fileName, std::ios::ate | std::ios::binary); 
 
     if (!file.is_open()) { 
-        log(ERROR, "Failed to open file!"); 
+        Debug::log(ERROR, "Failed to open file!"); 
         throw std::runtime_error("failed to open file!"); 
     }
 
@@ -73,7 +73,7 @@ VkShaderModule Shader::createShaderModule(const std::vector<char>& code) {
     VkShaderModule shaderModule;
 
     if (vkCreateShaderModule(*this->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        log(ERROR, "Failed to create shader module");
+        Debug::log(ERROR, "Failed to create shader module");
         throw std::runtime_error("failed to create shader module!"); 
     }
     return shaderModule;

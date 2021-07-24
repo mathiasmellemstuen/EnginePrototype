@@ -2,11 +2,11 @@
 #include <vulkan/vulkan.h>
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
 void DescriptorSetLayout::create(LogicalDevice& logicalDevice) {
 
-    log(INFO, "Starting setup of Descriptor set layout"); 
+    Debug::log(INFO, "Starting setup of Descriptor set layout"); 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -23,7 +23,7 @@ void DescriptorSetLayout::create(LogicalDevice& logicalDevice) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 
-    log(SUCCESS, "Descriptor set layout setup successfull!"); 
+    Debug::log(SUCCESS, "Descriptor set layout setup successfull!"); 
 }
 
 DescriptorSetLayout::DescriptorSetLayout(LogicalDevice& logicalDevice) {

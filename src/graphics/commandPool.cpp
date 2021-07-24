@@ -1,7 +1,7 @@
 #include "commandPool.h"
 #include <vulkan/vulkan.h>
 #include "physicalDevice.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "logicalDevice.h"
 #include <stdexcept>
 
@@ -11,7 +11,7 @@ CommandPool::CommandPool(PhysicalDevice& physicalDevice, LogicalDevice& logicalD
 }
 void CommandPool::create(PhysicalDevice& physicalDevice) {
 
-    log(INFO, "Creating command pool."); 
+    Debug::log(INFO, "Creating command pool."); 
 
     QueueFamilyIndices queueFamilyIndices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
 
@@ -21,10 +21,10 @@ void CommandPool::create(PhysicalDevice& physicalDevice) {
     poolInfo.flags = 0; // Optional
 
     if (vkCreateCommandPool(*device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-        log(ERROR, "Failed to create command pool!"); 
+        Debug::log(ERROR, "Failed to create command pool!"); 
         throw std::runtime_error("failed to create command pool!");
     }
-    log(SUCCESS, "Command pool created!"); 
+    Debug::log(SUCCESS, "Command pool created!"); 
 }
 
 CommandPool::~CommandPool() {

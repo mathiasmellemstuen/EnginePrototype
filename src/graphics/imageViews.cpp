@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "logicalDevice.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
 ImageViews::ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice) {
     this->device = &logicalDevice.device;
@@ -14,7 +14,7 @@ ImageViews::ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice) {
 };
 
 void ImageViews::create(SwapChain& swapChain, LogicalDevice& logicalDevice) {
-    log(INFO, "Create image views"); 
+    Debug::log(INFO, "Create image views"); 
 
     for (size_t i = 0; i < swapChain.swapChainImages.size(); i++) {
         
@@ -38,14 +38,14 @@ void ImageViews::create(SwapChain& swapChain, LogicalDevice& logicalDevice) {
         }
     }
 
-    log(SUCCESS, "Image views created!"); 
+    Debug::log(SUCCESS, "Image views created!"); 
 };
 
 ImageViews::~ImageViews(){
-    log(INFO, "Destroying image views"); 
+    Debug::log(INFO, "Destroying image views"); 
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(*this->device, imageView, nullptr);
     }
 
-    log(SUCCESS, "Image views destroyed!");
+    Debug::log(SUCCESS, "Image views destroyed!");
 };

@@ -6,7 +6,7 @@
 #include "swapChainSupport.h"
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "window.h"
 
 #include <SDL2/SDL.h>
@@ -19,13 +19,13 @@ SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
 };
 
 SwapChain::~SwapChain() {
-    log(INFO, "Destroying swap chain"); 
+    Debug::log(INFO, "Destroying swap chain"); 
     vkDestroySwapchainKHR(*device, swapChain, nullptr);
-    log(SUCCESS, "Swap chain destroyed"); 
+    Debug::log(SUCCESS, "Swap chain destroyed"); 
 };
 
 void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window) {
-    log(INFO, "Setting up swap chain"); 
+    Debug::log(INFO, "Setting up swap chain"); 
 
     SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(physicalDevice.physicalDevice, *physicalDevice.surface); 
 
@@ -70,7 +70,7 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     if (vkCreateSwapchainKHR(*device, &createInfo, nullptr, &swapChain)  != VK_SUCCESS) { 
-        log(ERROR, "Failed to create swap chain!"); 
+        Debug::log(ERROR, "Failed to create swap chain!"); 
         throw std::runtime_error("failed to create swap chain!");
     }
 
@@ -82,7 +82,7 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
 
-    log(SUCCESS, "Created swap chain"); 
+    Debug::log(SUCCESS, "Created swap chain"); 
 };
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {

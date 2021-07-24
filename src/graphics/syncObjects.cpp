@@ -1,12 +1,12 @@
 #include "syncObjects.h"
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "swapChain.h"
 
 SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
 
-    log(INFO, "Creating sync objects"); 
+    Debug::log(INFO, "Creating sync objects"); 
 
     this->device = &logicalDevice.device;
 
@@ -29,12 +29,12 @@ SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
         
         if (vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(*device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
             
-            log(ERROR, "Failed to create synchronization objects for a frame!"); 
+            Debug::log(ERROR, "Failed to create synchronization objects for a frame!"); 
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
     }
 
-    log(SUCCESS, "Successfully created sync objects!");
+    Debug::log(SUCCESS, "Successfully created sync objects!");
 };
 
 SyncObjects::~SyncObjects() {

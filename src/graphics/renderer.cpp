@@ -2,7 +2,7 @@
 #include "vulkanInstance.h"
 #include "vertexBuffer.h"
 #include "vertex.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "commandPool.h"
 
 Renderer::Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices):

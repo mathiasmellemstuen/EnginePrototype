@@ -3,7 +3,7 @@
 #include "uniformBufferObject.h"
 #include "vertexBuffer.h"
 #include "physicalDevice.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>

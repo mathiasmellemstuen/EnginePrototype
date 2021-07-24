@@ -4,12 +4,12 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 #include "validationLayers.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include <vector>
 
 VulkanInstance::VulkanInstance(SDL_Window& window) {
 
-    log(INFO, "Starting creation of a vulkan instance"); 
+    Debug::log(INFO, "Starting creation of a vulkan instance"); 
 
     VkApplicationInfo appInfo{}; 
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
@@ -33,7 +33,7 @@ VulkanInstance::VulkanInstance(SDL_Window& window) {
     createInfo.ppEnabledExtensionNames = extensionNames.data(); 
 
     if (enableValidationLayers && !checkValidationLayerSupport()) {
-        log(ERROR, "Validation layers requested, but not avaiable!"); 
+        Debug::log(ERROR, "Validation layers requested, but not avaiable!"); 
         throw std::runtime_error("Validation layers requested, but not available!"); 
     }
 
@@ -44,29 +44,29 @@ VulkanInstance::VulkanInstance(SDL_Window& window) {
         createInfo.enabledLayerCount = 0; 
     }
     
-    log(INFO, "Creating a vulkan instance and VkResult"); 
+    Debug::log(INFO, "Creating a vulkan instance and VkResult"); 
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
     
     if (result != VK_SUCCESS)  { 
         throw std::runtime_error("Failed to create instance!");
-        log(ERROR, "Failed to create instance!"); 
+        Debug::log(ERROR, "Failed to create instance!"); 
     }
 
     if (SDL_Vulkan_CreateSurface(&window, instance, &surface) == SDL_FALSE) { 
-        log(ERROR, "Failed to create window surface!"); 
+        Debug::log(ERROR, "Failed to create window surface!"); 
         throw std::runtime_error("Failed to create window surface!"); 
     }
 
-    log(SUCCESS, "Successfully created a vulkan instance"); 
-    log(SUCCESS, "Successfully created a window surface"); 
+    Debug::log(SUCCESS, "Successfully created a vulkan instance"); 
+    Debug::log(SUCCESS, "Successfully created a window surface"); 
 };
 
 VulkanInstance::~VulkanInstance() {
-    log(INFO, "Destroying window surface"); 
-    log(INFO, "Destroying vulkan instance"); 
+    Debug::log(INFO, "Destroying window surface"); 
+    Debug::log(INFO, "Destroying vulkan instance"); 
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
-    log(SUCCESS, "Destroyed window surface"); 
-    log(SUCCESS, "Destroyed vulkan instance");
+    Debug::log(SUCCESS, "Destroyed window surface"); 
+    Debug::log(SUCCESS, "Destroyed vulkan instance");
 };

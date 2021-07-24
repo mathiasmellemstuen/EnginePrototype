@@ -1,9 +1,9 @@
 #include "swapChainSupport.h"
 #include "physicalDevice.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include <vulkan/vulkan.h>
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR& surface) {
-    log(INFO, "Querying for swap chain support"); 
+    Debug::log(INFO, "Querying for swap chain support"); 
     SwapChainSupportDetails details; 
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,  &details.capabilities);
@@ -23,6 +23,6 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data()); 
     }
 
-    log(SUCCESS, "Swap chain support query done!"); 
+    Debug::log(SUCCESS, "Swap chain support query done!"); 
     return details; 
 };
