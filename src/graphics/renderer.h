@@ -17,6 +17,7 @@
 #include "descriptorPool.h"
 #include "commandBuffer.h"
 #include "syncObjects.h"
+#include "texture.h"
 
 #include <vector>
 
@@ -38,6 +39,7 @@ class Renderer {
         DescriptorPool descriptorPool;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
+        Texture texture; 
 
         Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices);
         void loop(); 

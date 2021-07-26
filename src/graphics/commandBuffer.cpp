@@ -77,6 +77,51 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     Debug::log(SUCCESS, "Successfully executed command buffers"); 
 }
 
+VkCommandBuffer CommandBuffers::beginSingleTimeCommands(CommandPool& commandPool) {
+    
+    Debug::log(INFO, "Beginning single-time command");
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool.commandPool;
+    allocInfo.commandBufferCount = 1;
+    
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(*device, &allocInfo, &commandBuffer);
+    
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    
+    Debug::log(SUCCESS, "Beginning of single-time command is done!"); 
+    return commandBuffer;
+}
+
+void CommandBuffers::endSingleTimeCommands(LogicalDevice& logicalDevice, CommandPool& commandPool, VkCommandBuffer commandBuffer) {
+
+    vkEndCommandBuffer(commandBuffer);
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    vkQueueSubmit(logicalDevice.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(logicalDevice.graphicsQueue);
+
+    vkFreeCommandBuffers(*device, commandPool.commandPool, 1, &commandBuffer);
+}
+void CommandBuffers::copyBuffer(LogicalDevice& logicalDevice, CommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    endSingleTimeCommands(logicalDevice, commandPool, commandBuffer);
+}
+
 CommandBuffers::~CommandBuffers() {
 
 }
