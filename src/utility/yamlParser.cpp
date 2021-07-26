@@ -99,7 +99,7 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
         int nTab = i + 1 <= lines.size() - 1 ? getTabLevel(lines[i + 1]) : -1;
         std::string line = lines[i].erase(0, cTab);
 
-        if (currentYaml.type == NULL) {
+        if (currentYaml.type != MAP && currentYaml.type != ARRAY) {
             currentYaml.type = getType(line);
             switch (currentYaml.type) {
                 case ARRAY:
