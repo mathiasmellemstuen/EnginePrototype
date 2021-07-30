@@ -5,7 +5,6 @@
 #include <vulkan/vulkan.h>
 #include "logicalDevice.h"
 #include "swapChain.h"
-#include "vertexBuffer.h"
 #include "physicalDevice.h"
 
 class UniformBuffer {
@@ -14,8 +13,8 @@ class UniformBuffer {
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
         void update(uint32_t currentImage);
-        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, VertexBuffer& vertexBuffer); 
-        UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, VertexBuffer& vertexBuffer); 
+        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain); 
+        UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain); 
         ~UniformBuffer(); 
     private:
         size_t allocatedSwapChainSize;

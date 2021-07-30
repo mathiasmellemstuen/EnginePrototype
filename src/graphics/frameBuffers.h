@@ -7,12 +7,13 @@
 #include "logicalDevice.h"
 #include "swapChain.h"
 #include "graphicsPipeline.h"
+#include "depthResources.h" 
 
 class FrameBuffers {
     public:
         std::vector<VkFramebuffer> swapChainFramebuffers;
-        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
-        void create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
+        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources);
+        void create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources); 
         ~FrameBuffers(); 
     private: 
         VkDevice* device; 

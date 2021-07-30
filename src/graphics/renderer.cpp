@@ -21,23 +21,26 @@ shader(logicalDevice, "shaders/vert.spv", "shaders/frag.spv"),
 
 descriptorSetLayout(logicalDevice),
 
-graphicsPipeline(logicalDevice, swapChain, shader, descriptorSetLayout),
-
-frameBuffers(logicalDevice, imageViews, swapChain, graphicsPipeline),
+graphicsPipeline(physicalDevice, logicalDevice, swapChain, shader, descriptorSetLayout),
 
 commandPool(physicalDevice, logicalDevice), 
 
+depthResources(physicalDevice, logicalDevice, imageViews, swapChain),
+
+frameBuffers(logicalDevice, imageViews, swapChain, graphicsPipeline, depthResources),
+
+texture(physicalDevice, logicalDevice, commandPool, imageViews),
+
 vertexBuffer(physicalDevice, commandPool, logicalDevice, verticies, indices),
 
-uniformBuffer(physicalDevice, logicalDevice, swapChain, vertexBuffer),
+uniformBuffer(physicalDevice, logicalDevice, swapChain),
 
-descriptorPool(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout),
+descriptorPool(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout, texture),
 
 commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool),
 
 syncObjects(logicalDevice,swapChain),
 
-texture(physicalDevice, logicalDevice, vertexBuffer, commandPool, commandBuffers, imageViews),
 
 window(window)
 
@@ -98,11 +101,12 @@ void Renderer::reCreateSwapChain() {
 
     swapChain.create(physicalDevice, logicalDevice, window);
     imageViews.create(swapChain, logicalDevice);
-    graphicsPipeline.createRenderPass(swapChain);
+    graphicsPipeline.createRenderPass(physicalDevice, swapChain);
     graphicsPipeline.create(logicalDevice, swapChain, shader, descriptorSetLayout);
-    frameBuffers.create(logicalDevice, imageViews, swapChain, graphicsPipeline);
-    uniformBuffer.create(physicalDevice, logicalDevice, swapChain, vertexBuffer); 
-    descriptorPool.create(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout); 
+    depthResources.create(physicalDevice, logicalDevice, imageViews, swapChain); 
+    frameBuffers.create(logicalDevice, imageViews, swapChain, graphicsPipeline, depthResources);
+    uniformBuffer.create(physicalDevice, logicalDevice, swapChain); 
+    descriptorPool.create(logicalDevice, swapChain, uniformBuffer, descriptorSetLayout, texture); 
     commandBuffers.create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool);
 };
 

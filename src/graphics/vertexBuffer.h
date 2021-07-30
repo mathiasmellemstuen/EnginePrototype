@@ -17,9 +17,7 @@ class VertexBuffer {
         VkDeviceMemory indexBufferMemory;
         std::vector<Vertex> vertices;
         std::vector<uint16_t> indices;
-        void createBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         void cleanup(); 
-        uint32_t findMemoryType(PhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
         VertexBuffer(PhysicalDevice& physicalDevice, CommandPool& commandPool, LogicalDevice& logicalDevice, std::vector<Vertex>& vertices, std::vector<uint16_t>& indices);
         ~VertexBuffer();
     private:

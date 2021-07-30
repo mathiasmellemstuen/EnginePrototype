@@ -13,7 +13,7 @@ class ImageViews {
         ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice); 
         ~ImageViews();
         void create(SwapChain& swapChain, LogicalDevice& logicalDevice); 
-        VkImageView createImageView(LogicalDevice& logicalDevice, VkImage image, VkFormat format);
+        VkImageView createImageView(LogicalDevice& logicalDevice, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     private:
         VkDevice* device; 
 };

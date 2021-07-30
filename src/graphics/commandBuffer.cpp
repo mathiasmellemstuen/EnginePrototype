@@ -7,9 +7,11 @@
 #include "commandPool.h"
 #include "vertexBuffer.h"
 #include "descriptorPool.h"
+#include "vulkanHelperFunctions.h"
 
 #include <stdexcept>
 #include <vector>
+#include <array>
 
 CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
 
@@ -51,9 +53,11 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapChain.swapChainExtent;
 
-        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-        renderPassInfo.clearValueCount = 1; 
-        renderPassInfo.pClearValues = &clearColor;
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0}; 
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -77,43 +81,10 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
     Debug::log(SUCCESS, "Successfully executed command buffers"); 
 }
 
-VkCommandBuffer CommandBuffers::beginSingleTimeCommands(CommandPool& commandPool) {
-    
-    Debug::log(INFO, "Beginning single-time command");
 
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool.commandPool;
-    allocInfo.commandBufferCount = 1;
-    
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(*device, &allocInfo, &commandBuffer);
-    
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-    
-    Debug::log(SUCCESS, "Beginning of single-time command is done!"); 
-    return commandBuffer;
-}
-
-void CommandBuffers::endSingleTimeCommands(LogicalDevice& logicalDevice, CommandPool& commandPool, VkCommandBuffer commandBuffer) {
-
-    vkEndCommandBuffer(commandBuffer);
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-    vkQueueSubmit(logicalDevice.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(logicalDevice.graphicsQueue);
-
-    vkFreeCommandBuffers(*device, commandPool.commandPool, 1, &commandBuffer);
-}
 void CommandBuffers::copyBuffer(LogicalDevice& logicalDevice, CommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
 
-    VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
 
     VkBufferCopy copyRegion{};
     copyRegion.size = size;

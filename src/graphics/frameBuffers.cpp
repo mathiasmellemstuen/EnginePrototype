@@ -6,13 +6,15 @@
 #include "swapChain.h"
 #include "graphicsPipeline.h"
 #include "../utility/debug.h"
+#include "depthResources.h" 
+#include <array>
 
-FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources) {
 
     this->device = &logicalDevice.device; 
-    create(logicalDevice, imageViews, swapChain, graphicsPipeline); 
+    create(logicalDevice, imageViews, swapChain, graphicsPipeline, depthResources); 
 };
-void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources) {
 
     Debug::log(INFO, "Creating framebuffers"); 
 
@@ -20,15 +22,16 @@ void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, 
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
         
-        VkImageView attachments[] = {
-            imageViews.swapChainImageViews[i]
+        std::array<VkImageView, 2> attachments = {
+            imageViews.swapChainImageViews[i],
+            depthResources.depthImageView
         };
 
         VkFramebufferCreateInfo framebufferInfo{}; 
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = graphicsPipeline.renderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = swapChain.swapChainExtent.width;
         framebufferInfo.height = swapChain.swapChainExtent.height;
         framebufferInfo.layers = 1;

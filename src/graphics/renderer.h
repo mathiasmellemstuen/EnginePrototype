@@ -18,6 +18,7 @@
 #include "commandBuffer.h"
 #include "syncObjects.h"
 #include "texture.h"
+#include "depthResources.h"
 
 #include <vector>
 
@@ -32,14 +33,15 @@ class Renderer {
         Shader shader;
         DescriptorSetLayout descriptorSetLayout; 
         GraphicsPipeline graphicsPipeline;
-        FrameBuffers frameBuffers;
         CommandPool commandPool;
+        DepthResources depthResources;
+        FrameBuffers frameBuffers;
+        Texture texture; 
         VertexBuffer vertexBuffer;
         UniformBuffer uniformBuffer; 
         DescriptorPool descriptorPool;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
-        Texture texture; 
 
         Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices);
         void loop(); 

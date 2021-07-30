@@ -1,7 +1,6 @@
 #include "uniformBuffer.h"
 #include "logicalDevice.h"
 #include "uniformBufferObject.h"
-#include "vertexBuffer.h"
 #include "physicalDevice.h"
 #include "../utility/debug.h"
 
@@ -10,6 +9,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <cstring>
+
+#include "vulkanHelperFunctions.h"
 
 void UniformBuffer::update(uint32_t currentImage) {
     
@@ -29,7 +30,7 @@ void UniformBuffer::update(uint32_t currentImage) {
     vkUnmapMemory(*device, uniformBuffersMemory[currentImage]);
 }
 
-void UniformBuffer::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, VertexBuffer& vertexBuffer) {
+void UniformBuffer::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain) {
     
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
     uniformBuffers.resize(swapChain.swapChainImages.size());
@@ -38,13 +39,13 @@ void UniformBuffer::create(PhysicalDevice& physicalDevice, LogicalDevice& logica
     allocatedSwapChainSize = swapChain.swapChainImages.size();
 
     for (size_t i = 0; i < allocatedSwapChainSize; i++) {
-        vertexBuffer.createBuffer(physicalDevice, logicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+        createBuffer(physicalDevice, logicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
     }
 }
 
-UniformBuffer::UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, VertexBuffer& vertexBuffer) {
+UniformBuffer::UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain) {
     this->device = &logicalDevice.device; 
-    create(physicalDevice, logicalDevice, swapChain, vertexBuffer); 
+    create(physicalDevice, logicalDevice, swapChain); 
 }
 
 UniformBuffer::~UniformBuffer() {

@@ -7,15 +7,16 @@
 #include <vector>
 #include "uniformBuffer.h"
 #include "descriptorSetLayout.h"
+#include "texture.h"
 
 class DescriptorPool {
     public:
         VkDescriptorPool descriptorPool;
         std::vector<VkDescriptorSet> descriptorSets;
         VkDevice* device; 
-        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout);
-        void createDescriptorSets(SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout);
-        DescriptorPool(LogicalDevice& logicalDevice, SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout); 
+        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout, Texture& texture);
+        void createDescriptorSets(SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout, Texture& texture);
+        DescriptorPool(LogicalDevice& logicalDevice, SwapChain& swapChain, UniformBuffer& uniformBuffer, DescriptorSetLayout& descriptorSetLayout, Texture& texture); 
         ~DescriptorPool(); 
 };
 
