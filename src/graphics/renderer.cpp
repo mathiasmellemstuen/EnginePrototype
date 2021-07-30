@@ -37,7 +37,7 @@ commandBuffers(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsP
 
 syncObjects(logicalDevice,swapChain),
 
-texture(physicalDevice, logicalDevice, vertexBuffer, commandPool, commandBuffers),
+texture(physicalDevice, logicalDevice, vertexBuffer, commandPool, commandBuffers, imageViews),
 
 window(window)
 

@@ -8,38 +8,41 @@
 
 ImageViews::ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice) {
     this->device = &logicalDevice.device;
-    swapChainImageViews.resize(swapChain.swapChainImages.size());
-    
     create(swapChain, logicalDevice); 
 };
 
 void ImageViews::create(SwapChain& swapChain, LogicalDevice& logicalDevice) {
-    Debug::log(INFO, "Create image views"); 
+    Debug::log(INFO, "Create image views");
 
-    for (size_t i = 0; i < swapChain.swapChainImages.size(); i++) {
-        
-        VkImageViewCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = swapChain.swapChainImages[i];
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = swapChain.swapChainImageFormat;
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY; 
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-        
-        if (vkCreateImageView(*this->device, &createInfo, nullptr,  &swapChainImageViews[i]) != VK_SUCCESS) { 
-            throw std::runtime_error("failed to create image views!");
-        }
+    swapChainImageViews.resize(swapChain.swapChainImages.size());
+    for (uint32_t i = 0; i < swapChain.swapChainImages.size(); i++) {
+        swapChainImageViews[i] = createImageView(logicalDevice, swapChain.swapChainImages[i], swapChain.swapChainImageFormat);
     }
 
     Debug::log(SUCCESS, "Image views created!"); 
 };
+
+VkImageView ImageViews::createImageView(LogicalDevice& logicalDevice, VkImage image, VkFormat format) {
+
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = format;
+    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+
+    if (vkCreateImageView(logicalDevice.device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create texture image view!");
+    }
+
+    return imageView;
+}
 
 ImageViews::~ImageViews(){
     Debug::log(INFO, "Destroying image views"); 

@@ -5,7 +5,7 @@
 #include <cstring>
 #include "physicalDevice.h"
 
-void Texture::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VertexBuffer& vertexBuffer, CommandPool& commandPool, CommandBuffers& commandBuffers) {
+void Texture::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VertexBuffer& vertexBuffer, CommandPool& commandPool, CommandBuffers& commandBuffers, ImageViews& imageViews) {
     Debug::log(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load("textures/texture.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -37,6 +37,9 @@ void Texture::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
 
     vkDestroyBuffer(*device, stagingBuffer, nullptr);
     vkFreeMemory(*device, stagingBufferMemory, nullptr);
+
+    createTextureImageView(logicalDevice, imageViews);
+    createTextureSampler(logicalDevice); 
 }
 void Texture::createImage(PhysicalDevice& physicalDevice, VertexBuffer& vertexBuffer, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
 
@@ -79,9 +82,40 @@ void Texture::createImage(PhysicalDevice& physicalDevice, VertexBuffer& vertexBu
 
 }
 
-void Texture::createTextureImageView() {
-
+void Texture::createTextureImageView(LogicalDevice& logicalDevice, ImageViews& imageViews) {
+    textureImageView = imageViews.createImageView(logicalDevice, textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 }
+
+void Texture::createTextureSampler(LogicalDevice& logicalDevice) {
+    
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = 16;
+
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+
+    if (vkCreateSampler(logicalDevice.device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create texture sampler!");
+    }
+}
+
 void Texture::transitionImageLayout(LogicalDevice& logicalDevice, CommandPool& commandPool, CommandBuffers& commandBuffers, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
 
     Debug::log(INFO, "Starting transitioning image layout"); 
@@ -148,11 +182,12 @@ void Texture::copyBufferToImage(LogicalDevice& logicalDevice, CommandPool& comma
     commandBuffers.endSingleTimeCommands(logicalDevice, commandPool, commandBuffer);
 }
 
-Texture::Texture(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VertexBuffer& vertexBuffer, CommandPool& commandPool, CommandBuffers& commandBuffers) {
+Texture::Texture(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VertexBuffer& vertexBuffer, CommandPool& commandPool, CommandBuffers& commandBuffers, ImageViews& imageViews) {
     this->device = &logicalDevice.device;
-    create(physicalDevice, logicalDevice, vertexBuffer, commandPool, commandBuffers);  
+    create(physicalDevice, logicalDevice, vertexBuffer, commandPool, commandBuffers, imageViews);  
 }
 
 Texture::~Texture() {
-    
+    vkDestroySampler(*device, textureSampler, nullptr);
+    vkDestroyImageView(*device, textureImageView, nullptr); 
 }
