@@ -93,7 +93,6 @@ void VertexBuffer::copyBuffer(LogicalDevice& logicalDevice, CommandPool& command
 
 void VertexBuffer::createBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
 
-    Debug::log(INFO, "Creating buffer!"); 
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
@@ -116,7 +115,6 @@ void VertexBuffer::createBuffer(PhysicalDevice& physicalDevice, LogicalDevice& l
     }
 
     vkBindBufferMemory(logicalDevice.device, buffer, bufferMemory, 0);
-    Debug::log(SUCCESS, "Buffer created!"); 
 }
 
 uint32_t VertexBuffer::findMemoryType(PhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
