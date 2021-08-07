@@ -15,7 +15,6 @@ struct QueueFamilyIndices {
     }
 };
 
-
 class PhysicalDevice {
     public:
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;

@@ -6,7 +6,7 @@
 #include "commandPool.h"
 #include "vulkanHelperFunctions.h"
 
-VertexBuffer::VertexBuffer(PhysicalDevice& physicalDevice, CommandPool& commandPool, LogicalDevice& logicalDevice, std::vector<Vertex>& vertices, std::vector<uint16_t>& indices) {
+VertexBuffer::VertexBuffer(PhysicalDevice& physicalDevice, CommandPool& commandPool, LogicalDevice& logicalDevice, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
     this->device = &logicalDevice.device; 
     this->vertices = vertices;
     this->indices = indices;
@@ -40,7 +40,7 @@ void VertexBuffer::createVertexBuffer(PhysicalDevice& physicalDevice, CommandPoo
     Debug::log(SUCCESS, "Vertex buffer created!"); 
 };
 
-void VertexBuffer::createIndexBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, std::vector<uint16_t>& indices) {
+void VertexBuffer::createIndexBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, std::vector<uint32_t>& indices) {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     VkBuffer stagingBuffer;

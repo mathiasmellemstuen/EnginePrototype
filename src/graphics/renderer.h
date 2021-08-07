@@ -43,7 +43,7 @@ class Renderer {
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
 
-        Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint16_t>& indices);
+        Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint32_t>& indices);
         void loop(); 
     private: 
         void cleanupSwapChain();

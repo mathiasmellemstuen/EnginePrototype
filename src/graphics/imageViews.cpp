@@ -16,13 +16,13 @@ void ImageViews::create(SwapChain& swapChain, LogicalDevice& logicalDevice) {
 
     swapChainImageViews.resize(swapChain.swapChainImages.size());
     for (uint32_t i = 0; i < swapChain.swapChainImages.size(); i++) {
-        swapChainImageViews[i] = createImageView(logicalDevice, swapChain.swapChainImages[i], swapChain.swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        swapChainImageViews[i] = createImageView(logicalDevice, swapChain.swapChainImages[i], swapChain.swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
     }
 
     Debug::log(SUCCESS, "Image views created!"); 
 };
 
-VkImageView ImageViews::createImageView(LogicalDevice& logicalDevice, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+VkImageView ImageViews::createImageView(LogicalDevice& logicalDevice, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels) {
 
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -32,7 +32,7 @@ VkImageView ImageViews::createImageView(LogicalDevice& logicalDevice, VkImage im
     //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     viewInfo.subresourceRange.aspectMask = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.levelCount = mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 

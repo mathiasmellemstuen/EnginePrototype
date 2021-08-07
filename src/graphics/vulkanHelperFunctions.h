@@ -14,6 +14,7 @@ void endSingleTimeCommands(LogicalDevice& logicalDevice, CommandPool& commandPoo
 VkFormat findSupportedFormat(PhysicalDevice& physicalDevice, const std::vector<VkFormat>&candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 VkFormat findDepthFormat(PhysicalDevice& physicalDevice);
 bool hasStencilComponent(VkFormat format);
-void createImage(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+void createImage(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+void generateMipmaps(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
 #endif
