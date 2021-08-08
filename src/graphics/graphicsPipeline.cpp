@@ -2,19 +2,19 @@
 #include "../utility/debug.h"
 #include "shader.h"
 #include "vertex.h"
-#include "vulkanHelperFunctions.h"
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 
-GraphicsPipeline::GraphicsPipeline(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout) {
+#include "renderer.h"
+
+GraphicsPipeline::GraphicsPipeline(Renderer& renderer) : renderer(renderer) {
     
-    this->device = &logicalDevice.device;
-    this->createRenderPass(physicalDevice, swapChain); 
-    this->create(logicalDevice, swapChain, shader, descriptorSetLayout); 
+    this->createRenderPass(); 
+    this->create(); 
 };
 
-void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout) {
+void GraphicsPipeline::create() {
     
     Debug::log(INFO, "Starting to create graphics pipeline"); 
 
@@ -36,14 +36,14 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     VkViewport viewport{};
     viewport.x = 0.0f; 
     viewport.y = 0.0f; 
-    viewport.width = (float) swapChain.swapChainExtent.width; 
-    viewport.height = (float) swapChain.swapChainExtent.height; 
+    viewport.width = (float) renderer.swapChain.swapChainExtent.width; 
+    viewport.height = (float) renderer.swapChain.swapChainExtent.height; 
     viewport.minDepth = 0.0f; 
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0}; 
-    scissor.extent = swapChain.swapChainExtent;
+    scissor.extent = renderer.swapChain.swapChainExtent;
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType =  VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -74,7 +74,7 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO; 
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.rasterizationSamples = renderer.physicalDevice.msaaSamples;
     multisampling.minSampleShading = 1.0f; // Optional 
     multisampling.pSampleMask = nullptr; // Optional 
     multisampling.alphaToCoverageEnable = VK_FALSE; // Optional 
@@ -122,9 +122,9 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &renderer.descriptorSetLayout.descriptorSetLayout;
 
-    if (vkCreatePipelineLayout(*device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
+    if (vkCreatePipelineLayout(renderer.logicalDevice.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
         Debug::log(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
@@ -143,7 +143,7 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shader.shaderStages;
+    pipelineInfo.pStages = renderer.shader.shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
@@ -156,7 +156,7 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(renderer.logicalDevice.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         
         Debug::log(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
@@ -164,13 +164,13 @@ void GraphicsPipeline::create(LogicalDevice& logicalDevice, SwapChain& swapChain
     Debug::log(SUCCESS, "Created graphics pipeline!"); 
 };
 
-void GraphicsPipeline::createRenderPass(PhysicalDevice& physicalDevice, SwapChain& swapChain) {
+void GraphicsPipeline::createRenderPass() {
     
     Debug::log(INFO, "Creating render pass"); 
     
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = findDepthFormat(physicalDevice);
-    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.format = renderer.findDepthFormat();
+    depthAttachment.samples = renderer.physicalDevice.msaaSamples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -183,46 +183,61 @@ void GraphicsPipeline::createRenderPass(PhysicalDevice& physicalDevice, SwapChai
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChain.swapChainImageFormat; 
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.format = renderer.swapChain.swapChainImageFormat; 
+    colorAttachment.samples = renderer.physicalDevice.msaaSamples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
 
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0; 
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentDescription colorAttachmentResolve{};
+    colorAttachmentResolve.format = renderer.swapChain.swapChainImageFormat;
+    colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentResolveRef{};
+    colorAttachmentResolveRef.attachment = 2;
+    colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.pResolveAttachments = &colorAttachmentResolveRef;
     
-    std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+    std::array<VkAttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
+
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-
-    VkSubpassDependency dependency{};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-
-    dependency.srcStageMask =  VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; 
-    dependency.srcAccessMask = 0;
-
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; 
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(*device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(renderer.logicalDevice.device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
         Debug::log(ERROR, "Failed to create render pass!"); 
         throw std::runtime_error("failed to create render pass!");
     }
@@ -232,8 +247,8 @@ void GraphicsPipeline::createRenderPass(PhysicalDevice& physicalDevice, SwapChai
 
 GraphicsPipeline::~GraphicsPipeline() {
     Debug::log(INFO, "Destroying graphics pipeline"); 
-    vkDestroyPipeline(*device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(*device, pipelineLayout, nullptr);
-    vkDestroyRenderPass(*device, renderPass, nullptr);
+    vkDestroyPipeline(renderer.logicalDevice.device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(renderer.logicalDevice.device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(renderer.logicalDevice.device, renderPass, nullptr);
     Debug::log(SUCCESS, "Graphics pipeline destroyed!"); 
 };

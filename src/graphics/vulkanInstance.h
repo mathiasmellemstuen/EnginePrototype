@@ -4,12 +4,16 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 
+class Renderer;
+
 class VulkanInstance {
     public: 
         VkInstance instance;
         VkSurfaceKHR surface;
-        VulkanInstance(SDL_Window& window); 
+        VulkanInstance(Renderer& renderer); 
         ~VulkanInstance(); 
+    private:
+        Renderer& renderer;
 };
 
 #endif

@@ -1,4 +1,3 @@
-
 #include "graphics/vertex.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION

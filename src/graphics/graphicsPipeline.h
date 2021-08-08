@@ -9,17 +9,19 @@
 
 #include <vulkan/vulkan.h>
 
+class Renderer;
+
 class GraphicsPipeline {
     public: 
         VkPipeline graphicsPipeline;
         VkPipelineLayout pipelineLayout;
-        VkDevice* device; 
         VkRenderPass renderPass; 
-        void create(LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout);
-        GraphicsPipeline(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain, Shader& shader, DescriptorSetLayout& descriptorSetLayout); 
+        void create();
+        GraphicsPipeline(Renderer& renderer); 
         ~GraphicsPipeline();
-        void createRenderPass(PhysicalDevice& physicalDevice, SwapChain& swapChain); 
+        void createRenderPass(); 
     private:
+        Renderer& renderer;
 };
 
 #endif

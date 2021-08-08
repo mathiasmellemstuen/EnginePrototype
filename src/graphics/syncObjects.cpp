@@ -4,16 +4,15 @@
 #include "../utility/debug.h"
 #include "swapChain.h"
 
-SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
+#include "renderer.h"
+SyncObjects::SyncObjects(Renderer& renderer) : renderer(renderer) {
 
     Debug::log(INFO, "Creating sync objects"); 
-
-    this->device = &logicalDevice.device;
 
     //TODO: Change 2 with max frames in flight variable from properties. 
     imageAvailableSemaphores.resize(2);
     renderFinishedSemaphores.resize(2);
-    imagesInFlight.resize(swapChain.swapChainImages.size(), VK_NULL_HANDLE);
+    imagesInFlight.resize(renderer.swapChain.swapChainImages.size(), VK_NULL_HANDLE);
     inFlightFences.resize(2);
 
 
@@ -27,7 +26,7 @@ SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
     //TODO: Change 2 with max frames in flight variable from properties. 
     for (size_t i = 0; i < 2; i++) {
         
-        if (vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(*device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+        if (vkCreateSemaphore(renderer.logicalDevice.device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(renderer.logicalDevice.device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(renderer.logicalDevice.device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
             
             Debug::log(ERROR, "Failed to create synchronization objects for a frame!"); 
             throw std::runtime_error("failed to create synchronization objects for a frame!");
@@ -41,9 +40,9 @@ SyncObjects::~SyncObjects() {
 
     //TODO: Change 2 with max frames in flight variable from properties.
     for (size_t i = 0; i < 2; i++) {
-        vkDestroySemaphore(*device, renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(*device, imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(*device, inFlightFences[i], nullptr);
+        vkDestroySemaphore(renderer.logicalDevice.device, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(renderer.logicalDevice.device, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(renderer.logicalDevice.device, inFlightFences[i], nullptr);
     }
 };
 

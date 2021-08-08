@@ -7,17 +7,18 @@
 #include "swapChain.h"
 #include "physicalDevice.h"
 
+class Renderer;
 class UniformBuffer {
     public:
-        VkDevice* device; 
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
         void update(uint32_t currentImage);
-        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain); 
-        UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain); 
+        void create(); 
+        UniformBuffer(Renderer& renderer); 
         ~UniformBuffer(); 
     private:
         size_t allocatedSwapChainSize;
+        Renderer& renderer;
 };
 
 #endif

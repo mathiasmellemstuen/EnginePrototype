@@ -4,10 +4,10 @@
 #include "../utility/debug.h"
 #include <cstring>
 #include "physicalDevice.h"
-#include "vulkanHelperFunctions.h"
 #include <cmath>
+#include "renderer.h"
 
-void Texture::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, ImageViews& imageViews) {
+void Texture::create() {
     Debug::log(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load("textures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -23,40 +23,40 @@ void Texture::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevic
     Debug::log(SUCCESS, "Successfully loaded texture image!");
     Debug::log(INFO, "Creating buffer that stores the image/texture"); 
 
-    createBuffer(physicalDevice, logicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    renderer.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
     void* data;
-    vkMapMemory(*device, stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(renderer.logicalDevice.device, stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(*device, stagingBufferMemory);
+    vkUnmapMemory(renderer.logicalDevice.device, stagingBufferMemory);
     stbi_image_free(pixels);
 
     Debug::log(SUCCESS, "Successfully created buffer"); 
 
-    createImage(physicalDevice, logicalDevice, texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+    renderer.createImage(texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
-    transitionImageLayout(logicalDevice, commandPool, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
-    copyBufferToImage(logicalDevice, commandPool, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
 
-    vkDestroyBuffer(*device, stagingBuffer, nullptr);
-    vkFreeMemory(*device, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(renderer.logicalDevice.device, stagingBuffer, nullptr);
+    vkFreeMemory(renderer.logicalDevice.device, stagingBufferMemory, nullptr);
 
-    generateMipmaps(physicalDevice, logicalDevice, commandPool, textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
+    renderer.generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 
-    createTextureImageView(logicalDevice, imageViews, mipLevels);
-    createTextureSampler(physicalDevice, logicalDevice); 
+    createTextureImageView(mipLevels);
+    createTextureSampler(); 
 }
 
 
-void Texture::createTextureImageView(LogicalDevice& logicalDevice, ImageViews& imageViews, uint32_t mipLevels) {
-    textureImageView = imageViews.createImageView(logicalDevice, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+void Texture::createTextureImageView(uint32_t mipLevels) {
+    textureImageView = renderer.imageViews.createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 }
 
-void Texture::createTextureSampler(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice) {
+void Texture::createTextureSampler() {
     
     VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(physicalDevice.physicalDevice, &properties);
+    vkGetPhysicalDeviceProperties(renderer.physicalDevice.physicalDevice, &properties);
 
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -76,16 +76,16 @@ void Texture::createTextureSampler(PhysicalDevice& physicalDevice, LogicalDevice
     samplerInfo.maxLod = static_cast<float>(mipLevels);
     samplerInfo.mipLodBias = 0.0f;
 
-    if (vkCreateSampler(logicalDevice.device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+    if (vkCreateSampler(renderer.logicalDevice.device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
 
-void Texture::transitionImageLayout(LogicalDevice& logicalDevice, CommandPool& commandPool, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
+void Texture::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
 
     Debug::log(INFO, "Starting transitioning image layout"); 
 
-    VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
+    VkCommandBuffer commandBuffer = renderer.beginSingleTimeCommands();
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.oldLayout = oldLayout;
@@ -117,14 +117,14 @@ void Texture::transitionImageLayout(LogicalDevice& logicalDevice, CommandPool& c
     }
     vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-    endSingleTimeCommands(logicalDevice, commandPool, commandBuffer);
+    renderer.endSingleTimeCommands(commandBuffer);
 
     Debug::log(SUCCESS, "Transitioning image layout is done!"); 
 }
 
-void Texture::copyBufferToImage(LogicalDevice& logicalDevice, CommandPool& commandPool, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+void Texture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
 
-    VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
+    VkCommandBuffer commandBuffer = renderer.beginSingleTimeCommands();
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -143,15 +143,14 @@ void Texture::copyBufferToImage(LogicalDevice& logicalDevice, CommandPool& comma
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-    endSingleTimeCommands(logicalDevice, commandPool, commandBuffer);
+    renderer.endSingleTimeCommands(commandBuffer);
 }
 
-Texture::Texture(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, CommandPool& commandPool, ImageViews& imageViews) {
-    this->device = &logicalDevice.device;
-    create(physicalDevice, logicalDevice, commandPool, imageViews);  
+Texture::Texture(Renderer& renderer) : renderer(renderer) {
+    create();  
 }
 
 Texture::~Texture() {
-    vkDestroySampler(*device, textureSampler, nullptr);
-    vkDestroyImageView(*device, textureImageView, nullptr); 
+    vkDestroySampler(renderer.logicalDevice.device, textureSampler, nullptr);
+    vkDestroyImageView(renderer.logicalDevice.device, textureImageView, nullptr); 
 }

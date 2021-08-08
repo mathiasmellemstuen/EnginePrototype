@@ -6,12 +6,11 @@
 #include <string>
 #include "../utility/debug.h"
 #include <iostream>
+#include "renderer.h"
 
-Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::string fragmentShaderPath) {
+Shader::Shader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath) : renderer(renderer) {
     
     Debug::log(INFO, "Creating shader"); 
-
-    this->device = &logicalDevice.device; 
 
     auto vertShaderCode = readFile(vertexShaderPath);
     auto fragShaderCode = readFile(fragmentShaderPath);
@@ -39,8 +38,8 @@ Shader::Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::
 
 Shader::~Shader() {
 
-    vkDestroyShaderModule(*this->device, this->vertexShaderModule, nullptr);
-    vkDestroyShaderModule(*this->device, this->fragmentShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.logicalDevice.device, this->vertexShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.logicalDevice.device, this->fragmentShaderModule, nullptr);
 };
 
 std::vector<char> Shader::readFile(const std::string& fileName) {
@@ -72,7 +71,7 @@ VkShaderModule Shader::createShaderModule(const std::vector<char>& code) {
 
     VkShaderModule shaderModule;
 
-    if (vkCreateShaderModule(*this->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+    if (vkCreateShaderModule(renderer.logicalDevice.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
         Debug::log(ERROR, "Failed to create shader module");
         throw std::runtime_error("failed to create shader module!"); 
     }

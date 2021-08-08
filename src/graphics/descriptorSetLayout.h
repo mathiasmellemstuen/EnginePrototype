@@ -4,14 +4,17 @@
 #include <vulkan/vulkan.h>
 #include "logicalDevice.h"
 
+class Renderer;
+
 class DescriptorSetLayout {
 
     public:
-        VkDevice* device; 
         VkDescriptorSetLayout descriptorSetLayout;
-        void create(LogicalDevice& logicalDevice); 
-        DescriptorSetLayout(LogicalDevice& logicalDevice); 
+        void create(); 
+        DescriptorSetLayout(Renderer& renderer); 
         ~DescriptorSetLayout();
+    private:
+        Renderer& renderer;
 };
 
 #endif

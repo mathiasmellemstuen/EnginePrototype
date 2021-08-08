@@ -4,8 +4,9 @@
 #include <stdexcept>
 #include "../utility/debug.h"
 #include <array>
+#include "renderer.h"
 
-void DescriptorSetLayout::create(LogicalDevice& logicalDevice) {
+void DescriptorSetLayout::create() {
 
     Debug::log(INFO, "Starting setup of Descriptor set layout");
 
@@ -29,18 +30,17 @@ void DescriptorSetLayout::create(LogicalDevice& logicalDevice) {
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(*device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(renderer.logicalDevice.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 
     Debug::log(SUCCESS, "Descriptor set layout setup successfull!"); 
 }
 
-DescriptorSetLayout::DescriptorSetLayout(LogicalDevice& logicalDevice) {
-    this->device = &logicalDevice.device;
-    create(logicalDevice);
+DescriptorSetLayout::DescriptorSetLayout(Renderer& renderer) : renderer(renderer) {
+    create();
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
-    vkDestroyDescriptorSetLayout(*device, descriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(renderer.logicalDevice.device, descriptorSetLayout, nullptr);
 }

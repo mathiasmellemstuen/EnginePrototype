@@ -5,13 +5,16 @@
 #include "physicalDevice.h"
 #include "logicalDevice.h"
 
+class Renderer;
+
 class CommandPool {
     public: 
-        VkCommandPool commandPool;
-        VkDevice* device; 
-        void create(PhysicalDevice& physicalDevice); 
-        CommandPool(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice); 
+        VkCommandPool commandPool; 
+        void create(); 
+        CommandPool(Renderer& renderer); 
         ~CommandPool(); 
+    private:
+        Renderer& renderer;
 };
 
 #endif

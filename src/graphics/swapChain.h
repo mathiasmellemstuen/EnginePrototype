@@ -7,20 +7,22 @@
 #include "logicalDevice.h"
 #include "window.h"
 
+class Renderer;
+
 class SwapChain {
     public:
         VkSwapchainKHR swapChain;
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-        SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window);
+        SwapChain(Renderer& renderer);
         ~SwapChain();
-        void create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window);
+        void create();
     private:
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&  capabilities, Window& window);
-        VkDevice* device;
+        Renderer& renderer;
 };
 
 #endif

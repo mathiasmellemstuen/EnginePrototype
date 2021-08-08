@@ -6,6 +6,8 @@
 #include <vector>
 #include "swapChain.h"
 
+class Renderer;
+
 class SyncObjects {
     public:
         std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -14,11 +16,11 @@ class SyncObjects {
         std::vector<VkFence> inFlightFences;
         size_t currentFrame = 0;
 
-        SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain); 
+        SyncObjects(Renderer& renderer); 
         ~SyncObjects(); 
     
     private:
-        VkDevice* device; 
+        Renderer& renderer; 
 };
 
 #endif

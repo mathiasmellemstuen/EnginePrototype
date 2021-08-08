@@ -6,8 +6,9 @@
 #include "validationLayers.h"
 #include "../utility/debug.h"
 #include <vector>
+#include "renderer.h"
 
-VulkanInstance::VulkanInstance(SDL_Window& window) {
+VulkanInstance::VulkanInstance(Renderer& renderer) : renderer(renderer) {
 
     Debug::log(INFO, "Starting creation of a vulkan instance"); 
 
@@ -24,10 +25,10 @@ VulkanInstance::VulkanInstance(SDL_Window& window) {
     createInfo.pApplicationInfo = &appInfo;
 
     unsigned int extensionCount = 0;
-    SDL_Vulkan_GetInstanceExtensions(&window, &extensionCount, nullptr);
+    SDL_Vulkan_GetInstanceExtensions(renderer.window.sdlWindow, &extensionCount, nullptr);
 
     std::vector<const char *> extensionNames(extensionCount);
-    SDL_Vulkan_GetInstanceExtensions(&window, &extensionCount, extensionNames.data());
+    SDL_Vulkan_GetInstanceExtensions(renderer.window.sdlWindow, &extensionCount, extensionNames.data());
 
     createInfo.enabledExtensionCount = extensionNames.size(); 
     createInfo.ppEnabledExtensionNames = extensionNames.data(); 
@@ -53,7 +54,7 @@ VulkanInstance::VulkanInstance(SDL_Window& window) {
         Debug::log(ERROR, "Failed to create instance!"); 
     }
 
-    if (SDL_Vulkan_CreateSurface(&window, instance, &surface) == SDL_FALSE) { 
+    if (SDL_Vulkan_CreateSurface(renderer.window.sdlWindow, instance, &surface) == SDL_FALSE) { 
         Debug::log(ERROR, "Failed to create window surface!"); 
         throw std::runtime_error("Failed to create window surface!"); 
     }

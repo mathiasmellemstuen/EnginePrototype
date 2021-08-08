@@ -10,7 +10,7 @@
 #include <chrono>
 #include <cstring>
 
-#include "vulkanHelperFunctions.h"
+#include "renderer.h"
 
 void UniformBuffer::update(uint32_t currentImage) {
     
@@ -25,32 +25,31 @@ void UniformBuffer::update(uint32_t currentImage) {
     ubo.proj[1][1] *= -1;
 
     void* data;
-    vkMapMemory(*device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(renderer.logicalDevice.device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(*device, uniformBuffersMemory[currentImage]);
+    vkUnmapMemory(renderer.logicalDevice.device, uniformBuffersMemory[currentImage]);
 }
 
-void UniformBuffer::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain) {
+void UniformBuffer::create() {
     
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    uniformBuffers.resize(swapChain.swapChainImages.size());
-    uniformBuffersMemory.resize(swapChain.swapChainImages.size());
+    uniformBuffers.resize(renderer.swapChain.swapChainImages.size());
+    uniformBuffersMemory.resize(renderer.swapChain.swapChainImages.size());
 
-    allocatedSwapChainSize = swapChain.swapChainImages.size();
+    allocatedSwapChainSize = renderer.swapChain.swapChainImages.size();
 
     for (size_t i = 0; i < allocatedSwapChainSize; i++) {
-        createBuffer(physicalDevice, logicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+        renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
     }
 }
 
-UniformBuffer::UniformBuffer(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, SwapChain& swapChain) {
-    this->device = &logicalDevice.device; 
-    create(physicalDevice, logicalDevice, swapChain); 
+UniformBuffer::UniformBuffer(Renderer& renderer) : renderer(renderer) {
+    create(); 
 }
 
 UniformBuffer::~UniformBuffer() {
     for (size_t i = 0; i < allocatedSwapChainSize; i++) {
-        vkDestroyBuffer(*device, uniformBuffers[i], nullptr);
-        vkFreeMemory(*device, uniformBuffersMemory[i], nullptr);
+        vkDestroyBuffer(renderer.logicalDevice.device, uniformBuffers[i], nullptr);
+        vkFreeMemory(renderer.logicalDevice.device, uniformBuffersMemory[i], nullptr);
     }
 }

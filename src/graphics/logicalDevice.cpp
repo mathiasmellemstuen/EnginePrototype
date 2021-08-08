@@ -1,3 +1,4 @@
+
 #include "logicalDevice.h"
 
 #include <vulkan/vulkan.h>
@@ -9,11 +10,16 @@
 #include "deviceExtensions.h"
 #include "../utility/debug.h"
 
-LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
+#include "renderer.h"
 
+LogicalDevice::LogicalDevice(Renderer& renderer) : renderer(renderer) {
+    create(); 
+};
+
+void LogicalDevice::create() {
     Debug::log(INFO, "Setting up a logical device"); 
 
-    QueueFamilyIndices indices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
+    QueueFamilyIndices indices = renderer.physicalDevice.findQueueFamilies(renderer.physicalDevice.physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -57,7 +63,7 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
         createInfo.enabledLayerCount = 0; 
     }
 
-    if (vkCreateDevice(physicalDevice.physicalDevice, &createInfo, nullptr, &device) !=  VK_SUCCESS) { 
+    if (vkCreateDevice(renderer.physicalDevice.physicalDevice, &createInfo, nullptr, &device) !=  VK_SUCCESS) { 
         
         Debug::log(ERROR, "Failed to create logical device!"); 
         throw std::runtime_error("Failed to create logical device!"); 
@@ -67,8 +73,7 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0,  &presentQueue);
 
     Debug::log(SUCCESS, "Created logical device!"); 
-
-};
+}
 
 LogicalDevice::~LogicalDevice() {
     Debug::log(INFO, "Destroying logical device"); 

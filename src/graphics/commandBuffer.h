@@ -15,15 +15,16 @@
 
 #include <vector>
 
+class Renderer;
+
 class CommandBuffers {
     public:
         std::vector<VkCommandBuffer> commandBuffers;
-        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool); 
-        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool);
-        void copyBuffer(LogicalDevice& logicalDevice, CommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        CommandBuffers(Renderer& renderer); 
+        void create();
         ~CommandBuffers(); 
     private:
-        VkDevice* device; 
+        Renderer& renderer;
 };
 
 #endif

@@ -8,14 +8,17 @@
 #include "swapChain.h"
 #include "graphicsPipeline.h"
 #include "depthResources.h" 
+#include "colorResources.h"
+
+class Renderer;
 
 class FrameBuffers {
     public:
         std::vector<VkFramebuffer> swapChainFramebuffers;
-        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources);
-        void create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, DepthResources& depthResources); 
+        FrameBuffers(Renderer& renderer);
+        void create(); 
         ~FrameBuffers(); 
     private: 
-        VkDevice* device; 
-};
+        Renderer& renderer;
+    };
 #endif

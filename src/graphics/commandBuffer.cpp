@@ -7,30 +7,30 @@
 #include "commandPool.h"
 #include "vertexBuffer.h"
 #include "descriptorPool.h"
-#include "vulkanHelperFunctions.h"
 
 #include <stdexcept>
 #include <vector>
 #include <array>
 
-CommandBuffers::CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
+#include "renderer.h"
 
-    this->device = &logicalDevice.device; 
-    create(logicalDevice, physicalDevice, frameBuffers, swapChain, graphicsPipeline, vertexBuffer, commandPool, descriptorSetLayout, descriptorPool);
+CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
+
+    create();
 }
-void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline, VertexBuffer& vertexBuffer, CommandPool& commandPool, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool) {
+void CommandBuffers::create() {
 
     Debug::log(INFO, "Starting setup and execution of command buffers"); 
     
-    commandBuffers.resize(frameBuffers.swapChainFramebuffers.size());
+    commandBuffers.resize(renderer.frameBuffers.swapChainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool.commandPool;
+    allocInfo.commandPool = renderer.commandPool.commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(*device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(renderer.logicalDevice.device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
         Debug::log(ERROR, "Failed to allocate command buffers!"); 
         throw std::runtime_error("failed to allocate command buffers!"); 
     }
@@ -47,11 +47,11 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
         
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = graphicsPipeline.renderPass;
-        renderPassInfo.framebuffer = frameBuffers.swapChainFramebuffers[i];
+        renderPassInfo.renderPass = renderer.graphicsPipeline.renderPass;
+        renderPassInfo.framebuffer = renderer.frameBuffers.swapChainFramebuffers[i];
 
         renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapChain.swapChainExtent;
+        renderPassInfo.renderArea.extent = renderer.swapChain.swapChainExtent;
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -61,14 +61,14 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
-            VkBuffer vertexBuffers[] = {vertexBuffer.vertexBuffer};
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.graphicsPipeline.graphicsPipeline);
+            VkBuffer vertexBuffers[] = {renderer.vertexBuffer.vertexBuffer};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(commandBuffers[i], vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(commandBuffers[i], renderer.vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &descriptorPool.descriptorSets[i], 0, nullptr);
-            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(vertexBuffer.indices.size()), 1, 0, 0, 0);
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.graphicsPipeline.pipelineLayout, 0, 1, &renderer.descriptorPool.descriptorSets[i], 0, nullptr);
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderer.vertexBuffer.indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -79,18 +79,6 @@ void CommandBuffers::create(LogicalDevice& logicalDevice, PhysicalDevice& physic
 
     }
     Debug::log(SUCCESS, "Successfully executed command buffers"); 
-}
-
-
-void CommandBuffers::copyBuffer(LogicalDevice& logicalDevice, CommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-
-    VkCommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
-
-    VkBufferCopy copyRegion{};
-    copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    endSingleTimeCommands(logicalDevice, commandPool, commandBuffer);
 }
 
 CommandBuffers::~CommandBuffers() {

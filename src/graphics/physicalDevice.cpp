@@ -12,6 +12,8 @@
 
 #include "vulkanInstance.h"
 
+#include "renderer.h"
+
 bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     
     uint32_t extensionCount; 
@@ -83,13 +85,13 @@ bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
 
 
 
-PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {
+PhysicalDevice::PhysicalDevice(Renderer& renderer) : renderer(renderer) {
 
     Debug::log(INFO, "Checking and creating physical device context"); 
-    surface = &instance.surface;
+    surface = &renderer.vulkanInstance.surface;
 
     uint32_t deviceCount = 0; 
-    vkEnumeratePhysicalDevices(instance.instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(renderer.vulkanInstance.instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) { 
         Debug::log(ERROR, "Failed to find GPUs with Vulkan support!"); 
@@ -97,11 +99,12 @@ PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount); 
-    vkEnumeratePhysicalDevices(instance.instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(renderer.vulkanInstance.instance, &deviceCount, devices.data());
 
     for (const auto& device : devices) {
         if (isDeviceSuitable(device)) { 
-            physicalDevice = device; 
+            physicalDevice = device;
+            msaaSamples = renderer.getMaxUsableSampleCount();
             break; 
         }
     } 
