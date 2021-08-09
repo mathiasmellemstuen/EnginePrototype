@@ -3,11 +3,9 @@
 
 #include <vector>
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
-#include "swapChain.h"
-#include "physicalDevice.h"
 
 class Renderer;
+
 class UniformBuffer {
     public:
         std::vector<VkBuffer> uniformBuffers;

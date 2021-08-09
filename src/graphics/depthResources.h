@@ -2,11 +2,6 @@
 #define ENGINEPROTOTYPE_DEPTHRESOURCES
 
 #include <vulkan/vulkan.h>
-#include "physicalDevice.h"
-#include "imageViews.h"
-#include "texture.h"
-#include "swapChain.h"
-#include "logicalDevice.h"
 
 class Renderer;
 

@@ -3,8 +3,6 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "physicalDevice.h"
-#include "logicalDevice.h"
 #include "window.h"
 
 class Renderer;

@@ -2,11 +2,6 @@
 #define ENGINEPROTOTYPE_TEXTURE
 
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
-#include "vertexBuffer.h"
-#include "physicalDevice.h"
-#include "commandPool.h"
-#include "imageViews.h"
 
 class Renderer;
 

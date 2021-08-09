@@ -2,10 +2,6 @@
 #define ENGINEPROTOTYPE_COLORRESOURCES
 
 #include <vulkan/vulkan.h>
-#include "physicalDevice.h"
-#include "logicalDevice.h"
-#include "swapChain.h"
-#include "imageViews.h"
 
 class Renderer;
 

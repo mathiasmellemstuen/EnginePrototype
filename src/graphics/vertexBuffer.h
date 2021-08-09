@@ -2,11 +2,8 @@
 #define ENGINEPROTOTYPE_VERTEXBUFFER
 
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
-#include "physicalDevice.h" 
 #include "vertex.h"
 #include <vector>
-#include "commandPool.h"
 
 class Renderer;
 

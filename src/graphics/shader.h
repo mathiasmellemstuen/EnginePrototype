@@ -6,8 +6,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include "logicalDevice.h"
-
 class Renderer;
 
 class Shader {

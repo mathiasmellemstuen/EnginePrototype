@@ -33,5 +33,4 @@ class Debug {
         static void log(glm::vec4 vec4); 
 };
 
-
 #endif

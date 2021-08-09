@@ -2,9 +2,7 @@
 #define ENGINEPROTOTYPE_SEMAPHORES
 
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
 #include <vector>
-#include "swapChain.h"
 
 class Renderer;
 

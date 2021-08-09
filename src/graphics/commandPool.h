@@ -2,8 +2,6 @@
 #define ENGINEPROTOTYPE_COMMANDPOOL
 
 #include <vulkan/vulkan.h>
-#include "physicalDevice.h"
-#include "logicalDevice.h"
 
 class Renderer;
 

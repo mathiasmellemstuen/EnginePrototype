@@ -3,12 +3,6 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "imageViews.h"
-#include "logicalDevice.h"
-#include "swapChain.h"
-#include "graphicsPipeline.h"
-#include "depthResources.h" 
-#include "colorResources.h"
 
 class Renderer;
 

@@ -4,8 +4,6 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <vector>
-#include "swapChain.h"
-#include "logicalDevice.h"
 
 class Renderer;
 
