@@ -20,7 +20,7 @@ CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
 }
 void CommandBuffers::create() {
 
-    Debug::log(INFO, "Starting setup and execution of command buffers"); 
+    Debug::log(INFO, "Starting setup and execution of command buffers");
     
     commandBuffers.resize(renderer.frameBuffers.swapChainFramebuffers.size());
 
@@ -47,7 +47,7 @@ void CommandBuffers::create() {
         
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderer.graphicsPipeline.renderPass;
+        renderPassInfo.renderPass = renderer.renderPass.renderPass;
         renderPassInfo.framebuffer = renderer.frameBuffers.swapChainFramebuffers[i];
 
         renderPassInfo.renderArea.offset = {0, 0};

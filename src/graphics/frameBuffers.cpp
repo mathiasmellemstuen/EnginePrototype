@@ -30,7 +30,7 @@ void FrameBuffers::create() {
 
         VkFramebufferCreateInfo framebufferInfo{}; 
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderer.graphicsPipeline.renderPass;
+        framebufferInfo.renderPass = renderer.renderPass.renderPass;
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = renderer.swapChain.swapChainExtent.width;

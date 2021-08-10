@@ -9,6 +9,7 @@
 #include "imageViews.h"
 #include "shader.h"
 #include "descriptorSetLayout.h"
+#include "renderPass.h"
 #include "graphicsPipeline.h"
 #include "frameBuffers.h"
 #include "commandPool.h"
@@ -33,6 +34,7 @@ class Renderer {
         ImageViews imageViews;
         Shader shader;
         DescriptorSetLayout descriptorSetLayout; 
+        RenderPass renderPass;
         GraphicsPipeline graphicsPipeline;
         CommandPool commandPool;
         ColorResources colorResources;

@@ -2,6 +2,7 @@
 #define ENGINEPROTOTYPE_TEXTURE
 
 #include <vulkan/vulkan.h>
+#include <string>
 
 class Renderer;
 
@@ -19,9 +20,10 @@ class Texture {
         void createTextureImageView(uint32_t mipLevels);
         void createTextureSampler();
         void create(); 
-        Texture(Renderer& renderer); 
+        Texture(Renderer& renderer, const std::string& texturePath); 
         ~Texture();
     private:
         Renderer& renderer;
+        const std::string& texturePath;
 };
 #endif

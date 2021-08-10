@@ -10,7 +10,7 @@
 void Texture::create() {
     Debug::log(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("textures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
@@ -146,7 +146,7 @@ void Texture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, 
     renderer.endSingleTimeCommands(commandBuffer);
 }
 
-Texture::Texture(Renderer& renderer) : renderer(renderer) {
+Texture::Texture(Renderer& renderer, const std::string& texturePath) : renderer(renderer) , texturePath(texturePath) {
     create();  
 }
 

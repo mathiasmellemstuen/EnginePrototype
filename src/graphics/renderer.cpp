@@ -4,7 +4,7 @@
 #include "vertex.h"
 #include "../utility/debug.h"
 #include "commandPool.h"
-
+#include <string>
 Renderer::Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint32_t>& indices):
 
 window(window),
@@ -23,6 +23,8 @@ shader(*this, "shaders/vert.spv", "shaders/frag.spv"),
 
 descriptorSetLayout(*this),
 
+renderPass(*this),
+
 graphicsPipeline(*this),
 
 commandPool(*this), 
@@ -33,7 +35,7 @@ depthResources(*this),
 
 frameBuffers(*this),
 
-texture(*this),
+texture(*this, "textures/viking_room.png"),
 
 vertexBuffer(*this, verticies, indices),
 
@@ -75,7 +77,7 @@ void Renderer::cleanupSwapChain() {
 
     vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(logicalDevice.device, graphicsPipeline.pipelineLayout, nullptr);
-    vkDestroyRenderPass(logicalDevice.device, graphicsPipeline.renderPass, nullptr);
+    vkDestroyRenderPass(logicalDevice.device, renderPass.renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
         vkDestroyImageView(logicalDevice.device, imageViews.swapChainImageViews[i], nullptr);
@@ -100,7 +102,7 @@ void Renderer::reCreateSwapChain() {
 
     swapChain.create();
     imageViews.create();
-    graphicsPipeline.createRenderPass();
+    renderPass.create();
     graphicsPipeline.create();
     colorResources.create(); 
     depthResources.create(); 

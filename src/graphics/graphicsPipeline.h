@@ -9,7 +9,6 @@ class GraphicsPipeline {
     public: 
         VkPipeline graphicsPipeline;
         VkPipelineLayout pipelineLayout;
-        VkRenderPass renderPass; 
         void create();
         GraphicsPipeline(Renderer& renderer); 
         ~GraphicsPipeline();
