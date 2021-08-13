@@ -3,18 +3,16 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "imageViews.h"
-#include "logicalDevice.h"
-#include "swapChain.h"
-#include "graphicsPipeline.h"
+
+class Renderer;
 
 class FrameBuffers {
     public:
         std::vector<VkFramebuffer> swapChainFramebuffers;
-        FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
-        void create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
+        FrameBuffers(Renderer& renderer);
+        void create(); 
         ~FrameBuffers(); 
     private: 
-        VkDevice* device; 
-};
+        Renderer& renderer;
+    };
 #endif

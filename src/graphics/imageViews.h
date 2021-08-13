@@ -4,17 +4,18 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <vector>
-#include "swapChain.h"
-#include "logicalDevice.h"
+
+class Renderer;
 
 class ImageViews {
     public: 
         std::vector<VkImageView> swapChainImageViews;
-        ImageViews(SwapChain& swapChain, LogicalDevice& logicalDevice); 
+        ImageViews(Renderer& renderer); 
         ~ImageViews();
-        void create(SwapChain& swapChain, LogicalDevice& logicalDevice); 
+        void create(); 
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
     private:
-        VkDevice* device; 
+        Renderer& renderer;
 };
 
 #endif

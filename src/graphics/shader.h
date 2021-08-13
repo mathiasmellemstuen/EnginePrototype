@@ -6,11 +6,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include "logicalDevice.h"
+class Renderer;
 
 class Shader {
     public:
-        Shader(LogicalDevice& logicalDevice, std::string vertexShaderPath, std::string fragmentShaderPath); 
+        Shader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath); 
         ~Shader();
         VkShaderModule vertexShaderModule; 
         VkShaderModule fragmentShaderModule;
@@ -18,7 +18,7 @@ class Shader {
     private:
         std::vector<char> readFile(const std::string& fileName);
         VkShaderModule createShaderModule(const std::vector<char>& code);
-        VkDevice* device; 
+        Renderer& renderer;
 };  
 
 #endif

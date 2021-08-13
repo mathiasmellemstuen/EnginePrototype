@@ -5,45 +5,48 @@
 #include "logicalDevice.h"
 #include "swapChain.h"
 #include "graphicsPipeline.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
+#include "depthResources.h" 
+#include <array>
+#include "colorResources.h"
+#include "renderer.h"
 
-FrameBuffers::FrameBuffers(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
-
-    this->device = &logicalDevice.device; 
-    create(logicalDevice, imageViews, swapChain, graphicsPipeline); 
+FrameBuffers::FrameBuffers(Renderer& renderer) : renderer(renderer) {
+    create(); 
 };
-void FrameBuffers::create(LogicalDevice& logicalDevice, ImageViews& imageViews, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline) {
+void FrameBuffers::create() {
 
-    log(INFO, "Creating framebuffers"); 
+    Debug::log(INFO, "Creating framebuffers"); 
 
-    swapChainFramebuffers.resize(imageViews.swapChainImageViews.size());
+    swapChainFramebuffers.resize(renderer.imageViews.swapChainImageViews.size());
 
-    for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
+    for (size_t i = 0; i < renderer.imageViews.swapChainImageViews.size(); i++) {
         
-        VkImageView attachments[] = {
-            imageViews.swapChainImageViews[i]
+        std::array<VkImageView, 3> attachments = {
+            renderer.colorResources.colorImageView,
+            renderer.depthResources.depthImageView,
+            renderer.imageViews.swapChainImageViews[i]
         };
 
         VkFramebufferCreateInfo framebufferInfo{}; 
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = graphicsPipeline.renderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
-        framebufferInfo.width = swapChain.swapChainExtent.width;
-        framebufferInfo.height = swapChain.swapChainExtent.height;
+        framebufferInfo.renderPass = renderer.renderPass.renderPass;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = renderer.swapChain.swapChainExtent.width;
+        framebufferInfo.height = renderer.swapChain.swapChainExtent.height;
         framebufferInfo.layers = 1;
         
-        if (vkCreateFramebuffer(*device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-            log(ERROR, "Failed to create framebuffer!"); 
+        if (vkCreateFramebuffer(renderer.logicalDevice.device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+            Debug::log(ERROR, "Failed to create framebuffer!"); 
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
-    log(SUCCESS, "Successfully created all framebuffers."); 
+    Debug::log(SUCCESS, "Successfully created all framebuffers."); 
 };
 
 FrameBuffers::~FrameBuffers() {
     for (auto framebuffer : swapChainFramebuffers) {
-        vkDestroyFramebuffer(*device, framebuffer, nullptr); 
+        vkDestroyFramebuffer(renderer.logicalDevice.device, framebuffer, nullptr); 
     }
 };
-

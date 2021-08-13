@@ -6,33 +6,32 @@
 #include "swapChainSupport.h"
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/properties.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "window.h"
 
 #include <SDL2/SDL.h>
 
+#include "renderer.h"
 
-SwapChain::SwapChain(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window) {
+SwapChain::SwapChain(Renderer& renderer) : renderer(renderer) {
     
-    device = &logicalDevice.device;
-    create(physicalDevice, logicalDevice, window); 
+    create(); 
 };
 
 SwapChain::~SwapChain() {
-    log(INFO, "Destroying swap chain"); 
-    vkDestroySwapchainKHR(*device, swapChain, nullptr);
-    log(SUCCESS, "Swap chain destroyed"); 
+    Debug::log(INFO, "Destroying swap chain"); 
+    vkDestroySwapchainKHR(renderer.logicalDevice.device, swapChain, nullptr);
+    Debug::log(SUCCESS, "Swap chain destroyed"); 
 };
 
-void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDevice, Window& window) {
-    log(INFO, "Setting up swap chain"); 
+void SwapChain::create() {
+    Debug::log(INFO, "Setting up swap chain"); 
 
-    SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(physicalDevice.physicalDevice, *physicalDevice.surface); 
+    SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(renderer.physicalDevice.physicalDevice, *renderer.physicalDevice.surface); 
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode =  chooseSwapPresentMode(swapChainSupport.presentModes); 
-    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities, window);
+    VkExtent2D extent =  chooseSwapExtent(swapChainSupport.capabilities, renderer.window);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
@@ -42,7 +41,7 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = *physicalDevice.surface;
+    createInfo.surface = *renderer.physicalDevice.surface;
 
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -51,7 +50,7 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
+    QueueFamilyIndices indices = renderer.physicalDevice.findQueueFamilies(renderer.physicalDevice.physicalDevice);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()}; 
 
     if (indices.graphicsFamily != indices.presentFamily) {
@@ -70,20 +69,20 @@ void SwapChain::create(PhysicalDevice& physicalDevice, LogicalDevice& logicalDev
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(*device, &createInfo, nullptr, &swapChain)  != VK_SUCCESS) { 
-        log(ERROR, "Failed to create swap chain!"); 
+    if (vkCreateSwapchainKHR(renderer.logicalDevice.device, &createInfo, nullptr, &swapChain)  != VK_SUCCESS) { 
+        Debug::log(ERROR, "Failed to create swap chain!"); 
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    vkGetSwapchainImagesKHR(*device, swapChain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(renderer.logicalDevice.device, swapChain, &imageCount, nullptr);
     swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(*device, swapChain, &imageCount,
+    vkGetSwapchainImagesKHR(renderer.logicalDevice.device, swapChain, &imageCount,
     swapChainImages.data());
 
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
 
-    log(SUCCESS, "Created swap chain"); 
+    Debug::log(SUCCESS, "Created swap chain"); 
 };
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {

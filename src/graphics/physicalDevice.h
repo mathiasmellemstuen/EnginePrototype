@@ -4,7 +4,8 @@
 #include <vulkan/vulkan.h>
 #include <optional>
 #include <vector>
-#include "vulkanInstance.h"
+
+class Renderer;
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
@@ -15,17 +16,18 @@ struct QueueFamilyIndices {
     }
 };
 
-
 class PhysicalDevice {
     public:
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkPhysicalDeviceProperties physicalDeviceProperties; 
-        PhysicalDevice(VulkanInstance& instance);
+        PhysicalDevice(Renderer& renderer);
         ~PhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         VkSurfaceKHR* surface;
+        VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
     private:
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         bool isDeviceSuitable(VkPhysicalDevice device);
+        Renderer& renderer;
 };
 #endif

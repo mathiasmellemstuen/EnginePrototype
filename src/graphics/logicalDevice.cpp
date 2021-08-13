@@ -1,3 +1,4 @@
+
 #include "logicalDevice.h"
 
 #include <vulkan/vulkan.h>
@@ -7,13 +8,18 @@
 #include "physicalDevice.h"
 #include "validationLayers.h"
 #include "deviceExtensions.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
-LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
+#include "renderer.h"
 
-    log(INFO, "Setting up a logical device"); 
+LogicalDevice::LogicalDevice(Renderer& renderer) : renderer(renderer) {
+    create(); 
+};
 
-    QueueFamilyIndices indices = physicalDevice.findQueueFamilies(physicalDevice.physicalDevice);
+void LogicalDevice::create() {
+    Debug::log(INFO, "Setting up a logical device"); 
+
+    QueueFamilyIndices indices = renderer.physicalDevice.findQueueFamilies(renderer.physicalDevice.physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -35,6 +41,7 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
     }
 
     VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE; 
     
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -56,21 +63,20 @@ LogicalDevice::LogicalDevice(PhysicalDevice& physicalDevice) {
         createInfo.enabledLayerCount = 0; 
     }
 
-    if (vkCreateDevice(physicalDevice.physicalDevice, &createInfo, nullptr, &device) !=  VK_SUCCESS) { 
+    if (vkCreateDevice(renderer.physicalDevice.physicalDevice, &createInfo, nullptr, &device) !=  VK_SUCCESS) { 
         
-        log(ERROR, "Failed to create logical device!"); 
+        Debug::log(ERROR, "Failed to create logical device!"); 
         throw std::runtime_error("Failed to create logical device!"); 
     }
 
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0,  &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0,  &presentQueue);
 
-    log(SUCCESS, "Created logical device!"); 
-
-};
+    Debug::log(SUCCESS, "Created logical device!"); 
+}
 
 LogicalDevice::~LogicalDevice() {
-    log(INFO, "Destroying logical device"); 
+    Debug::log(INFO, "Destroying logical device"); 
     vkDestroyDevice(device, nullptr);
-    log(SUCCESS, "Logical device destroyed"); 
+    Debug::log(SUCCESS, "Logical device destroyed"); 
 };

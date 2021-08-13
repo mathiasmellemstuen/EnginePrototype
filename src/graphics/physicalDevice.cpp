@@ -8,9 +8,11 @@
 #include "swapChainSupport.h"
 #include "deviceExtensions.h"
 #include <iostream>
-#include "../utility/log.h"
+#include "../utility/debug.h"
 
 #include "vulkanInstance.h"
+
+#include "renderer.h"
 
 bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     
@@ -63,7 +65,7 @@ QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
     
-    log(INFO, "Checking if device is suitable."); 
+    Debug::log(INFO, "Checking if device is suitable."); 
 
     QueueFamilyIndices indices = findQueueFamilies(device); 
     bool extensionsSupported = checkDeviceExtensionSupport(device); 
@@ -74,43 +76,48 @@ bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty(); 
     }
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate; 
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy; 
 };
 
 
 
-PhysicalDevice::PhysicalDevice(VulkanInstance& instance) {
+PhysicalDevice::PhysicalDevice(Renderer& renderer) : renderer(renderer) {
 
-    log(INFO, "Checking and creating physical device context"); 
-    surface = &instance.surface;
+    Debug::log(INFO, "Checking and creating physical device context"); 
+    surface = &renderer.vulkanInstance.surface;
 
     uint32_t deviceCount = 0; 
-    vkEnumeratePhysicalDevices(instance.instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(renderer.vulkanInstance.instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) { 
-        log(ERROR, "Failed to find GPUs with Vulkan support!"); 
+        Debug::log(ERROR, "Failed to find GPUs with Vulkan support!"); 
         throw std::runtime_error("Failed to find GPUs with Vulkan support!"); 
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount); 
-    vkEnumeratePhysicalDevices(instance.instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(renderer.vulkanInstance.instance, &deviceCount, devices.data());
 
     for (const auto& device : devices) {
         if (isDeviceSuitable(device)) { 
-            physicalDevice = device; 
+            physicalDevice = device;
+            msaaSamples = renderer.getMaxUsableSampleCount();
             break; 
         }
     } 
 
     if (physicalDevice == VK_NULL_HANDLE) { 
         
-        log(ERROR, "Failed to find a suitable GPU!"); 
+        Debug::log(ERROR, "Failed to find a suitable GPU!"); 
         throw std::runtime_error("Failed to find a suitable GPU!");
   
     } else {
     
         vkGetPhysicalDeviceProperties(physicalDevice,&physicalDeviceProperties);
-        log(SUCCESS, "Selected GPU: " + std::string(physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
+        Debug::log(SUCCESS, "Selected GPU: " + std::string(physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
     }
     
 };

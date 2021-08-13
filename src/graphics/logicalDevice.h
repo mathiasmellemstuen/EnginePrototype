@@ -2,15 +2,19 @@
 #define ENGINEPROTOTYPE_LOGICALDEVICE
 
 #include <vulkan/vulkan.h>
-#include "physicalDevice.h"
+
+class Renderer;
 
 class LogicalDevice {
     public: 
         VkDevice device;
         VkQueue graphicsQueue;
         VkQueue presentQueue;
-        LogicalDevice(PhysicalDevice& physicalDevice);
+        void create(); 
+        LogicalDevice(Renderer& renderer);
         ~LogicalDevice();
+    private:
+        Renderer& renderer;
 };
 
 

@@ -2,9 +2,9 @@
 #define ENGINEPROTOTYPE_SEMAPHORES
 
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
 #include <vector>
-#include "swapChain.h"
+
+class Renderer;
 
 class SyncObjects {
     public:
@@ -14,11 +14,11 @@ class SyncObjects {
         std::vector<VkFence> inFlightFences;
         size_t currentFrame = 0;
 
-        SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain); 
+        SyncObjects(Renderer& renderer); 
         ~SyncObjects(); 
     
     private:
-        VkDevice* device; 
+        Renderer& renderer; 
 };
 
 #endif

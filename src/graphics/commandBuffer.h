@@ -2,23 +2,18 @@
 #define ENGINEPROTOTYPE_COMMANDBUFFER
 
 #include <vulkan/vulkan.h>
-#include "logicalDevice.h"
-#include "physicalDevice.h"
-#include "frameBuffers.h"
-#include "swapChain.h"
-#include "graphicsPipeline.h"
-
 #include <vector>
+
+class Renderer;
 
 class CommandBuffers {
     public:
-        VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
-        CommandBuffers(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline); 
-        void create(LogicalDevice& logicalDevice, PhysicalDevice& physicalDevice, FrameBuffers& frameBuffers, SwapChain& swapChain, GraphicsPipeline& graphicsPipeline);
+        CommandBuffers(Renderer& renderer); 
+        void create(uint32_t currentImage);
         ~CommandBuffers(); 
     private:
-        VkDevice* device; 
+        Renderer& renderer;
 };
 
 #endif

@@ -5,8 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/include",
-                "/vulkan-sdk/1.2.176.1/x86_64/include",
-                "C:/VulkanSDK/1.2.P176.1/Include"
+                "C:/VulkanSDK/1.2.176.1/Include"
             ],
             "defines": [
                 "_DEBUG",
@@ -22,11 +21,10 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/include",
+                "${workspaceFolder}/include",   
                 "/vulkan-sdk/1.2.176.1/x86_64/include"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64"

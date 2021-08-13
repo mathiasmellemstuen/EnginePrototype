@@ -1,18 +1,19 @@
 #include "syncObjects.h"
 #include "logicalDevice.h"
 #include <stdexcept>
-#include "../utility/properties.h"
-#include "../utility/log.h"
+#include "../utility/debug.h"
 #include "swapChain.h"
 
-SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
+#include "renderer.h"
+SyncObjects::SyncObjects(Renderer& renderer) : renderer(renderer) {
 
-    this->device = &logicalDevice.device;
+    Debug::log(INFO, "Creating sync objects"); 
 
-    imageAvailableSemaphores.resize(properties.maxFramesInFlight);
-    renderFinishedSemaphores.resize(properties.maxFramesInFlight);
-    imagesInFlight.resize(swapChain.swapChainImages.size(), VK_NULL_HANDLE);
-    inFlightFences.resize(properties.maxFramesInFlight);
+    //TODO: Change 2 with max frames in flight variable from properties. 
+    imageAvailableSemaphores.resize(2);
+    renderFinishedSemaphores.resize(2);
+    imagesInFlight.resize(renderer.swapChain.swapChainImages.size(), VK_NULL_HANDLE);
+    inFlightFences.resize(2);
 
 
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -22,22 +23,26 @@ SyncObjects::SyncObjects(LogicalDevice& logicalDevice, SwapChain& swapChain) {
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < properties.maxFramesInFlight; i++) {
+    //TODO: Change 2 with max frames in flight variable from properties. 
+    for (size_t i = 0; i < 2; i++) {
         
-        if (vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(*device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(*device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+        if (vkCreateSemaphore(renderer.logicalDevice.device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(renderer.logicalDevice.device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(renderer.logicalDevice.device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
             
-            log(ERROR, "Failed to create synchronization objects for a frame!"); 
+            Debug::log(ERROR, "Failed to create synchronization objects for a frame!"); 
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
     }
+
+    Debug::log(SUCCESS, "Successfully created sync objects!");
 };
 
 SyncObjects::~SyncObjects() {
 
-    for (size_t i = 0; i < properties.maxFramesInFlight; i++) {
-        vkDestroySemaphore(*device, renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(*device, imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(*device, inFlightFences[i], nullptr);
+    //TODO: Change 2 with max frames in flight variable from properties.
+    for (size_t i = 0; i < 2; i++) {
+        vkDestroySemaphore(renderer.logicalDevice.device, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(renderer.logicalDevice.device, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(renderer.logicalDevice.device, inFlightFences[i], nullptr);
     }
 };
 
