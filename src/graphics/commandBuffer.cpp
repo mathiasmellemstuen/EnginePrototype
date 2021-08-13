@@ -16,12 +16,8 @@
 
 CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
 
-    create();
-}
-void CommandBuffers::create() {
+    //create();
 
-    Debug::log(INFO, "Starting setup and execution of command buffers");
-    
     commandBuffers.resize(renderer.frameBuffers.swapChainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -35,6 +31,12 @@ void CommandBuffers::create() {
         throw std::runtime_error("failed to allocate command buffers!"); 
     }
 
+
+}
+void CommandBuffers::create(uint32_t currentImage) {
+
+    //Debug::log(INFO, "Starting setup and execution of command buffers");
+    
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         
         VkCommandBufferBeginInfo beginInfo{};
@@ -61,25 +63,18 @@ void CommandBuffers::create() {
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.graphicsPipeline.graphicsPipeline);
-            VkBuffer vertexBuffers[] = {renderer.vertexBuffer.vertexBuffer};
-            VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(commandBuffers[i], renderer.vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.graphicsPipeline.pipelineLayout, 0, 1, &renderer.descriptorPool.descriptorSets[i], 0, nullptr);
-            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderer.vertexBuffer.indices.size()), 1, 0, 0, 0);
-
+            renderer.updateFunction(commandBuffers[i], i, currentImage);
+        
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
             Debug::log(ERROR, "Failed to record command buffer!"); 
             throw std::runtime_error("failed to record command buffer!"); 
         }
+    } 
 
-    }
-    Debug::log(SUCCESS, "Successfully executed command buffers"); 
-}
+    //Debug::log(SUCCESS, "Successfully executed command buffers"); 
+};
 
 CommandBuffers::~CommandBuffers() {
 

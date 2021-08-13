@@ -1,0 +1,6 @@
+#ifndef ENGINEPROTOTYPE_IMGUISETUP
+#define ENGINEPROTOTYPE_IMGUISETUP
+
+int setup();
+
+#endif

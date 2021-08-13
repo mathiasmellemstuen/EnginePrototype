@@ -45,7 +45,9 @@ void Texture::create() {
     renderer.generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 
     createTextureImageView(mipLevels);
-    createTextureSampler(); 
+    createTextureSampler();
+
+    Debug::log(SUCCESS, "Created all texture resources!");
 }
 
 

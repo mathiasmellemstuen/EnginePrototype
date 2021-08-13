@@ -21,33 +21,30 @@
 #include "texture.h"
 #include "depthResources.h"
 #include "colorResources.h"
+#include "rendererInfo.h"
+#include <functional>
 
 #include <vector>
 
 class Renderer {
     public:
-        Window& window; 
+        Window& window;
         VulkanInstance vulkanInstance;
         PhysicalDevice physicalDevice; 
         LogicalDevice logicalDevice;
         SwapChain swapChain;
         ImageViews imageViews;
-        Shader shader;
-        DescriptorSetLayout descriptorSetLayout; 
         RenderPass renderPass;
-        GraphicsPipeline graphicsPipeline;
         CommandPool commandPool;
         ColorResources colorResources;
         DepthResources depthResources;
         FrameBuffers frameBuffers;
-        Texture texture; 
-        VertexBuffer vertexBuffer;
         UniformBuffer uniformBuffer; 
-        DescriptorPool descriptorPool;
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
+        std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> updateFunction;
 
-        Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint32_t>& indices);
+        Renderer(Window& window);
         void loop();
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);

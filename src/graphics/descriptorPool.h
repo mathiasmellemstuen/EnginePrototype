@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-class Renderer;
+class RendererInfo;
 
 class DescriptorPool {
     public:
@@ -12,10 +12,10 @@ class DescriptorPool {
         std::vector<VkDescriptorSet> descriptorSets;
         void create();
         void createDescriptorSets();
-        DescriptorPool(Renderer& renderer); 
+        DescriptorPool(RendererInfo& rendererInfo); 
         ~DescriptorPool(); 
     private:
-        Renderer& renderer;
+        RendererInfo& rendererInfo;
 };
 
 #endif

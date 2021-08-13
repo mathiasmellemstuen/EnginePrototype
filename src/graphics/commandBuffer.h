@@ -10,7 +10,7 @@ class CommandBuffers {
     public:
         std::vector<VkCommandBuffer> commandBuffers;
         CommandBuffers(Renderer& renderer); 
-        void create();
+        void create(uint32_t currentImage);
         ~CommandBuffers(); 
     private:
         Renderer& renderer;

@@ -3,17 +3,17 @@
 
 #include <vulkan/vulkan.h>
 
-class Renderer;
+class RendererInfo;
 
 class DescriptorSetLayout {
 
     public:
         VkDescriptorSetLayout descriptorSetLayout;
         void create(); 
-        DescriptorSetLayout(Renderer& renderer); 
+        DescriptorSetLayout(RendererInfo& rendererInfo); 
         ~DescriptorSetLayout();
     private:
-        Renderer& renderer;
+        RendererInfo& rendererInfo;
 };
 
 #endif

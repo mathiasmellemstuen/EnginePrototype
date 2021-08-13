@@ -5,7 +5,7 @@
 #include "../utility/debug.h"
 #include "commandPool.h"
 #include <string>
-Renderer::Renderer(Window& window, std::vector<Vertex>& verticies, std::vector<uint32_t>& indices):
+Renderer::Renderer(Window& window):
 
 window(window),
 
@@ -19,13 +19,9 @@ swapChain(*this),
 
 imageViews(*this),
 
-shader(*this, "shaders/vert.spv", "shaders/frag.spv"),
-
-descriptorSetLayout(*this),
+//shader(*this, "shaders/vert.spv", "shaders/frag.spv"),
 
 renderPass(*this),
-
-graphicsPipeline(*this),
 
 commandPool(*this), 
 
@@ -35,13 +31,11 @@ depthResources(*this),
 
 frameBuffers(*this),
 
-texture(*this, "textures/viking_room.png"),
+//texture(*this, "textures/viking_room.png"),
 
-vertexBuffer(*this, verticies, indices),
+//vertexBuffer(*this, verticies, indices),
 
 uniformBuffer(*this),
-
-descriptorPool(*this),
 
 commandBuffers(*this),
 
@@ -50,6 +44,8 @@ syncObjects(*this)
 {};
 
 void Renderer::loop() {
+
+    commandBuffers.create(0); 
     while(window.running) {
         
         while(SDL_PollEvent(&window.event)) {
@@ -75,8 +71,9 @@ void Renderer::cleanupSwapChain() {
 
     vkFreeCommandBuffers(logicalDevice.device, commandPool.commandPool, static_cast<uint32_t>(commandBuffers.commandBuffers.size()), commandBuffers.commandBuffers.data());
 
-    vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(logicalDevice.device, graphicsPipeline.pipelineLayout, nullptr);
+    //TODO: Find a way to destroy the current pipeline...
+    //vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
+    //vkDestroyPipelineLayout(logicalDevice.device, rendererInfo->graphicsPipeline.pipelineLayout, nullptr);
     vkDestroyRenderPass(logicalDevice.device, renderPass.renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
@@ -103,13 +100,14 @@ void Renderer::reCreateSwapChain() {
     swapChain.create();
     imageViews.create();
     renderPass.create();
-    graphicsPipeline.create();
+    //graphicsPipeline.create();
     colorResources.create(); 
     depthResources.create(); 
     frameBuffers.create();
     uniformBuffer.create(); 
-    descriptorPool.create(); 
-    commandBuffers.create();
+    //TODO: Find a way to create the current descriptor pool
+    //rendererInfo->descriptorPool.create(); 
+    commandBuffers.create(0);
 };
 
 void Renderer::drawFrame() {
@@ -131,7 +129,8 @@ void Renderer::drawFrame() {
     }
     syncObjects.imagesInFlight[imageIndex] = syncObjects.inFlightFences[syncObjects.currentFrame];
 
-    uniformBuffer.update(imageIndex); 
+    //uniformBuffer.update(imageIndex); 
+    commandBuffers.create(imageIndex);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -177,7 +176,7 @@ void Renderer::drawFrame() {
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
-    
+
     //TODO: Change 2 to properties.maxFramesInFlight when yamlparser is done. 
     syncObjects.currentFrame = (syncObjects.currentFrame + 1) % 2;
 };
