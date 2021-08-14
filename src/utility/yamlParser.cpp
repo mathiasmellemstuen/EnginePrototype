@@ -12,18 +12,6 @@
 #include <typeinfo>
 
 #include <algorithm>
-<<<<<<< HEAD
-
-YamlType result;
-const char delimeter = ':';
-const std::string commnetStart = " #";
-
-std::array<std::string, 3> trueString = { "true", "yes", "on" };
-std::array<std::string, 3> falseString = { "false", "no", "off" };
-
-std::vector<std::string> getTabedStrings(std::vector<std::string> lines, int tabLevel, int startLine) {
-    std::vector<std::string> returnString;
-=======
 
 /*
 Yaml Type
@@ -33,7 +21,6 @@ void YamlType::add(std::any val) {
     if (type == ARRAY) {
         std::vector<std::any> vec = std::any_cast<std::vector<std::any>>(data);
         vec.push_back(val);
->>>>>>> main
 
         data = vec;
     }
@@ -205,21 +192,6 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
     return currentYaml;
 }
 
-<<<<<<< HEAD
-// Parse the value, then return it as a std::any. This wil store the "true" value in the std::any value
-std::any parseValue(std::string line) {
-    std::any returnValue;
-
-    char firstCharacter = getFirstCharacter(line);
-
-    // Check if the value is a string ('' or "") or if it is something else
-    if (firstCharacter == '\'' || firstCharacter == '"') {  // The value is a string ('' or ""), so remove the quotation mark from the value
-        returnValue = std::make_any<std::string>(line.substr(1, line.size() - 2));
-        std::cout << line << " - Is a string" << std::endl;
-    } else if (isBool(line)) {
-        returnValue = std::make_any<bool>(parseBool(line));
-        std::cout << line << " - Is a bool = " << parseBool(line) << std::endl;
-=======
 std::any YamlParser::parseValue(std::string value) {
     std::any returnValue;
 
@@ -232,53 +204,12 @@ std::any YamlParser::parseValue(std::string value) {
     } else if (isBool(value)) {
         returnValue = std::make_any<bool>(parseBool(value));
         std::cout << value << " - Is a bool = " << parseBool(value) << std::endl;
->>>>>>> main
     }
     
     return returnValue;
 }
 
-<<<<<<< HEAD
-bool isBool(std::any value) {
-    std::string valueString = std::any_cast<std::string>(value);
-
-    // Turn string to lower
-    std::transform(valueString.begin(), valueString.end(), valueString.begin(), [](unsigned char c){return std::tolower(c);});
-
-    // Find if valueString is a boolean
-    if (std::find(std::begin(trueString), std::end(trueString), valueString) != std::end(trueString)) {
-        // valueString is part of the trueString list
-        return true;
-    } else if (std::find(std::begin(falseString), std::end(falseString), valueString) != std::end(falseString)) {
-        // valueString is part of the falseString list 
-        return true;
-    }
-
-    return false;
-}
-
-bool parseBool(std::any value) {
-    std::string valueString = std::any_cast<std::string>(value);
-
-    // Turn string to lower
-    std::transform(valueString.begin(), valueString.end(), valueString.begin(), [](unsigned char c){return std::tolower(c);});
-
-    // Find if valueString is a boolean
-    if (std::find(std::begin(trueString), std::end(trueString), valueString) != std::end(trueString)) {
-        // valueString is part of the trueString list
-        return true;
-    } else if (std::find(std::begin(falseString), std::end(falseString), valueString) != std::end(falseString)) {
-        // valueString is part of the falseString list 
-        return false;
-    }
-
-    return true;
-}
-
-std::map<std::string, std::any> parseInlineObject(std::string line) {
-=======
 std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
->>>>>>> main
     std::map<std::string, std::any> currentMap;
 
     // Trim the string
@@ -499,26 +430,6 @@ void YamlParser::print() {
     std::cout << "--- New prop ---" << std::endl;
     std::string printString = "";
 
-<<<<<<< HEAD
-    // Test if the object is a string
-    std::optional opt_string = get_v_opt<std::string>(object);
-    if (opt_string.has_value()) {
-        return "(std::string) " + opt_string.value();
-    }
-
-    // Test if the object is a bool
-    std::optional opt_bool = get_v_opt<bool>(object);
-    if (opt_bool.has_value()) {
-        std::cout << (opt_bool.value() == 0) << std::endl;
-
-        return "(bool)";
-    }
- 
-    // Test if the object is another object
-    std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
-    if (opt_object.has_value()) {
-        return buildObjectPrint(opt_object.value(), tab + 1);
-=======
     if (result.type == ARRAY) {
         std::vector<std::any> vec = std::any_cast<std::vector<std::any>>(result.data);
 
@@ -531,7 +442,6 @@ void YamlParser::print() {
         for (const auto& [key, value] : map) {
             printString += key + mapChar + " " + buildPrint(map, 0) + "\n";
         }
->>>>>>> main
     }
 
     std::cout << printString << std::endl;
