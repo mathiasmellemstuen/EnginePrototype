@@ -32,16 +32,25 @@ int main(int argc, char *argv[]) {
     Debug::log(INFO, "Starting application."); 
 
     setup();
-    //YamlParser properties2("prop.yaml");
-    //log(INFO, properties2.toString());
     
-    //YamlField field = properties2["window"]["height"];
-    //int i = (int)field; 
-
-    //YamlParser parser("test.yaml");
-    //parser.print();
-
-     std::vector<Vertex> verticies = {
+    YamlParser parser("test.yaml");
+    std::cout << "YamlParser" << std::endl;
+    
+    int yamlTestIntData = parser["test types"]["base"]["desimal"];
+    Debug::log(SUCCESS, yamlTestIntData);
+    
+    double yamlTestDoubleData = parser["test types"]["float"][1];
+    Debug::log(SUCCESS, yamlTestDoubleData);
+    
+    bool yamlTestBoolData = parser["test types"]["bool's"][0];
+    Debug::log(SUCCESS, yamlTestBoolData);
+   
+    std::string yamlTestStringData = parser["test types"]["string"][0];
+    Debug::log(SUCCESS, yamlTestStringData);
+    
+    std::cout << "YamlParser" << std::endl;
+    
+    std::vector<Vertex> verticies = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
         {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
         {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},

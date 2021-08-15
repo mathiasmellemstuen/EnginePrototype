@@ -1,17 +1,21 @@
+This is a test file for yaml parsing.
+The goal of this file is to have all the features the parser supports.
+This is not going to get parsed
+---
 # test comment!
 test types:
-  string: 
+  string:
     - A string
     - "Another string"
     - 'Last string'
-  base: 
-    desimal: 123456
-    octal: 0361100 # Start with 0
-    hex: 0x1E240 # Start with 0x
-  float: 
+  base:
+    desimal: 123457
+    octal: 0361101 # Start with 0
+    hex: 0x1E242 # Start with 0x
+  float:
     - 3.1415
-    - 3141.5e+3
-    - 0.00314e-3
+    - 3141.5e-3
+    - 0.00314e+3
   bool's: # Lower and uper case works here
     - yes
     - no
@@ -21,4 +25,26 @@ test types:
     - off
 test inline: # Tests inline arrays and objects
   array1: [1,2,3,4,5,6,7,8,9]
+  array2: [1, 2, 3, 4, 5, 6, 7, 8, 9]
   object1: {o1: 1,o2: 2,o3: 3,o4: 4,o5: 5}
+  object2: {o1: 1, o2: 2, o3: 3, o4: 4, o5: 5}
+multiline string:
+  include: |
+    This is a multiline string,
+    tabs and spaces are included in the parsin
+    of this.
+  fold: >
+    This is a single line string
+    just written in multiple lines.
+object array:
+  - o1: 1
+  - o2: 2
+  - o3: 3
+  - o4: 4
+  - o5: 5
+object array advansed:
+  - o1: [1,2,3,4,5]
+  - o2: {o1: 1,o2: 2,o3: 3,o4: 4,o5: 5}
+...
+# Do not parse this!
+parse: [9,8,7,6,5,4,3,2,1]

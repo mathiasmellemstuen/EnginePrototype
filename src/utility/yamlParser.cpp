@@ -1,88 +1,134 @@
 #include "yamlParser.h"
-#include "debug.h"
 
 #include <string>
 #include <map>
 #include <any>
 #include <fstream>
 #include <iostream>
+#include <utility>
 #include <vector>
 #include <sstream>
 #include <optional>
 #include <typeinfo>
 
 #include <algorithm>
+#include <cmath>
 
 /*
 Yaml Type
 */
-// Adding data to the array
-void YamlType::add(std::any val) {
-    if (type == ARRAY) {
-        std::vector<std::any> vec = std::any_cast<std::vector<std::any>>(data);
-        vec.push_back(val);
 
-        data = vec;
+YamlType YamlType::operator[](const char* key) {
+    tmpKey = key;
+
+    try {
+        YamlType returnValue = std::any_cast<YamlType>(map[key]);
+        return returnValue;
+    } catch (std::bad_any_cast e) {
+        return *this;
     }
 }
 
-// Adding data to the map
-void YamlType::add(std::pair<std::string, std::any> val) {
-    if (type == MAP) {
-        std::map<std::string, std::any> map = std::any_cast<std::map<std::string, std::any>>(data);
-        map.insert(val);
+YamlType YamlType::operator[](int index) {
+    tmpIndex = index;
 
-        data = map;
+    try {
+        YamlType returnValue = std::any_cast<YamlType>(vec[index]);
+        return returnValue;
+    } catch (std::bad_any_cast e) {
+        return *this;
     }
+}
+
+YamlType::operator const int() {
+    if (!map.empty()) {
+        return std::any_cast<int>(map[tmpKey]);
+    } else if (!vec.empty()) {
+        return std::any_cast<int>(vec[tmpIndex]);
+    }
+    return 0;
+}
+
+YamlType::operator const double() {
+    if (!map.empty()) {
+        return std::any_cast<double>(map[tmpKey]);
+    } else if (!vec.empty()) {
+        return std::any_cast<double>(vec[tmpIndex]);
+    }
+    return 0.0;
+}
+
+YamlType::operator const bool() {
+    if (!map.empty()) {
+        return std::any_cast<bool>(map[tmpKey]);
+    } else if (!vec.empty()) {
+        return std::any_cast<bool>(vec[tmpIndex]);
+    }
+    return false;
+}
+
+YamlType::operator const std::string() {
+    if (!map.empty()) {
+        return std::any_cast<std::string>(map[tmpKey]);
+    } else if (!vec.empty()) {
+        return std::any_cast<std::string>(vec[tmpIndex]);
+    }
+    return "";
 }
 
 /*
 Yaml Parser
 */
-YamlParser::YamlParser(const std::string fileName) {
+YamlParser::YamlParser(const std::string& fileName) {
     lines = readFile(fileName);
     result = parsePropsFormLines(lines);
 }
 
 YamlParser::~YamlParser() {
 
-};
+}
 
-std::vector<std::string> YamlParser::readFile(const std::string fileName) {
+YamlType YamlParser::operator[](std::string key) {
+    YamlType returnType = std::any_cast<YamlType>(result.map[key]);
+
+    return returnType;
+}
+
+std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
     std::string line = "";
     std::fstream file;
     std::vector<std::string> outLines;
     std::size_t commnetIndex;
 
-    bool isReading = false;
-
     file.open(fileName, std::ios::in);
 
     while (file.is_open() && std::getline(file, line)) {
-        if (line.compare(0, 3, fileStart) == 0) {
-            Debug::log("Start Parsing");
-            isReading = true;
-            continue;
-        } else if (line.compare(0, 3, fileEnd) == 0) {
-            Debug::log("End Parsing");
-            return outLines;
-        }
+        if (!line.empty()) {
+            if (line.compare(0, 3, fileStart) == 0) {
+                outLines.clear();   // Clear the vector, because we found the start of the YAML file
+                // std::cout << "*** Clear vector ***" << std::endl;
+                continue;
+            } else if ((line.compare(0, 3, fileEnd) == 0)) {
+                return outLines;    // Return what we have
+            }
 
-        if (!line.empty() && isReading) {
-            if (line[0] == commentChar)  // Skip lines that start with a #, because that line is a commnent
+            // Skip lines that start with a #, because that line is a commnent
+            if (line[0] == commentChar)
                 continue;
 
             // Find the index of " #" because that indicates that there is a comment from that index
-            commnetIndex = line.find(commentChar + ' ');
+            commnetIndex = line.find(commentChar);
 
             // If no idex is found then push the entire string, else remove the commnet, then push
             if (commnetIndex == std::string::npos) {
+                // std::cout << line << std::endl;
                 outLines.push_back(line);
             } else {
                 line.erase(commnetIndex);
+                // std::cout << line << std::endl;
                 outLines.push_back(line);
             }
-        }            
+        }
     }
 
     return outLines;
@@ -97,116 +143,63 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
     for (int i = 0; i <= lines.size() - 1; i++) {
         int cTab = getTabLevel(lines[i]);
         int nTab = i + 1 <= lines.size() - 1 ? getTabLevel(lines[i + 1]) : -1;
-        std::string line = lines[i].erase(0, cTab);
+        std::string line = lines[i];
+        bool isArray = false;
 
-        if (currentYaml.type != MAP && currentYaml.type != ARRAY) {
-            currentYaml.type = getType(line);
-            switch (currentYaml.type) {
-                case ARRAY:
-                    currentYaml.data = std::any_cast<std::vector<std::any>>(currentYaml.data);
-                break;
-                case MAP:
-                    currentYaml.data = std::any_cast<std::map<std::string, std::any>>(currentYaml.data);
-                break;
-            }
+        if (line[cTab + 1] == arrayChar) {
+            isArray = true;
         }
 
-        switch (currentYaml.type) {
-            case ARRAY: {
-                std::string val = line.erase(0, 2);
-                currentYaml.add(parseValue(val));
-                break;
-            }
-            case MAP: {
-                std::size_t delimeterIndex = line.find(mapChar + ' ');
+        // Finde the ": " to determen if the line is a object or not       
+        std::size_t delimeterIndex = line.find(mapChar);
 
-                std::string left = line.substr(0, delimeterIndex);
-                std::string right = line.erase(0, delimeterIndex + 2);
-
-                if (right != "") {
-                    switch (getFirstChar(line)) {
-                        case '[':
-                            currentYaml.add({left, parseInlineVector(right)});
-                        break;
-                        case '{':
-                            currentYaml.add({left, parseInlineObject(right)});
-                        break;
-                        default:
-                            currentYaml.add({left, parseValue(line)});
-                        break;
-                    }
-                } else {
-                    auto nextTabLines = getTabedString(lines, nTab, i + 1);
-                    auto nextObject = parsePropsFormLines(nextTabLines);
-
-                    currentYaml.add({left, nextObject});
-
-                    i += nextTabLines.size();
-                }
-                break;
-            }       
-        }
-
-
-        /*
-        // Finde the index of the delimeter
-        std::size_t delimeterIndex = line.find(mapChar + ' ');
-
-        if (delimeterIndex == std::string::npos) {  // There is no delimeter in the line, so this value most be a array (- val)!
+        if (delimeterIndex == std::string::npos) {
             std::string val = line.erase(0, cTab + 2);
             currentYaml.vec.push_back(parseValue(val));
-        } else {  // The value most be an object (key: val)!
-            // Split into key and value
-            std::string left = line.substr(0, delimeterIndex).erase(0, cTab);  // split on the delimeterIndex, then remove spaces inform of the key
+        } else {
+            std::string left = line.substr(0, delimeterIndex).erase(0, cTab);
             std::string right = line.erase(0, delimeterIndex + 2);
 
-            // Check if right is a value or a object (right is "" if it is a object)
             if (right != "") {
-<<<<<<< HEAD
-                switch (getFirstCharacter(line)) {
-=======
-                switch (getFirstChar(line)) {
->>>>>>> main
+                switch (getFirstChar(right)) {
                     case '[':
-                        currentYaml.map.insert({left, parseInlineVector(line)});
+                        currentYaml.map.insert({left, parseInlineVector(right)});
                     break;
                     case '{':
-                        currentYaml.map.insert({left, parseInlineObject(line)});
+                        currentYaml.map.insert({left, parseInlineObject(right)});
+                    break;
+                    case '|': {
+                        std::vector<std::string> nextTabLines = getTabedString(lines, nTab, i + 1);
+
+                        i += nextTabLines.size();
+
+                        currentYaml.map.insert({left, parseMultilineString(nextTabLines, true)});
+                    }
+                    break;
+                    case '>': {
+                        std::vector<std::string> nextTabLines = getTabedString(lines, nTab, i + 1);
+
+                        i += nextTabLines.size();
+
+                        currentYaml.map.insert({left, parseMultilineString(nextTabLines, false)});
+                    }
                     break;
                     default:
                         currentYaml.map.insert({left, parseValue(right)});
                     break;
-                }             
+                }
             } else {
-                auto nextTabLines = getTabedStrings(lines, nTab, i + 1);
-                auto nextObject = loadPropFromLines(nextTabLines);
+                std::vector<std::string> nextTabLines = getTabedString(lines, nTab, i + 1);
+                YamlType nextObject = parsePropsFormLines(nextTabLines);
 
                 currentYaml.map.insert({left, nextObject});
 
                 i += nextTabLines.size();
             }
         }
-        */
     }
 
     return currentYaml;
-}
-
-std::any YamlParser::parseValue(std::string value) {
-    std::any returnValue;
-
-    char firstCharacter = getFirstChar(value);
-
-    // Check if the value is a string ('' or "") or if it is something else
-    if (firstCharacter == '\'' || firstCharacter == '"') {  // The value is a string ('' or ""), so remove the quotation mark from the value
-        returnValue = std::make_any<std::string>(value.substr(1, value.size() - 2));
-        std::cout << value << " - Is a string" << std::endl;
-    } else if (isBool(value)) {
-        returnValue = std::make_any<bool>(parseBool(value));
-        std::cout << value << " - Is a bool = " << parseBool(value) << std::endl;
-    }
-    
-    return returnValue;
 }
 
 std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
@@ -216,14 +209,17 @@ std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object
     object.erase(0,1);
     object.erase(object.size() - 1);
 
-    auto currentString = splitString(object, listSplitChar + ' ');
+    std::vector<std::string> currentString = splitString(object, listSplitChar);
 
     for (std::string part : currentString) {
         std::size_t delimeterIndex = part.find(mapChar);
         std::string left = part.substr(0, delimeterIndex);
         std::string right = part.erase(0, delimeterIndex + 2);
 
-        currentMap.insert({left, right});
+        left = removeSpaceBeforeChar(left);
+        right = removeSpaceBeforeChar(right);
+
+        currentMap.insert({left, parseValue(right)});
     }
 
     return currentMap;
@@ -236,13 +232,44 @@ std::vector<std::any> YamlParser::parseInlineVector(std::string vector) {
     vector.erase(0,1);
     vector.erase(vector.size() - 1);
 
-    auto currentString = splitString(vector, listSplitChar + ' ');
+    auto currentString = splitString(vector, listSplitChar);
 
     for (std::string part : currentString) {
-        currentVec.push_back(part);
+        part = removeSpaceBeforeChar(part);
+        currentVec.push_back(parseValue(part));
     }
 
     return currentVec;
+}
+
+std::string YamlParser::parseMultilineString(std::vector<std::string> lines, bool includeNewLine) {
+    std::string outString = "";
+    int spaceLevel = getTabLevel(lines[0]);
+
+    for (int i = 0; i < lines.size(); i++) {
+        std::string line = lines[i];
+
+        line.erase(0, (i == 0 ? spaceLevel : spaceLevel - 1));
+
+        outString += line;
+        outString += (includeNewLine && i != lines.size() - 1) ? "\n" : "";
+    }
+
+    return outString;
+}
+
+std::any YamlParser::parseValue(const std::string& value) {
+    std::any returnValue;
+
+    if (isBool(value)) {
+        return std::make_any<bool>(parseBool(value)) ;
+    } else if (isDouble(value) && containsChar(value, '.')) {
+        return std::make_any<double>(parseDouble(value));
+    } else if (isInt(value)) {
+        return std::make_any<int>(parseInt(value));
+    } else {
+        return parseString(value);
+    }
 }
 
 bool YamlParser::parseBool(std::string value) {
@@ -261,14 +288,47 @@ bool YamlParser::parseBool(std::string value) {
     return true;
 }
 
+int YamlParser::parseInt(std::string value) {
+    if (value[0] == '0' && value[1] == 'x') {
+        return std::stoi(value, 0, 16);
+    } else if (value[0] == '0') {
+        return std::stoi(value, 0, 6);
+    } else {
+        return std::stoi(value);
+    }
+}
+
+double YamlParser::parseDouble(const std::string& value) {
+    char* end = nullptr;
+    double val = strtod(value.c_str(), &end);
+
+    return val;
+}
+
+std::string YamlParser::parseString(std::string value) {
+    if (value[0] == '"' || value[0] == '\'') {
+        return value.erase(0, 1).erase(value.size() - 1, 1);
+    }
+
+    return value;
+}
+
 /*
 Utility
 */
-char YamlParser::getFirstChar(std::string line) {
+char YamlParser::getFirstChar(const std::string& line) {
     for (char c : line)
         if (c != ' ')
             return c;
     return ' ';   
+}
+
+bool YamlParser::containsChar(const std::string& line, char containChar) {
+    for (char c : line)
+        if (c == containChar)
+            return true;
+
+    return false;
 }
 
 bool YamlParser::isBool(std::string value) {
@@ -287,7 +347,27 @@ bool YamlParser::isBool(std::string value) {
     return false;
 }
 
-std::vector<std::string> YamlParser::splitString(std::string line, char splitChar) {
+bool YamlParser::isInt(std::string value) {
+    char* p;
+
+    if (value[0] == '0' && value[1] == 'x') {
+        return true;
+    } else if (value[0] == '0') {
+        return true;
+    } else {
+        long converted = strtol(value.c_str(), &p, 10);
+    }
+
+    return !(*p);
+}
+
+bool YamlParser::isDouble(const std::string& value) {
+    char* end = nullptr;
+    double val = strtod(value.c_str(), &end);
+    return end != value.c_str() && *end == '\0' && val != HUGE_VAL;
+}
+
+std::vector<std::string> YamlParser::splitString(const std::string& line, char splitChar) {
     std::stringstream stream(line);
     std::string segment;
     std::vector<std::string> splitString;
@@ -299,7 +379,11 @@ std::vector<std::string> YamlParser::splitString(std::string line, char splitCha
     return splitString;   
 }
 
-int YamlParser::getTabLevel(std::string line) {
+std::string YamlParser::removeSpaceBeforeChar(std::string line) {
+    return line.erase(0, getTabLevel(line));
+}
+
+int YamlParser::getTabLevel(const std::string& line) {
     int tabLevel = 0;
 
     for (char c : line) {
@@ -311,14 +395,6 @@ int YamlParser::getTabLevel(std::string line) {
     }
 
     return tabLevel;
-}
-
-Types YamlParser::getType(std::string line) {
-    if (line[0] == arrayChar) {
-        return ARRAY;
-    } else {
-        return MAP;
-    }
 }
 
 std::vector<std::string> YamlParser::getTabedString(std::vector<std::string> lines, int tabLevel, int startLine) {
@@ -348,22 +424,48 @@ std::optional<T> YamlParser::get_v_opt(const std::any &a) {
         return std::nullopt;
 }
 
-std::string YamlParser::buildPrint(std::any object, int tab) {
+inline const char * YamlParser::boolToString(bool b) {
+    return b ? "false" : "true";
+}
+
+inline const char * YamlParser::intToString(int i) {
+    std::ostringstream strs;
+    strs << i;
+    std::string str = strs.str();
+    return str.c_str();
+}
+
+inline const char * YamlParser::doubleToString(double d) {
+    std::ostringstream strs;
+    strs << d;
+    std::string str = strs.str();
+    return str.c_str();
+}
+
+std::string YamlParser::buildPrint(const std::any& object, int tab) {
     std::string printString = "";
 
     // Test if the object is a string
     //std::optional opt_string = get_v_opt<std::string>(object);
     std::optional opt_string = get_v_opt<std::string>(object);
     if (opt_string.has_value()) {
-        return "(std::string) " + opt_string.value();
+        return "\"" + opt_string.value() + "\"";
     }
 
     // Test if the object is a bool
     std::optional opt_bool = get_v_opt<bool>(object);
     if (opt_bool.has_value()) {
-        std::cout << (opt_bool.value() == 0) << std::endl;
+        return boolToString(opt_bool.value() == 0);
+    }
 
-        return "(bool)";
+    std::optional opt_int = get_v_opt<int>(object);
+    if (opt_int.has_value()) {
+        return intToString(opt_int.value());
+    }
+
+    std::optional opt_double = get_v_opt<double>(object);
+    if (opt_double.has_value()) {
+        return doubleToString(opt_double.value());
     }
  
     // Test if the object is another object
@@ -386,28 +488,32 @@ std::string YamlParser::buildPrint(std::any object, int tab) {
 }
 
 std::string YamlParser::buildObjectPrint(std::map<std::string, std::any> object, int tab) {
-    std::string outString = "\n";
+    std::string outString = "";
 
     for (const auto& [key, value] : object) {
+        outString += "\n";
+
         for (int i = 0; i < tab; i++) {
             outString += "  ";
         }
 
-        outString += key + ": " + buildPrint(value, tab) + "\n";
+        outString += key + ": " + buildPrint(value, tab);
     }
 
     return outString;
 }
 
 std::string YamlParser::buildVectorPrint(std::vector<std::any> vec, int tab) {
-    std::string outString = "\n";
+    std::string outString = "";
 
     for (const auto& value : vec) {
+        outString += "\n";
+
         for (int i = 0; i < tab; i++) {
             outString += "  ";
         }
 
-        outString += "- " + buildPrint(value, tab) + "\n";
+        outString += "- " + buildPrint(value, tab);
     }
 
     return outString;
@@ -416,11 +522,12 @@ std::string YamlParser::buildVectorPrint(std::vector<std::any> vec, int tab) {
 std::string YamlParser::buildYamlTypePrint(YamlType yamlType, int tab) {
     std::string outString = "";
 
-    switch (yamlType.type) {
-        case ARRAY:
-            return buildVectorPrint(std::any_cast<std::vector<std::any>>(yamlType.data), tab);
-        case MAP:
-            return buildObjectPrint(std::any_cast<std::map<std::string, std::any>>(yamlType.data), tab);
+    if (!yamlType.map.empty()) {
+        outString += buildObjectPrint(yamlType.map, tab);
+    }
+
+    if (!yamlType.vec.empty()) {
+        outString += buildVectorPrint(yamlType.vec, tab);
     }
 
     return outString;
@@ -429,18 +536,16 @@ std::string YamlParser::buildYamlTypePrint(YamlType yamlType, int tab) {
 void YamlParser::print() {
     std::cout << "--- New prop ---" << std::endl;
     std::string printString = "";
-
-    if (result.type == ARRAY) {
-        std::vector<std::any> vec = std::any_cast<std::vector<std::any>>(result.data);
-
-        for (const auto& value : vec) {
-            printString += arrayChar + " " + buildPrint(vec, 0) + "\n";
+    
+    if (!result.map.empty()) {
+        for (const auto& [key, value] : result.map) {
+            printString += key + mapChar + " " + buildPrint(value, 0) + "\n";
         }
-    } else if (result.type == MAP) {
-        std::map<std::string, std::any> map = std::any_cast<std::map<std::string, std::any>>(result.data);
+    }
 
-        for (const auto& [key, value] : map) {
-            printString += key + mapChar + " " + buildPrint(map, 0) + "\n";
+    if (!result.vec.empty()) {
+        for (const auto& value : result.vec) {
+            printString += "[ " + buildPrint(value, 0) + "\n";
         }
     }
 
@@ -449,157 +554,5 @@ void YamlParser::print() {
 }
 
 /*
-YamlField YamlField::operator[](const std::string& str) {
-    std::optional optionalMap = std::any_cast<std::map<std::string, std::any>>(*data)[str];
-
-    if(optionalMap.has_value()) {
-        Debug::log(INFO, "Returning a any cast to a map."); 
-        log(std::any_cast<std::string>(std::any_cast<std::map<std::string, std::any>>(*data)["title"]));
-        return { &std::any_cast<std::map<std::string, std::any>>(*data)[str] };
-    }
-    
-    Debug::log(INFO, "Returning something else instead."); 
-    return *this;
-};
-YamlField::operator int() {
-    return std::any_cast<int>(*data); 
-}
-//std::string YamlField::operator=(const YamlField& field) {
-//    return std::any_cast<std::string>(field.data);
-//};
-YamlField YamlParser::operator[](const std::string& str) {
-    return {&data[str]};  
-};
-
-YamlParser::YamlParser(const std::string& filePath) {
-    auto lines = readFile(filePath);
-    data = loadPropFromLines(lines);
-};
-
-YamlParser::~YamlParser() {};
-
-std::vector<std::string> YamlParser::getTabedStrings(std::vector<std::string>& lines, int tabLevel, int startLine) {
-    std::vector<std::string> returnString;
-
-    for (int i = startLine; i < lines.size(); i++) {
-        int cTab = getTabLevel(lines[i]);
-
-        if (cTab >= tabLevel) {
-            returnString.push_back(lines[i]);
-        } else {
-            return returnString;
-        }
-    }
-
-    return returnString;
-}
-
-std::map<std::string, std::any> YamlParser::loadPropFromLines(std::vector<std::string>& lines) {
-    
-    std::map<std::string, std::any> currentMap;
-
-    for (int i = 0; i <= lines.size() - 1; i++) {
-        
-        std::string line = lines[i];
-        
-        int cTab = getTabLevel(line);
-        int nTab = i + 1 <= lines.size() - 1 ? getTabLevel(lines[i + 1]) : -1;
-        
-        // Finde the index of the delimeter
-        int delimeterIndex = line.find(delimeter);
-
-        // Split into key and value
-        std::string left = line.substr(0, delimeterIndex).erase(0, cTab);  // split on the delimeterIndex, then remove spaces inform of the key
-        std::string right = line.erase(0, delimeterIndex + 2);
-
-        // Check if right is a value or a object (right is "" if it is a object)
-        if (right != "" || nTab == -1) {
-            currentMap.insert({left, right});
-        } else {
-
-            auto nextTabLines = getTabedStrings(lines, nTab, i + 1);
-            auto nextObject = loadPropFromLines(nextTabLines);
-
-            currentMap.insert({left, nextObject});
-
-            i += nextTabLines.size();
-        }
-    }
-    return currentMap;
-}
-
-int YamlParser::getTabLevel(std::string& line) {
-    int tabLevel = 0;
-
-    for (char c : line) {
-        if (c == 9) { //9 is the ascii code for horizontal tab.
-            tabLevel++;
-        } else {
-            return tabLevel;
-        }
-    }
-
-    return tabLevel;
-}
-
-// Place each line of the file into a vector
-std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
-    Debug::log(INFO, "Starting reading file!"); 
-    std::string line = "";
-    std::fstream file;
-    std::vector<std::string> outLines;
-
-    file.open(fileName, std::ios::in);
-
-    while (file.is_open() && std::getline(file, line)) {
-        outLines.push_back(line);
-    }
-    
-    Debug::log(SUCCESS, "File reading done."); 
-    return outLines;
-}
-
-
-// Convert a std::any to a optional, but with a type
-template <typename T> std::optional<T> YamlParser::get_v_opt(const std::any &a) {
-    if (const T *v = std::any_cast<T>(&a))
-        return std::optional<T>(*v);
-    else
-        return std::nullopt;
-}
-
-std::string YamlParser::toString() {
-    return toStringRecursive(data); 
-};
-
-// Convert the object to a string, so it can be printed
-std::string YamlParser::toStringRecursive(std::map<std::string, std::any>& obj) {
-    std::string value = "";
-
-    for(const auto& [key, value] : obj) {
-
-        // Test if the object is a string
-        std::optional opt_string = get_v_opt<std::string>(value);
-        if (opt_string.has_value()) {
-            value += "\n" + key + " : " + opt_string.value();
-        }
-
-        // Test if the object is another object
-        std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(value);
-
-        if (opt_object.has_value()) {
-
-            std::map<std::string, std::any> mapObject = opt_object.value(); 
-            value += "\n" + key + " : \n" + toStringRecursive(mapObject);
-        }
-    }
-
-    return value; 
-};
-*/
-/*
-    TODO: Support arrays, not just object
-    TODO: Support start and end tags for YAML files. (---) for start and (...) for end
-    TODO: Make YAML parser class
     TODO: Parse value string into correct type
 */

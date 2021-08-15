@@ -9,39 +9,50 @@
 #include <map>
 
 #include <utility>
+#include <array>
 
 enum Types {
+    NONE,
     ARRAY,
     MAP
 };
 
 struct YamlType {
-    std::any data;
-    Types type;
+    std::string tmpKey;
+    int tmpIndex;
 
-    // For type ARRAY
-    void add(std::any val);
+    std::map<std::string, std::any> map;
+    std::vector<std::any> vec;
 
-    // For type MAP
-    void add(std::pair<std::string, std::any> val);
+    //YamlType operator[](const std::string& key);
+    YamlType operator[](const char* key);
+    YamlType operator[](int index);
+
+    operator const int();
+    operator const double();
+    operator const bool();
+    operator const std::string();
 };
 
 class YamlParser {
     public:
         YamlType result;
 
-        YamlParser(const std::string fileName);
+        explicit YamlParser(const std::string& fileName);
         ~YamlParser();
 
         void print();
 
-        //void runTest();
+        YamlType operator[](std::string key);
 
     private:
         const char mapChar = ':';       // With a space afther (": ")
         const char listSplitChar = ','; // With a space afther (", ")
         const char arrayChar = '-';     // With a space before (" -")
         const char commentChar = '#';   // With a space before (" #")
+
+        const char multiLineIncludeChar = '|';
+        const char multiLineFoldChar = '>';
 
         const std::string fileStart = "---";
         const std::string fileEnd = "...";
@@ -53,63 +64,43 @@ class YamlParser {
 
         YamlType parsePropsFormLines(std::vector<std::string> lines);
 
-        std::vector<std::string> readFile(const std::string fileName);
+        std::vector<std::string> readFile(const std::string& fileName);
 
-        std::any parseValue(std::string value);
-        bool parseBool(std::string value);
+        std::any parseValue(const std::string& value);
         std::map<std::string, std::any> parseInlineObject(std::string object);
         std::vector<std::any> parseInlineVector(std::string vector);
+        static std::string parseMultilineString(std::vector<std::string> lines, bool includeNewLine);
 
-        std::vector<std::string> getTabedString(std::vector<std::string> lines, int tabLevel, int startLine);
+        bool parseBool(std::string value);
+        static int parseInt(std::string value);
+        static double parseDouble(const std::string& value);
+        static std::string parseString(std::string value);
+
+        static std::vector<std::string> getTabedString(std::vector<std::string> lines, int tabLevel, int startLine);
 
         bool isBool(std::string value);
+        static bool isInt(std::string value);
+        static bool isDouble(const std::string& value);
 
-        int getTabLevel(std::string line);
-        char getFirstChar(std::string line);
-        Types getType(std::string line);
+        static int getTabLevel(const std::string& line);
+        static char getFirstChar(const std::string& line);
+        static bool containsChar(const std::string& line, char containChar);
 
-        std::vector<std::string> splitString(std::string line, char splitChar);
+        static std::vector<std::string> splitString(const std::string& line, char splitChar);
+        static std::string removeSpaceBeforeChar(std::string line);
 
         // Printing
         template <typename T>
         std::optional<T> get_v_opt(const std::any &a);
 
-        std::string buildPrint(std::any object, int tab);
+        static inline const char * boolToString(bool b);
+        static inline const char * intToString(int i);
+        static inline const char * doubleToString(double d);
+
+        std::string buildPrint(const std::any& object, int tab);
         std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
         std::string buildVectorPrint(std::vector<std::any> vector, int tab);
         std::string buildYamlTypePrint(YamlType yamlType, int tab);
 };
 
-
-
-
-
-
-
-
-/*
-struct YamlField {
-    std::any* data;
-
-    YamlField operator[](const std::string& str);
-    explicit operator int(); 
-};
-
-class YamlParser {
-    public:
-        YamlField operator[](const std::string& str);
-        std::map<std::string, std::any> data;
-        YamlParser(const std::string& filePath);
-        ~YamlParser();
-        std::string toString();
-    private:
-        const char delimeter = ':';
-        std::string toStringRecursive(std::map<std::string, std::any>& obj);
-        std::vector<std::string> getTabedStrings(std::vector<std::string>& lines, int tabLevel, int startLine);
-        std::vector<std::string> readFile(const std::string& fileName);
-        std::map<std::string, std::any> loadPropFromLines(std::vector<std::string>& lines);
-        int getTabLevel(std::string& line);
-        template <typename T> std::optional<T> get_v_opt(const std::any &a);
-};
-*/
 #endif
