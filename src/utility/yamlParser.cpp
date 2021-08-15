@@ -1,7 +1,7 @@
 #include "yamlParser.h"
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <any>
 #include <fstream>
 #include <iostream>
@@ -17,7 +17,6 @@
 /*
 Yaml Type
 */
-
 YamlType YamlType::operator[](const char* key) {
     tmpKey = key;
 
@@ -202,8 +201,8 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
     return currentYaml;
 }
 
-std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
-    std::map<std::string, std::any> currentMap;
+std::unordered_map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
+    std::unordered_map<std::string, std::any> currentMap;
 
     // Trim the string
     object.erase(0,1);
@@ -469,7 +468,7 @@ std::string YamlParser::buildPrint(const std::any& object, int tab) {
     }
  
     // Test if the object is another object
-    std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
+    std::optional opt_object = get_v_opt<std::unordered_map<std::string, std::any>>(object);
     if (opt_object.has_value()) {
         return buildObjectPrint(opt_object.value(), tab + 1);
     }
@@ -487,7 +486,7 @@ std::string YamlParser::buildPrint(const std::any& object, int tab) {
     return printString;
 }
 
-std::string YamlParser::buildObjectPrint(std::map<std::string, std::any> object, int tab) {
+std::string YamlParser::buildObjectPrint(std::unordered_map<std::string, std::any> object, int tab) {
     std::string outString = "";
 
     for (const auto& [key, value] : object) {

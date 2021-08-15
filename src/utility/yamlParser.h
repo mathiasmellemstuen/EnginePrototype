@@ -6,7 +6,7 @@
 #include <fstream>
 #include <any>
 #include <optional>
-#include <map>
+#include <unordered_map>
 
 #include <utility>
 #include <array>
@@ -21,10 +21,9 @@ struct YamlType {
     std::string tmpKey;
     int tmpIndex;
 
-    std::map<std::string, std::any> map;
+    std::unordered_map<std::string, std::any> map;
     std::vector<std::any> vec;
 
-    //YamlType operator[](const std::string& key);
     YamlType operator[](const char* key);
     YamlType operator[](int index);
 
@@ -67,7 +66,7 @@ class YamlParser {
         std::vector<std::string> readFile(const std::string& fileName);
 
         std::any parseValue(const std::string& value);
-        std::map<std::string, std::any> parseInlineObject(std::string object);
+        std::unordered_map<std::string, std::any> parseInlineObject(std::string object);
         std::vector<std::any> parseInlineVector(std::string vector);
         static std::string parseMultilineString(std::vector<std::string> lines, bool includeNewLine);
 
@@ -98,7 +97,7 @@ class YamlParser {
         static inline const char * doubleToString(double d);
 
         std::string buildPrint(const std::any& object, int tab);
-        std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
+        std::string buildObjectPrint(std::unordered_map<std::string, std::any> object, int tab);
         std::string buildVectorPrint(std::vector<std::any> vector, int tab);
         std::string buildYamlTypePrint(YamlType yamlType, int tab);
 };
