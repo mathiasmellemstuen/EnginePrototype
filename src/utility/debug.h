@@ -22,10 +22,12 @@ class Debug {
         static void log(LogLevel logLevel, glm::vec4 vec4); 
 
         static void log(LogLevel logLevel, int value);
-        static void log(LogLevel logLevel, float value); 
+        static void log(LogLevel logLevel, float value);
+        static void log(LogLevel logLevel, double value); 
 
         static void log(int value); 
         static void log(float value);
+        static void log(double value);
 
         static void log(std::string message); 
         static void log(glm::vec2 vec2); 

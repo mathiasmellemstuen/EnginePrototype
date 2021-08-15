@@ -72,6 +72,10 @@ void Debug::log(LogLevel logLevel, float value) {
     Debug::log(logLevel, std::to_string(value));
 };
 
+void Debug::log(LogLevel logLevel, double value) {
+    Debug::log(logLevel, std::to_string(value));
+}
+
 void Debug::log(int value) {
     Debug::log(INFO, value); 
 };
@@ -79,3 +83,7 @@ void Debug::log(int value) {
 void Debug::log(float value) {
     Debug::log(INFO, value); 
 };
+
+void Debug::log(double value) {
+    Debug::log(INFO, value);
+}
