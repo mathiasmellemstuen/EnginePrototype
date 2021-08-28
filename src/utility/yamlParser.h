@@ -1,27 +1,24 @@
 #ifndef ENGINEPROTOTYPE_YAMLPARSER
 #define ENGINEPROTOTYPE_YAMLPARSER
 
+#include "dataParser.h"
+
 #include <string>
 #include <vector>
 #include <fstream>
 #include <any>
 #include <optional>
-#include <unordered_map>
+#include <map>
 
 #include <utility>
 #include <array>
 
-enum Types {
-    NONE,
-    ARRAY,
-    MAP
-};
-
+/*
 struct YamlType {
     std::string tmpKey;
     int tmpIndex;
 
-    std::unordered_map<std::string, std::any> map;
+    std::map<std::string, std::any> map;
     std::vector<std::any> vec;
 
     YamlType operator[](const char* key);
@@ -31,18 +28,19 @@ struct YamlType {
     operator const double();
     operator const bool();
     operator const std::string();
+    operator const std::map<std::string, std::any>();
+    //operator const vector<std::any>();
 };
+*/
 
-class YamlParser {
+class YamlParser : public DataParser{
     public:
-        YamlType result;
-
         explicit YamlParser(const std::string& fileName);
         ~YamlParser();
 
         void print();
 
-        YamlType operator[](std::string key);
+        DataType operator[](std::string key);
 
     private:
         const char mapChar = ':';       // With a space afther (": ")
@@ -61,12 +59,12 @@ class YamlParser {
 
         std::vector<std::string> lines;
 
-        YamlType parsePropsFormLines(std::vector<std::string> lines);
+        DataType parsePropsFormLines(std::vector<std::string> lines);
 
         std::vector<std::string> readFile(const std::string& fileName);
 
         std::any parseValue(const std::string& value);
-        std::unordered_map<std::string, std::any> parseInlineObject(std::string object);
+        std::map<std::string, std::any> parseInlineObject(std::string object);
         std::vector<std::any> parseInlineVector(std::string vector);
         static std::string parseMultilineString(std::vector<std::string> lines, bool includeNewLine);
 
@@ -97,9 +95,9 @@ class YamlParser {
         static inline const char * doubleToString(double d);
 
         std::string buildPrint(const std::any& object, int tab);
-        std::string buildObjectPrint(std::unordered_map<std::string, std::any> object, int tab);
+        std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
         std::string buildVectorPrint(std::vector<std::any> vector, int tab);
-        std::string buildYamlTypePrint(YamlType yamlType, int tab);
+        std::string buildDataTypePrint(DataType DataType, int tab);
 };
 
 #endif

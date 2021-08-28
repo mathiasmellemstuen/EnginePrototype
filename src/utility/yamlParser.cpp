@@ -1,7 +1,7 @@
 #include "yamlParser.h"
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <any>
 #include <fstream>
 #include <iostream>
@@ -15,67 +15,6 @@
 #include <cmath>
 
 /*
-Yaml Type
-*/
-YamlType YamlType::operator[](const char* key) {
-    tmpKey = key;
-
-    try {
-        YamlType returnValue = std::any_cast<YamlType>(map[key]);
-        return returnValue;
-    } catch (std::bad_any_cast e) {
-        return *this;
-    }
-}
-
-YamlType YamlType::operator[](int index) {
-    tmpIndex = index;
-
-    try {
-        YamlType returnValue = std::any_cast<YamlType>(vec[index]);
-        return returnValue;
-    } catch (std::bad_any_cast e) {
-        return *this;
-    }
-}
-
-YamlType::operator const int() {
-    if (!map.empty()) {
-        return std::any_cast<int>(map[tmpKey]);
-    } else if (!vec.empty()) {
-        return std::any_cast<int>(vec[tmpIndex]);
-    }
-    return 0;
-}
-
-YamlType::operator const double() {
-    if (!map.empty()) {
-        return std::any_cast<double>(map[tmpKey]);
-    } else if (!vec.empty()) {
-        return std::any_cast<double>(vec[tmpIndex]);
-    }
-    return 0.0;
-}
-
-YamlType::operator const bool() {
-    if (!map.empty()) {
-        return std::any_cast<bool>(map[tmpKey]);
-    } else if (!vec.empty()) {
-        return std::any_cast<bool>(vec[tmpIndex]);
-    }
-    return false;
-}
-
-YamlType::operator const std::string() {
-    if (!map.empty()) {
-        return std::any_cast<std::string>(map[tmpKey]);
-    } else if (!vec.empty()) {
-        return std::any_cast<std::string>(vec[tmpIndex]);
-    }
-    return "";
-}
-
-/*
 Yaml Parser
 */
 YamlParser::YamlParser(const std::string& fileName) {
@@ -87,8 +26,8 @@ YamlParser::~YamlParser() {
 
 }
 
-YamlType YamlParser::operator[](std::string key) {
-    YamlType returnType = std::any_cast<YamlType>(result.map[key]);
+DataType YamlParser::operator[](std::string key) {
+    DataType returnType = std::any_cast<DataType>(result.map[key]);
 
     return returnType;
 }
@@ -136,8 +75,8 @@ std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
 /*
 Parsing
 */
-YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
-    YamlType currentYaml;
+DataType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
+    DataType currentYaml;
 
     for (int i = 0; i <= lines.size() - 1; i++) {
         int cTab = getTabLevel(lines[i]);
@@ -189,7 +128,7 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
                 }
             } else {
                 std::vector<std::string> nextTabLines = getTabedString(lines, nTab, i + 1);
-                YamlType nextObject = parsePropsFormLines(nextTabLines);
+                DataType nextObject = parsePropsFormLines(nextTabLines);
 
                 currentYaml.map.insert({left, nextObject});
 
@@ -201,8 +140,8 @@ YamlType YamlParser::parsePropsFormLines(std::vector<std::string> lines) {
     return currentYaml;
 }
 
-std::unordered_map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
-    std::unordered_map<std::string, std::any> currentMap;
+std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object) {
+    std::map<std::string, std::any> currentMap;
 
     // Trim the string
     object.erase(0,1);
@@ -468,7 +407,7 @@ std::string YamlParser::buildPrint(const std::any& object, int tab) {
     }
  
     // Test if the object is another object
-    std::optional opt_object = get_v_opt<std::unordered_map<std::string, std::any>>(object);
+    std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
     if (opt_object.has_value()) {
         return buildObjectPrint(opt_object.value(), tab + 1);
     }
@@ -478,15 +417,15 @@ std::string YamlParser::buildPrint(const std::any& object, int tab) {
         return buildVectorPrint(opt_vector.value(), tab + 1);
     }
 
-    std::optional opt_yamlType = get_v_opt<YamlType>(object);
-    if (opt_yamlType.has_value()) {
-        return buildYamlTypePrint(opt_yamlType.value(), tab + 1);
+    std::optional opt_DataType = get_v_opt<DataType>(object);
+    if (opt_DataType.has_value()) {
+        return buildDataTypePrint(opt_DataType.value(), tab + 1);
     }
 
     return printString;
 }
 
-std::string YamlParser::buildObjectPrint(std::unordered_map<std::string, std::any> object, int tab) {
+std::string YamlParser::buildObjectPrint(std::map<std::string, std::any> object, int tab) {
     std::string outString = "";
 
     for (const auto& [key, value] : object) {
@@ -518,15 +457,15 @@ std::string YamlParser::buildVectorPrint(std::vector<std::any> vec, int tab) {
     return outString;
 }
 
-std::string YamlParser::buildYamlTypePrint(YamlType yamlType, int tab) {
+std::string YamlParser::buildDataTypePrint(DataType DataType, int tab) {
     std::string outString = "";
 
-    if (!yamlType.map.empty()) {
-        outString += buildObjectPrint(yamlType.map, tab);
+    if (!DataType.map.empty()) {
+        outString += buildObjectPrint(DataType.map, tab);
     }
 
-    if (!yamlType.vec.empty()) {
-        outString += buildVectorPrint(yamlType.vec, tab);
+    if (!DataType.vec.empty()) {
+        outString += buildVectorPrint(DataType.vec, tab);
     }
 
     return outString;
