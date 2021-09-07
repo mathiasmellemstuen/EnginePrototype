@@ -10,6 +10,7 @@
 void DescriptorSetLayout::create() {
 
     Debug::log(INFO, "Starting setup of Descriptor set layout");
+    
 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;

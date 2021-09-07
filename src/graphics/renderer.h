@@ -42,6 +42,7 @@ class Renderer {
         UniformBuffer uniformBuffer; 
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
+        RendererInfo* currentRendererInfo; 
         std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> updateFunction;
 
         Renderer(Window& window);
@@ -57,12 +58,11 @@ class Renderer {
         void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
         VkSampleCountFlagBits getMaxUsableSampleCount();
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
     private: 
         void cleanupSwapChain();
         void reCreateSwapChain();
         void drawFrame();
-
-
 };
 
 #endif

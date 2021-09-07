@@ -42,7 +42,7 @@ void FrameBuffers::create() {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
-    Debug::log(SUCCESS, "Successfully created all framebuffers."); 
+    Debug::log(SUCCESS, "Successfully created all framebuffers.");
 };
 
 FrameBuffers::~FrameBuffers() {

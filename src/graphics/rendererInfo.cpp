@@ -19,7 +19,7 @@ glm::mat4 RendererInfo::createModelMatrix() {
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
-    model = glm::rotate(model, nextRotationAngles, nextRotationDirection);
+    model = glm::rotate(model, nextRotationAngles, nextRotationDirection); 
 
     return model; 
 };

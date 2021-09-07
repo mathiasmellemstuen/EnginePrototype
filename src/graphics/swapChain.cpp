@@ -14,8 +14,8 @@
 #include "renderer.h"
 
 SwapChain::SwapChain(Renderer& renderer) : renderer(renderer) {
+    create();
     
-    create(); 
 };
 
 SwapChain::~SwapChain() {

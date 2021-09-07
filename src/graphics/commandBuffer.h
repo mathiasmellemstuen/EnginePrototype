@@ -11,6 +11,7 @@ class CommandBuffers {
         std::vector<VkCommandBuffer> commandBuffers;
         CommandBuffers(Renderer& renderer); 
         void create(uint32_t currentImage);
+        void allocateCommandBuffers(); 
         ~CommandBuffers(); 
     private:
         Renderer& renderer;
