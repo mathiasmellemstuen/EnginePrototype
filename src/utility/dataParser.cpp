@@ -1,10 +1,9 @@
 #include "dataParser.h"
 
-#include "debug.h"
-
 #include <iostream>
 #include <map>
 #include <any>
+#include <sstream>
 
 DataType DataType::operator[](const char* key) {
     tmpKey = key;
@@ -70,8 +69,103 @@ DataType::operator const std::map<std::string, std::any>() {
     try {
         std::map<std::string, std::any> retMap = std::any_cast<std::map<std::string, std::any>>(map[tmpKey]); 
     } catch (const std::bad_any_cast& e) {
-        Debug::log(ERROR, e.what());
+        // Debug::log(ERROR, e.what());
     }
 
     return retMap;
 }
+
+void DataType::add(std::pair<std::string, std::any> pair) {
+    // std::cout << pair.first << std::endl;
+    map.insert(pair);
+}
+
+void DataType::add(const std::any& val) {
+    vec.push_back(val);
+}
+
+
+const std::array<std::string, 3> DataParser::trueString = {"true", "yes", "on"};
+const std::array<std::string, 3> DataParser::falseString = {"false", "no", "off"};
+
+std::vector<std::string> DataParser::splitString(const std::string &data, char splitChar) {
+    std::stringstream stream(data);
+    std::string segment;
+    std::vector<std::string> splitString;
+
+    while (std::getline(stream, segment, splitChar)) {
+        splitString.push_back(segment);
+    }
+
+    return splitString;
+}
+
+bool DataParser::isBool(std::string value) {
+    // Turn string to lower
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c){return std::tolower(c);});
+
+    // Find if value is a boolean
+    if (std::find(std::begin(trueString), std::end(trueString), value) != std::end(trueString)) {
+        // value is part of the trueString list
+        return true;
+    } else if (std::find(std::begin(falseString), std::end(falseString), value) != std::end(falseString)) {
+        // value is part of the falseString list
+        return true;
+    }
+
+    return false;
+}
+
+bool DataParser::isInt(const std::string &value) {
+    char* p;
+
+    if (value[0] == '0' && value[1] == 'x') {
+        return true;
+    } else if (value[0] == '0') {
+        return true;
+    } else {
+        long converted = strtol(value.c_str(), &p, 10);
+    }
+
+    return !(*p);
+}
+
+bool DataParser::isDouble(const std::string &value) {
+    char* end = nullptr;
+    double val = strtod(value.c_str(), &end);
+    return end != value.c_str() && *end == '\0' && val != HUGE_VAL;
+}
+
+bool DataParser::parseBool(std::string value) {
+    // Turn string to lower
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c){return std::tolower(c);});
+
+    // Find if value is a boolean
+    if (std::find(std::begin(trueString), std::end(trueString), value) != std::end(trueString)) {
+        // value is part of the trueString list
+        return true;
+    } else if (std::find(std::begin(falseString), std::end(falseString), value) != std::end(falseString)) {
+        // value is part of the falseString list
+        return false;
+    }
+
+    return true;
+}
+
+int DataParser::parseInt(std::string value) {
+    if (value[0] == '0' && value[1] == 'x') {
+        return std::stoi(value, 0, 16);
+    } else if (value[0] == '0') {
+        return std::stoi(value, 0, 6);
+    } else {
+        return std::stoi(value);
+    }
+}
+
+double DataParser::parseDouble(std::string value) {
+    char* end = nullptr;
+    double val = strtod(value.c_str(), &end);
+
+    return val;
+}
+
