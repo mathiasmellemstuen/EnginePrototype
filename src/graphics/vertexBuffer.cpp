@@ -17,7 +17,6 @@ VertexBuffer::VertexBuffer(Renderer& renderer, std::vector<Vertex>& vertices, st
 
 void VertexBuffer::createVertexBuffer(std::vector<Vertex>& vertices) {
     Debug::log(INFO, "Creating vertex buffer.");
-
     
     VkDeviceSize bufferSize = sizeof(this->vertices[0]) * this->vertices.size();
     VkBuffer stagingBuffer;

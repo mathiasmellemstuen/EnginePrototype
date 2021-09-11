@@ -13,13 +13,19 @@
 #include <array>
 
 #include "renderer.h"
+#include "vulkan/vulkan_core.h"
 
 CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
+    
+    allocateCommandBuffers();
+}
 
-    //create();
+void CommandBuffers::allocateCommandBuffers() {
+    
+    Debug::log(INFO, "Allocating command buffers");
 
     commandBuffers.resize(renderer.frameBuffers.swapChainFramebuffers.size());
-
+    
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = renderer.commandPool.commandPool;
@@ -31,17 +37,16 @@ CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
         throw std::runtime_error("failed to allocate command buffers!"); 
     }
 
-
+    Debug::log(SUCCESS, "Command buffers successfully allocated!");
 }
 void CommandBuffers::create(uint32_t currentImage) {
-
-    //Debug::log(INFO, "Starting setup and execution of command buffers");
     
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     
+
         if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
             Debug::log(ERROR, "Failed to begin recording command buffers!"); 
             throw std::runtime_error("failed to begin recording command buffer!");
@@ -62,7 +67,7 @@ void CommandBuffers::create(uint32_t currentImage) {
         renderPassInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
+            
             renderer.updateFunction(commandBuffers[i], i, currentImage);
         
         vkCmdEndRenderPass(commandBuffers[i]);
@@ -73,7 +78,6 @@ void CommandBuffers::create(uint32_t currentImage) {
         }
     } 
 
-    //Debug::log(SUCCESS, "Successfully executed command buffers"); 
 };
 
 CommandBuffers::~CommandBuffers() {

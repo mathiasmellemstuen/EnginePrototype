@@ -1,0 +1,6 @@
+-std=c++17
+-xc++
+-I
+include/
+-I
+/vulkan-sdk/1.2.176.1/x86_64/include

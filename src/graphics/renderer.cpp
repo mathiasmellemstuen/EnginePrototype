@@ -73,7 +73,7 @@ void Renderer::cleanupSwapChain() {
 
     //TODO: Find a way to destroy the current pipeline...
     //vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
-    //vkDestroyPipelineLayout(logicalDevice.device, rendererInfo->graphicsPipeline.pipelineLayout, nullptr);
+   //vkDestroyPipelineLayout(logicalDevice.device, I>graphicsPipeline.pipelineLayout, nullptr);
     vkDestroyRenderPass(logicalDevice.device, renderPass.renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
@@ -85,6 +85,8 @@ void Renderer::cleanupSwapChain() {
 
 void Renderer::reCreateSwapChain() {
     
+    Debug::log(INFO, "Recreating the swapchain!"); 
+
     int width = 0, height = 0;
     SDL_GetWindowSize(window.sdlWindow, &width, &height);
 
@@ -100,14 +102,15 @@ void Renderer::reCreateSwapChain() {
     swapChain.create();
     imageViews.create();
     renderPass.create();
-    //graphicsPipeline.create();
     colorResources.create(); 
     depthResources.create(); 
     frameBuffers.create();
     uniformBuffer.create(); 
-    //TODO: Find a way to create the current descriptor pool
+        //TODO: Find a way to create the current descriptor pool
     //rendererInfo->descriptorPool.create(); 
-    commandBuffers.create(0);
+    currentRendererInfo->descriptorPool.create(); 
+    //commandBuffers.create(0);
+    commandBuffers.allocateCommandBuffers();
 };
 
 void Renderer::drawFrame() {

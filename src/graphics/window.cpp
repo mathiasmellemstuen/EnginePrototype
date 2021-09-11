@@ -7,7 +7,7 @@
 Window::Window() {
 
     Debug::log(INFO, "Intializing SDL2"); 
-
+    
     int code = SDL_Init(SDL_INIT_EVERYTHING);
     if(code < 0) {
 

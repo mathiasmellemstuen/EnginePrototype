@@ -6,6 +6,7 @@
 #include "physicalDevice.h"
 #include <cmath>
 #include "renderer.h"
+#include "vulkan/vulkan_core.h"
 
 void Texture::create() {
     Debug::log(INFO, "Starting loading texture image"); 
