@@ -10,12 +10,15 @@
 #include "graphics/renderer.h"
 #include "graphics/vertex.h"
 #include "graphics/model.h"
-#include "utility/yamlParser.h"
 #include "utility/debug.h"
 #include "graphics/shader.h"
 #include "graphics/rendererInfo.h"
 #include "graphics/texture.h"
 #include "graphics/vertexBuffer.h"
+
+#include "utility/dataParsing/yamlParser.h"
+#include "utility/dataParsing/jsonParser.h"
+#include "utility/dataParsing/csvParser.h"
 
 #include <any>
 #include <vector>
@@ -29,16 +32,38 @@
 int main(int argc, char *argv[]) {
 
     Debug::log(INFO, "Starting application."); 
+
+    {// Yaml parsing test
+        std::cout << "*** YamlParser ***" << std::endl;
+
+        YamlParser parser("Test_data/test.yaml");
         
-    YamlParser parser("Test_data/test.yaml");
-    std::cout << "YamlParser" << std::endl;
+        int i = parser["test types"]["base"]["desimal"];
+        std::cout << "i = " << i << std::endl;
 
-    int i = parser["test types"]["base"]["desimal"];
-    Debug::log(INFO, i);
+        std::cout << "*** YamlParser ***" << std::endl;
+    }
 
-    std::map<std::string, std::any> map = parser["test types"]["base"];
+    {// Json parser test
+        std::cout << "*** JsonParser ***" << std::endl;
 
-    std::cout << "YamlParser" << std::endl;
+        // JsonParser parser("Test_data/test.json");
+
+        std::cout << "*** JsonParser ***" << std::endl;
+    }
+
+    {// CSV parser test
+        std::cout << "*** CsvParser ***" << std::endl;
+        
+        CsvParser parser("Test_data/test.csv");
+
+        std::cout << "*** CsvParser ***" << std::endl;
+    }
+
+
+    
+
+    
 
 //    setup();
     
