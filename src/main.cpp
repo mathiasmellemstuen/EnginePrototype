@@ -10,6 +10,10 @@
 #include "graphics/renderer.h"
 #include "graphics/vertex.h"
 #include "graphics/model.h"
+<<<<<<< HEAD
+=======
+#include "utility/dataParsing/yamlParser.h"
+>>>>>>> main
 #include "utility/debug.h"
 #include "graphics/shader.h"
 #include "graphics/rendererInfo.h"
