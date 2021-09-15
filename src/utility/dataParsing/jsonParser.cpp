@@ -13,11 +13,6 @@ JsonParser::JsonParser(const std::string &fileName) {
 
 JsonParser::~JsonParser() = default;
 
-DataType JsonParser::operator[](const std::string& key) {
-    // std::cout << result.map[key].type().name() << std::endl;
-    return std::any_cast<DataType>(result.map[key]);
-}
-
 std::string JsonParser::readFile(const std::string& fileName) {
     std::string line = "";
     std::fstream file;

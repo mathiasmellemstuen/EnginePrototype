@@ -36,7 +36,8 @@ class DataParser {
         static const std::array<std::string, 3> trueString;
         static const std::array<std::string, 3> falseString;
 
-        DataType operator[](std::string key);
+        DataType operator[](const std::string& key);
+        DataType operator[](const int& idx);
 
         static std::vector<std::string> splitString(const std::string& data, char splitChar);
 

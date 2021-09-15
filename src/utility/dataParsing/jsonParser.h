@@ -15,8 +15,6 @@ class JsonParser : public DataParser {
 
         void print();
 
-        DataType operator[](const std::string& key);
-
     private:
         std::string data;
 

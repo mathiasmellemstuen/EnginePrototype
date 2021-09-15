@@ -20,8 +20,6 @@ class YamlParser : public DataParser{
 
         void print();
 
-        DataType operator[](const std::string& key);
-
     private:
         const char mapChar = ':';       // With a space afther (": ")
         const char listSplitChar = ','; // With a space afther (", ")

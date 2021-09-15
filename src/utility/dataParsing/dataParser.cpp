@@ -4,7 +4,12 @@
 #include <map>
 #include <any>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
 
+/*
+    DataType
+*/
 DataType DataType::operator[](const char* key) {
     tmpKey = key;
 
@@ -85,8 +90,19 @@ void DataType::add(const std::any& val) {
 }
 
 
+/*
+    DataParser
+*/
 const std::array<std::string, 3> DataParser::trueString = {"true", "yes", "on"};
 const std::array<std::string, 3> DataParser::falseString = {"false", "no", "off"};
+
+DataType DataParser::operator[](const std::string& key) {
+    return std::any_cast<DataType>(result.map[key]);
+}
+
+DataType DataParser::operator[](const int& idx) {
+    return std::any_cast<DataType>(result.vec[idx]);
+}
 
 std::vector<std::string> DataParser::splitString(const std::string &data, char splitChar) {
     std::stringstream stream(data);

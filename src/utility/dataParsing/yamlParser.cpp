@@ -27,10 +27,6 @@ YamlParser::~YamlParser() {
 
 }
 
-DataType YamlParser::operator[](const std::string& key) {
-    return std::any_cast<DataType>(result.map[key]);
-}
-
 std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
     std::string line = "";
     std::fstream file;
