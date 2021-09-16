@@ -104,6 +104,9 @@ DataType DataParser::operator[](const int& idx) {
     return std::any_cast<DataType>(result.vec[idx]);
 }
 
+/*
+    Util
+*/
 std::vector<std::string> DataParser::splitString(const std::string &data, char splitChar) {
     std::stringstream stream(data);
     std::string segment;
@@ -116,6 +119,27 @@ std::vector<std::string> DataParser::splitString(const std::string &data, char s
     return splitString;
 }
 
+std::string DataParser::removeSpaceBeforeChar(std::string line) {
+    return line.erase(0, DataParser::getTabLevel(line));
+}
+
+int DataParser::getTabLevel(const std::string& line) {
+    int tabLevel = 0;
+
+    for (char c : line) {
+        if (c == ' ') {
+            tabLevel++;
+        } else {
+            return tabLevel;
+        }
+    }
+
+    return tabLevel;
+}
+
+/*
+    Parsing
+*/
 bool DataParser::isBool(std::string value) {
     // Turn string to lower
     std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c){return std::tolower(c);});

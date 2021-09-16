@@ -16,8 +16,6 @@ class CsvParser : public DataParser {
 
         void print();
 
-        DataType operator[](const std::string& key);
-
     private:
         char delimeter = ',';
         bool hasHeader = true;

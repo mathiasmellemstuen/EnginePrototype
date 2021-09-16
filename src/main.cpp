@@ -10,10 +10,6 @@
 #include "graphics/renderer.h"
 #include "graphics/vertex.h"
 #include "graphics/model.h"
-<<<<<<< HEAD
-=======
-#include "utility/dataParsing/yamlParser.h"
->>>>>>> main
 #include "utility/debug.h"
 #include "graphics/shader.h"
 #include "graphics/rendererInfo.h"
@@ -42,8 +38,15 @@ int main(int argc, char *argv[]) {
 
         YamlParser parser("Test_data/test.yaml");
         
+        std::any string = parser.result.map["test types"];
+        
+        std::cout << string.type().name() << std::endl;
+
+
+        /*
         int i = parser["test types"]["base"]["desimal"];
         std::cout << "i = " << i << std::endl;
+        */
 
         std::cout << "*** YamlParser ***" << std::endl;
     }
@@ -60,6 +63,10 @@ int main(int argc, char *argv[]) {
         std::cout << "*** CsvParser ***" << std::endl;
         
         CsvParser parser("Test_data/test.csv");
+        
+        std::any string = parser.result.map["d1"];
+
+        std::cout << string.type().name() << std::endl;
 
         std::cout << "*** CsvParser ***" << std::endl;
     }

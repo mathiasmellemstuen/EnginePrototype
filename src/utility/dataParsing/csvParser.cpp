@@ -34,22 +34,36 @@ std::vector<std::string> CsvParser::readFile(const std::string& fileName) {
 
 DataType CsvParser::parseData() {
     std::vector<std::string> headers = DataParser::splitString(lines[0], ',');
+    std::vector<std::vector<std::string>> restData;
 
-    std::vector<std::vector<std::string>> data;
-
+    for (int i = 1; i <= lines.size()-1; i++) {
+        restData.push_back(DataParser::splitString(lines[i], ','));
+    }
+    
     DataType outData;
 
-    for (int i = 1; i <= lines.size(); i++) {
-        data.push_back(splitString(lines[i], ','));
+    // std::cout << headers.size() << ", " << restData.size() << std::endl;
+
+    for (int i = 0; i <= headers.size() - 1; i++) {
+        std::string header = headers[i];
+        
+        // std::cout << header << ": ";
+
+        DataType outVec;
+
+        for (int l = 0; l <= restData.size() - 1; l++) {
+            // std::cout << restData[l][i] << " ";
+
+            std::any data = restData[l][i];
+
+            outVec.add(data);
+        }
+
+        outData.add({header, std::make_any<DataType>(outVec)});
+
+        // std::cout << std::endl;
     }
 
-    for (int i = 0; i <= headers.size(); i++) {
-        DataType vecData;
-
-        vecData.add(data[i]);
-
-        outData.add({headers[i], vecData});
-    }
 
     return outData;
 }

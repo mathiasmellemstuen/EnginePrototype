@@ -47,12 +47,8 @@ class YamlParser : public DataParser{
 
         static std::vector<std::string> getTabedString(std::vector<std::string> lines, int tabLevel, int startLine);
 
-        static int getTabLevel(const std::string& line);
         static char getFirstChar(const std::string& line);
         static bool containsChar(const std::string& line, char containChar);
-
-        static std::vector<std::string> splitString(const std::string& line, char splitChar);
-        static std::string removeSpaceBeforeChar(std::string line);
 
         // Printing
         template <typename T>

@@ -39,8 +39,12 @@ class DataParser {
         DataType operator[](const std::string& key);
         DataType operator[](const int& idx);
 
+        // Util
         static std::vector<std::string> splitString(const std::string& data, char splitChar);
-
+        static std::string removeSpaceBeforeChar(std::string line);
+        static int getTabLevel(const std::string& line);
+        
+        // Parsing
         static bool isBool(std::string value);
         static bool isInt(const std::string& value);
         static bool isDouble(const std::string& value);

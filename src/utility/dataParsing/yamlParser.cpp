@@ -146,8 +146,8 @@ std::map<std::string, std::any> YamlParser::parseInlineObject(std::string object
         std::string left = part.substr(0, delimeterIndex);
         std::string right = part.erase(0, delimeterIndex + 2);
 
-        left = removeSpaceBeforeChar(left);
-        right = removeSpaceBeforeChar(right);
+        left = DataParser::removeSpaceBeforeChar(left);
+        right = DataParser::removeSpaceBeforeChar(right);
 
         currentMap.insert({left, parseValue(right)});
     }
@@ -165,7 +165,7 @@ std::vector<std::any> YamlParser::parseInlineVector(std::string vector) {
     auto currentString = DataParser::splitString(vector, listSplitChar);
 
     for (std::string part : currentString) {
-        part = removeSpaceBeforeChar(part);
+        part = DataParser::removeSpaceBeforeChar(part);
         currentVec.push_back(parseValue(part));
     }
 
@@ -226,24 +226,6 @@ bool YamlParser::containsChar(const std::string& line, char containChar) {
             return true;
 
     return false;
-}
-
-std::string YamlParser::removeSpaceBeforeChar(std::string line) {
-    return line.erase(0, getTabLevel(line));
-}
-
-int YamlParser::getTabLevel(const std::string& line) {
-    int tabLevel = 0;
-
-    for (char c : line) {
-        if (c == ' ') {
-            tabLevel++;
-        } else {
-            return tabLevel;
-        }
-    }
-
-    return tabLevel;
 }
 
 std::vector<std::string> YamlParser::getTabedString(std::vector<std::string> lines, int tabLevel, int startLine) {
