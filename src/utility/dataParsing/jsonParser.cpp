@@ -6,8 +6,6 @@
 
 JsonParser::JsonParser(const std::string &fileName) {
     data = readFile(fileName);
-    std::cout << "Data: " << data << std::endl;
-
     result = parsePropsFromData(data);
 }
 
