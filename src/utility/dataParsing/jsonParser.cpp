@@ -66,7 +66,7 @@ DataType JsonParser::parsePropsFromData(std::string string) {
 
                 for (const auto& [key, val] : objects) {
                     //std::cout << key << ": " << val << std::endl;
-                    currentJson.add({key, parseObject(val)});
+                    currentJson.add({key, parseValue(val)});
                 }
 
                 i += nextSet.length();
