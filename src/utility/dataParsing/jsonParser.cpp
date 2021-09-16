@@ -2,10 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include "dataParser.h"
 #include "jsonParser.h"
 
 JsonParser::JsonParser(const std::string &fileName) {
     data = readFile(fileName);
+
     result = parsePropsFromData(data);
 }
 

@@ -33,6 +33,7 @@ uint32_t Debug::minImageCount = 2;
 bool Debug::swapChainRebuild = false; 
 ImGui_ImplVulkanH_Window* Debug::wd; 
 SDL_Window* Debug::debugSdlWindow;
+bool Debug::debugWindowRunning = true;
 
 void Debug::log(LogLevel logLevel, std::string message) {
     
@@ -312,18 +313,16 @@ void Debug::setupDebugWindow() {
 
 void Debug::drawDebugWindow() {
     #ifndef NOTDEBUG
-        bool done = false;    
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT) {
-                done = true;
-                Debug::log("Quitting"); 
+                Debug::cleanupDebugWindow(); 
+                debugWindowRunning = false;
             }
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
-
-                done = true;
-                Debug::log("Quitting!"); 
+                Debug::cleanupDebugWindow(); 
+                debugWindowRunning = false; 
             }
         }
 
@@ -438,5 +437,20 @@ void Debug::drawDebugWindow() {
             }
             wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->ImageCount; // Now we can use the next set of semaphores
         }
+    #endif
+}
+
+void Debug::cleanupDebugWindow() {
+    #ifndef NOTDEBUG
+        vkDeviceWaitIdle(device);
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
+        ImGui::DestroyContext();
+        ImGui_ImplVulkanH_DestroyWindow(instance, device, &mainWindowData,vulkanAllocator);
+        vkDestroyDescriptorPool(device, descriptorPool, vulkanAllocator);
+        vkDestroyDevice(device, vulkanAllocator);
+        vkDestroyInstance(instance, vulkanAllocator); 
+        SDL_DestroyWindow(debugSdlWindow);
+        SDL_Quit();
     #endif
 }

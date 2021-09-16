@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
         std::cout << "*** JsonParser ***" << std::endl;
 
         JsonParser parser("Test_data/test.json");
+        
+        std::any data = parser.result.map["test types"];
+        
+        std::cout << data.has_value() << std::endl;
 
         std::any test = parser.result.map["test type"];
 

@@ -47,6 +47,7 @@ class Debug {
         
         static void setupDebugWindow(); 
         static void drawDebugWindow();
+        static void cleanupDebugWindow();
 
         static VkInstance instance;
         static VkAllocationCallbacks* vulkanAllocator;
@@ -62,6 +63,7 @@ class Debug {
         static bool swapChainRebuild;
         static ImGui_ImplVulkanH_Window* wd; 
         static SDL_Window* debugSdlWindow;
+        static bool debugWindowRunning;
 };
 
 #endif

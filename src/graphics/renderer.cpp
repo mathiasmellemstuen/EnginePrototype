@@ -52,6 +52,10 @@ void Renderer::loop() {
         while(SDL_PollEvent(&window.event)) {
             if(window.event.type == SDL_QUIT) {
                 window.running = false;
+
+                if(Debug::debugWindowRunning) {
+                    Debug::cleanupDebugWindow();
+                }
             }
             if (window.event.type == SDL_WINDOWEVENT && window.event.window.event == SDL_WINDOWEVENT_RESIZED && window.event.window.windowID == SDL_GetWindowID(window.sdlWindow)) {
 
@@ -61,7 +65,6 @@ void Renderer::loop() {
         }
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);
-        
         Debug::drawDebugWindow();
     }
 };
