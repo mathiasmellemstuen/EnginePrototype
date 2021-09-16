@@ -1,7 +1,6 @@
 #ifndef ENGINEPROTOTYPE_LOG
 #define ENGINEPROTOTYPE_LOG
 
-#include <bits/stdint-uintn.h>
 #include <string>
 #include "SDL2/SDL_events.h"
 #include "glm/vec3.hpp"
