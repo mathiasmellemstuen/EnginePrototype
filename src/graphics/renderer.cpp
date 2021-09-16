@@ -48,11 +48,25 @@ void Renderer::loop() {
 
     commandBuffers.create(0); 
     while(window.running) {
-        
+
+        if(!Debug::debugWindowRunning) {
+            window.running = false;
+        }
+
         while(SDL_PollEvent(&window.event)) {
             if(window.event.type == SDL_QUIT) {
                 window.running = false;
+                
+                Debug::log("SDL_Quit event is happening."); 
+                if(Debug::debugWindowRunning) {
+                    Debug::cleanupDebugWindow();
+                }
+            }
+            if (window.event.type == SDL_WINDOWEVENT && window.event.window.event == SDL_WINDOWEVENT_CLOSE && window.event.window.windowID == SDL_GetWindowID(window.sdlWindow)) {
 
+                window.running = false;
+                
+                Debug::log("SDL_Quit event is happening."); 
                 if(Debug::debugWindowRunning) {
                     Debug::cleanupDebugWindow();
                 }
