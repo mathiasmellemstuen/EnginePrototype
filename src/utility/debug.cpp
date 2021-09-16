@@ -1,7 +1,6 @@
 #include "debug.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
-#include <bits/stdint-uintn.h>
 #include <vulkan/vulkan.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_sdl.h>
