@@ -13,34 +13,12 @@
 #include <utility>
 #include <array>
 
-/*
-struct YamlType {
-    std::string tmpKey;
-    int tmpIndex;
-
-    std::map<std::string, std::any> map;
-    std::vector<std::any> vec;
-
-    YamlType operator[](const char* key);
-    YamlType operator[](int index);
-
-    operator const int();
-    operator const double();
-    operator const bool();
-    operator const std::string();
-    operator const std::map<std::string, std::any>();
-    //operator const vector<std::any>();
-};
-*/
-
 class YamlParser : public DataParser{
     public:
         explicit YamlParser(const std::string& fileName);
         ~YamlParser();
 
         void print();
-
-        DataType operator[](std::string key);
 
     private:
         const char mapChar = ':';       // With a space afther (": ")
@@ -54,9 +32,6 @@ class YamlParser : public DataParser{
         const std::string fileStart = "---";
         const std::string fileEnd = "...";
 
-        const std::array<std::string, 3> trueString = {"true", "yes", "on"};
-        const std::array<std::string, 3> falseString = {"false", "no", "off"};
-
         std::vector<std::string> lines;
 
         DataType parsePropsFormLines(std::vector<std::string> lines);
@@ -68,23 +43,12 @@ class YamlParser : public DataParser{
         std::vector<std::any> parseInlineVector(std::string vector);
         static std::string parseMultilineString(std::vector<std::string> lines, bool includeNewLine);
 
-        bool parseBool(std::string value);
-        static int parseInt(std::string value);
-        static double parseDouble(const std::string& value);
         static std::string parseString(std::string value);
 
         static std::vector<std::string> getTabedString(std::vector<std::string> lines, int tabLevel, int startLine);
 
-        bool isBool(std::string value);
-        static bool isInt(std::string value);
-        static bool isDouble(const std::string& value);
-
-        static int getTabLevel(const std::string& line);
         static char getFirstChar(const std::string& line);
         static bool containsChar(const std::string& line, char containChar);
-
-        static std::vector<std::string> splitString(const std::string& line, char splitChar);
-        static std::string removeSpaceBeforeChar(std::string line);
 
         // Printing
         template <typename T>
