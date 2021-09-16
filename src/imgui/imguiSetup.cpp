@@ -66,42 +66,11 @@ static void SetupVulkan(const char** extensions, uint32_t extensions_count)
         create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         create_info.enabledExtensionCount = extensions_count;
         create_info.ppEnabledExtensionNames = extensions;
-#ifdef IMGUI_VULKAN_DEBUG_REPORT
-        // Enabling validation layers
-        const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
-        create_info.enabledLayerCount = 1;
-        create_info.ppEnabledLayerNames = layers;
 
-        // Enable debug report extension (we need additional storage, so we duplicate the user array to add our new extension to it)
-        const char** extensions_ext = (const char**)malloc(sizeof(const char*) * (extensions_count + 1));
-        memcpy(extensions_ext, extensions, extensions_count * sizeof(const char*));
-        extensions_ext[extensions_count] = "VK_EXT_debug_report";
-        create_info.enabledExtensionCount = extensions_count + 1;
-        create_info.ppEnabledExtensionNames = extensions_ext;
-
-        // Create Vulkan Instance
-        err = vkCreateInstance(&create_info, g_Allocator, &g_Instance);
-        check_vk_result(err);
-        free(extensions_ext);
-
-        // Get the function pointer (required for any extensions)
-        auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(g_Instance, "vkCreateDebugReportCallbackEXT");
-        IM_ASSERT(vkCreateDebugReportCallbackEXT != NULL);
-
-        // Setup the debug report callback
-        VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
-        debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-        debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-        debug_report_ci.pfnCallback = debug_report;
-        debug_report_ci.pUserData = NULL;
-        err = vkCreateDebugReportCallbackEXT(g_Instance, &debug_report_ci, g_Allocator, &g_DebugReport);
-        check_vk_result(err);
-#else
         // Create Vulkan Instance without any debug feature
         err = vkCreateInstance(&create_info, g_Allocator, &g_Instance);
         check_vk_result(err);
         IM_UNUSED(g_DebugReport);
-#endif
     }
 
     // Select GPU
@@ -485,7 +454,7 @@ int setup()
                 g_SwapChainRebuild = false;
             }
         }
-
+        
         // Start the Dear ImGui frame
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -539,7 +508,6 @@ int setup()
             wd->ClearValue.color.float32[2] = clear_color.z * clear_color.w;
             wd->ClearValue.color.float32[3] = clear_color.w;
             FrameRender(wd, draw_data);
-            FramePresent(wd);
         }
     }
 

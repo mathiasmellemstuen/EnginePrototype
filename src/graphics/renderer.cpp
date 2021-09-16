@@ -5,6 +5,7 @@
 #include "../utility/debug.h"
 #include "commandPool.h"
 #include <string>
+
 Renderer::Renderer(Window& window):
 
 window(window),
@@ -60,7 +61,8 @@ void Renderer::loop() {
         }
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);
-
+        
+        Debug::drawDebugWindow();
     }
 };
 

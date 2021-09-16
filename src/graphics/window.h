@@ -7,9 +7,11 @@ class Window {
     public:
         SDL_Window* sdlWindow;
         SDL_Event event;
+
         bool running = true; 
         bool framebufferResized = false;
         Window(); 
         ~Window();
+
 };
 #endif
