@@ -30,8 +30,6 @@ class JsonParser : public DataParser {
         std::string getNextSet(std::string data, int startIndex);
 
         std::any parseValue(std::string value);
-        DataType parseObject(std::string value);
-        // std::vector<std::any> parseVector(std::string value);
 
         std::vector<std::string> splitVector(const std::string& value);
         std::map<std::string, std::string> splitObject(std::string value);

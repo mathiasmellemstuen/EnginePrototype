@@ -23,9 +23,7 @@ YamlParser::YamlParser(const std::string& fileName) {
     result = parsePropsFormLines(lines);
 }
 
-YamlParser::~YamlParser() {
-
-}
+YamlParser::~YamlParser() = default;
 
 std::vector<std::string> YamlParser::readFile(const std::string& fileName) {
     std::string line = "";

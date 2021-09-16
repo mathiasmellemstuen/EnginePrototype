@@ -212,3 +212,12 @@ double DataParser::parseDouble(std::string value) {
     return val;
 }
 
+std::string DataParser::parseString(std::string value) {
+    if (value[0] == '"' || value[0] == '\'')
+        value = value.erase(0, 1);
+
+    if (value[value.length()-1] == '"' || value[value.length()-1] == '\'')
+        value = value.erase(value.length()-1, 1);
+
+    return value;
+}

@@ -52,6 +52,7 @@ class DataParser {
         static bool parseBool(std::string value);
         static int parseInt(std::string value);
         static double parseDouble(std::string value);
+        static std::string parseString(std::string value);
 
 };
 
