@@ -10,7 +10,7 @@
 CsvParser::CsvParser(const std::string& fileName) {
     lines = readFile(fileName);
 
-    /*result = */parseData();
+    result = parseData();
 }
 
 CsvParser::~CsvParser(){

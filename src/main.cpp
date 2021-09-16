@@ -70,9 +70,9 @@ int main(int argc, char *argv[]) {
         
         CsvParser parser("Test_data/test.csv");
         
-        std::any string = parser.result.map["d1"];
+        std::string string = parser["d1"][1];
 
-        std::cout << string.type().name() << std::endl;
+        std::cout << string << std::endl;
 
         std::cout << "*** CsvParser ***" << std::endl;
     }
