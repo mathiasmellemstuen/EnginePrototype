@@ -159,6 +159,9 @@ bool DataParser::isBool(std::string value) {
 bool DataParser::isInt(const std::string &value) {
     char* p;
 
+    if (value.empty())
+        return false;
+
     if (value[0] == '0' && value[1] == 'x') {
         return true;
     } else if (value[0] == '0') {
