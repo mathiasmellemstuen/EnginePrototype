@@ -54,7 +54,9 @@ DataType CsvParser::parseData() {
         for (int l = 0; l <= restData.size() - 1; l++) {
             // std::cout << restData[l][i] << " ";
 
-            std::any data = restData[l][i];
+            std::string rd = DataParser::removeSpaceBeforeChar(restData[l][i]);
+
+            std::any data = rd;
 
             outVec.add(data);
         }
