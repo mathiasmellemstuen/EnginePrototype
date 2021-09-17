@@ -13,8 +13,6 @@ class JsonParser : public DataParser {
         explicit JsonParser(const std::string& fileName);
         ~JsonParser();
 
-        void print();
-
     private:
         std::string data;
 

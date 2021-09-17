@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <optional>
 
 #include "dataParser.h"
 
@@ -134,4 +135,145 @@ std::string DataParser::parseString(std::string value) {
         value = value.erase(value.length()-1, 1);
 
     return value;
+}
+
+inline const char * DataParser::boolToString(bool b) {
+    return b ? "false" : "true";
+}
+
+inline const char * DataParser::intToString(int i) {
+    std::ostringstream strs;
+    strs << i;
+    std::string str = strs.str();
+    return str.c_str();
+}
+
+inline const char * DataParser::doubleToString(double d) {
+    std::ostringstream strs;
+    strs << d;
+    std::string str = strs.str();
+    return str.c_str();
+}
+
+
+/*
+    Printing
+*/
+template <typename T>
+std::optional<T> DataParser::get_v_opt(const std::any &a) {
+    if (const T *v = std::any_cast<T>(&a))
+        return std::optional<T>(*v);
+    else
+        return std::nullopt;
+}
+
+std::string DataParser::buildPrint(const std::any& object, int tab) {
+    std::string printString = "";
+
+    // Test if the object is a string
+    //std::optional opt_string = get_v_opt<std::string>(object);
+    std::optional opt_string = get_v_opt<std::string>(object);
+    if (opt_string.has_value()) {
+        return "\"" + opt_string.value() + "\"";
+    }
+
+    // Test if the object is a bool
+    std::optional opt_bool = get_v_opt<bool>(object);
+    if (opt_bool.has_value()) {
+        return boolToString(opt_bool.value() == 0);
+    }
+
+    std::optional opt_int = get_v_opt<int>(object);
+    if (opt_int.has_value()) {
+        return intToString(opt_int.value());
+    }
+
+    std::optional opt_double = get_v_opt<double>(object);
+    if (opt_double.has_value()) {
+        return doubleToString(opt_double.value());
+    }
+ 
+    // Test if the object is another object
+    std::optional opt_object = get_v_opt<std::map<std::string, std::any>>(object);
+    if (opt_object.has_value()) {
+        return buildObjectPrint(opt_object.value(), tab + 1);
+    }
+
+    std::optional opt_vector = get_v_opt<std::vector<std::any>>(object);
+    if (opt_vector.has_value()) {
+        return buildVectorPrint(opt_vector.value(), tab + 1);
+    }
+
+    std::optional opt_DataType = get_v_opt<DataType>(object);
+    if (opt_DataType.has_value()) {
+        return buildDataTypePrint(opt_DataType.value(), tab + 1);
+    }
+
+    return printString;
+}
+
+std::string DataParser::buildObjectPrint(std::map<std::string, std::any> object, int tab) {
+    std::string outString = "";
+
+    for (const auto& [key, value] : object) {
+        outString += "\n";
+
+        for (int i = 0; i < tab; i++) {
+            outString += "  ";
+        }
+
+        outString += key + ": " + buildPrint(value, tab);
+    }
+
+    return outString;
+}
+
+std::string DataParser::buildVectorPrint(std::vector<std::any> vec, int tab) {
+    std::string outString = "";
+
+    for (const auto& value : vec) {
+        outString += "\n";
+
+        for (int i = 0; i < tab; i++) {
+            outString += "  ";
+        }
+
+        outString += "- " + buildPrint(value, tab);
+    }
+
+    return outString;
+}
+
+std::string DataParser::buildDataTypePrint(DataType DataType, int tab) {
+    std::string outString = "";
+
+    if (!DataType.map.empty()) {
+        outString += buildObjectPrint(DataType.map, tab);
+    }
+
+    if (!DataType.vec.empty()) {
+        outString += buildVectorPrint(DataType.vec, tab);
+    }
+
+    return outString;
+}
+
+void DataParser::print() {
+    std::cout << "--- New prop ---" << std::endl;
+    std::string printString = "";
+    
+    if (!result.map.empty()) {
+        for (const auto& [key, value] : result.map) {
+            printString += key + ':' + " " + buildPrint(value, 0) + "\n";
+        }
+    }
+
+    if (!result.vec.empty()) {
+        for (const auto& value : result.vec) {
+            printString += "[ " + buildPrint(value, 0) + "\n";
+        }
+    }
+
+    std::cout << printString << std::endl;
+    std::cout << "--- End of new prop ---" << std::endl;
 }

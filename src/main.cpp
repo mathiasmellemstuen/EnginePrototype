@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
 
         std::cout << i << std::endl;
 
+        parser.print();
+
         std::cout << "*** YamlParser ***" << std::endl;
     }
 
@@ -49,6 +51,8 @@ int main(int argc, char *argv[]) {
         int i = parser["test types"]["desimal"];
 
         std::cout << i << std::endl;
+
+        parser.print();
 
         std::cout << "*** JsonParser ***" << std::endl;
     }
