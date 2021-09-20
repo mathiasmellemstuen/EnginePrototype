@@ -35,11 +35,9 @@ int main(int argc, char *argv[]) {
         std::cout << "*** YamlParser ***" << std::endl;
 
         YamlParser parser("Test_data/test.yaml");
-        
-        std::any string = parser.result.map["test types"];
-        
-        std::cout << string.type().name() << std::endl;
+        int i = parser["test types"]["base"]["desimal"];
 
+        std::cout << i << std::endl;
 
   
         int i = parser["test types"]["base"]["desimal"];
@@ -53,14 +51,11 @@ int main(int argc, char *argv[]) {
         std::cout << "*** JsonParser ***" << std::endl;
 
         JsonParser parser("Test_data/test.json");
-        
-        std::any data = parser.result.map["test types"];
-        
-        std::cout << data.has_value() << std::endl;
+        int i = parser["test types"]["desimal"];
 
-        std::any test = parser.result.map["test type"];
+        std::cout << i << std::endl;
 
-        std::cout << test.type().name() << std::endl;
+        parser.print();
 
         std::cout << "*** JsonParser ***" << std::endl;
     }
@@ -69,10 +64,9 @@ int main(int argc, char *argv[]) {
         std::cout << "*** CsvParser ***" << std::endl;
         
         CsvParser parser("Test_data/test.csv");
-        
-        std::string string = parser["d1"][1];
+        std::string s = parser["d1"][0];
 
-        std::cout << string << std::endl;
+        std::cout << s << std::endl;
 
         std::cout << "*** CsvParser ***" << std::endl;
     }

@@ -7,7 +7,6 @@
 #include <vector>
 #include <fstream>
 #include <any>
-#include <optional>
 #include <map>
 
 #include <utility>
@@ -17,8 +16,6 @@ class YamlParser : public DataParser{
     public:
         explicit YamlParser(const std::string& fileName);
         ~YamlParser();
-
-        void print();
 
     private:
         const char mapChar = ':';       // With a space afther (": ")
@@ -51,17 +48,9 @@ class YamlParser : public DataParser{
         static bool containsChar(const std::string& line, char containChar);
 
         // Printing
-        template <typename T>
-        std::optional<T> get_v_opt(const std::any &a);
+        
 
-        static inline const char * boolToString(bool b);
-        static inline const char * intToString(int i);
-        static inline const char * doubleToString(double d);
-
-        std::string buildPrint(const std::any& object, int tab);
-        std::string buildObjectPrint(std::map<std::string, std::any> object, int tab);
-        std::string buildVectorPrint(std::vector<std::any> vector, int tab);
-        std::string buildDataTypePrint(DataType DataType, int tab);
+        
 };
 
 #endif

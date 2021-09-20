@@ -3,8 +3,8 @@
 #include <SDL2/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_sdl.h>
-#include <imgui/backends/imgui_impl_vulkan.h>
+#include <imgui/imgui_impl_sdl.h>
+#include <imgui/imgui_impl_vulkan.h>
 
 #include "../graphics/renderer.h"
 #include "SDL2/SDL_video.h"
