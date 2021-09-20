@@ -4,3 +4,18 @@
 [submodule "thirdparty/imgui/imgui"]
 	path = thirdparty/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "thirdparty/glm"]
+	path = thirdparty/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "thirdparty/rang/"]
+	path = thirdparty/rang/
+	url = https://github.com/agauniyal/rang.git
+[submodule "thirdparty/rang"]
+	path = thirdparty/rang
+	url = https://github.com/agauniyal/rang.git
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
+	url = https://github.com/nothings/stb.git
+[submodule "thirdparty/tinyobjloader"]
+	path = thirdparty/tinyobjloader
+	url = https://github.com/tinyobjloader/tinyobjloader.git
