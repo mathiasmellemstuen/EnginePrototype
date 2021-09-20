@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     Debug::log(INFO, "Starting application."); 
     Debug::setupDebugWindow(); 
-
+/*
     {// Yaml parsing test
         std::cout << "*** YamlParser ***" << std::endl;
 
@@ -41,10 +41,10 @@ int main(int argc, char *argv[]) {
         std::cout << string.type().name() << std::endl;
 
 
-        /*
+  
         int i = parser["test types"]["base"]["desimal"];
         std::cout << "i = " << i << std::endl;
-        */
+ 
 
         std::cout << "*** YamlParser ***" << std::endl;
     }
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         std::cout << "*** CsvParser ***" << std::endl;
     }
 
-
+*/
     
 
     
