@@ -1,4 +1,13 @@
-title: Hello vulkan
-screenWidth: 800
-screenHeight: 600
-maxFramesInFlight: 2
+windows:
+  game:
+    title: Engine prototype
+    resolution: 
+      width: 1920
+      height: 1080
+  debug:
+    title: Engine prototype debug window
+    resolution:
+      width: 800
+      height: 600
+renderer:
+  maxFramesInFlight: 2
