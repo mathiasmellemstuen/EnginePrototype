@@ -3,18 +3,18 @@
 
 #include <vulkan/vulkan.h>
 
-class RendererInfo;
+class RenderObject;
 
 class GraphicsPipeline {
     public: 
         VkPipeline graphicsPipeline;
         VkPipelineLayout pipelineLayout;
         void create();
-        GraphicsPipeline(RendererInfo& rendererInfo); 
+        GraphicsPipeline(RenderObject& renderObject); 
         ~GraphicsPipeline();
         void createRenderPass(); 
     private:
-        RendererInfo& rendererInfo;
+        RenderObject& renderObject;
 };
 
 #endif

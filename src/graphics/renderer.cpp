@@ -20,8 +20,6 @@ swapChain(*this),
 
 imageViews(*this),
 
-//shader(*this, "shaders/vert.spv", "shaders/frag.spv"),
-
 renderPass(*this),
 
 commandPool(*this), 
@@ -31,10 +29,6 @@ colorResources(*this),
 depthResources(*this),
 
 frameBuffers(*this),
-
-//texture(*this, "textures/viking_room.png"),
-
-//vertexBuffer(*this, verticies, indices),
 
 uniformBuffer(*this),
 
@@ -127,7 +121,7 @@ void Renderer::reCreateSwapChain() {
     uniformBuffer.create(); 
         //TODO: Find a way to create the current descriptor pool
     //rendererInfo->descriptorPool.create(); 
-    currentRendererInfo->descriptorPool.create(); 
+    currentRenderObject->descriptorPool.create(); 
     //commandBuffers.create(0);
     commandBuffers.allocateCommandBuffers();
 };
@@ -441,4 +435,8 @@ void Renderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize s
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     endSingleTimeCommands(commandBuffer);
+}
+
+void Renderer::useRenderObject(RenderObject& renderObject) {
+    currentRenderObject = &renderObject;
 }

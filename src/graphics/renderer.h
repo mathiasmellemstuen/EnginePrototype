@@ -21,9 +21,9 @@
 #include "texture.h"
 #include "depthResources.h"
 #include "colorResources.h"
-#include "rendererInfo.h"
-#include <functional>
+#include "renderObject.h"
 
+#include <functional>
 #include <vector>
 
 class Renderer {
@@ -42,7 +42,8 @@ class Renderer {
         UniformBuffer uniformBuffer; 
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
-        RendererInfo* currentRendererInfo; 
+        RenderObject* currentRenderObject; 
+
         std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> updateFunction;
 
         Renderer(Window& window);
@@ -58,7 +59,7 @@ class Renderer {
         void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
         VkSampleCountFlagBits getMaxUsableSampleCount();
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
+        void useRenderObject(RenderObject& renderObject); 
     private: 
         void cleanupSwapChain();
         void reCreateSwapChain();

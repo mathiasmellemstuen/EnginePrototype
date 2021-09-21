@@ -1,5 +1,5 @@
-#ifndef ENGINEPROTOTYPE_RENDERERINFO
-#define ENGINEPROTOTYPE_RENDERERINFO
+#ifndef ENGINEPROTOTYPE_RENDEROBJECT
+#define ENGINEPROTOTYPE_RENDEROBJECT
 
 #include "texture.h"
 #include "shader.h"
@@ -14,7 +14,7 @@
 
 class Renderer;
 
-class RendererInfo {
+class RenderObject {
     public:
         glm::vec3 position;
         glm::vec3 nextRotationDirection;
@@ -27,8 +27,8 @@ class RendererInfo {
         DescriptorPool descriptorPool;
         GraphicsPipeline graphicsPipeline;
         
-        RendererInfo(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
-        ~RendererInfo();
+        RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
+        ~RenderObject();
         void create();
         glm::mat4 createModelMatrix();
 };
