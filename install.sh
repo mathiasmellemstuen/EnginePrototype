@@ -21,3 +21,6 @@ rm -r examples/
 rm -r docs/
 rm -r misc/
 
+echo "Setting up cpp-data-parser"
+cd ../../cpp-data-parsing/src
+rm main.cpp

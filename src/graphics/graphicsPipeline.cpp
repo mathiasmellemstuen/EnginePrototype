@@ -7,9 +7,9 @@
 #include <stdexcept>
 
 #include "renderer.h"
-#include "rendererInfo.h"
+#include "renderObject.h"
 
-GraphicsPipeline::GraphicsPipeline(RendererInfo& rendererInfo) : rendererInfo(rendererInfo) {
+GraphicsPipeline::GraphicsPipeline(RenderObject& renderObject) : renderObject(renderObject) {
     
     this->create(); 
 };
@@ -36,14 +36,14 @@ void GraphicsPipeline::create() {
     VkViewport viewport{};
     viewport.x = 0.0f; 
     viewport.y = 0.0f; 
-    viewport.width = (float) rendererInfo.renderer.swapChain.swapChainExtent.width; 
-    viewport.height = (float) rendererInfo.renderer.swapChain.swapChainExtent.height; 
+    viewport.width = (float) renderObject.renderer.swapChain.swapChainExtent.width; 
+    viewport.height = (float) renderObject.renderer.swapChain.swapChainExtent.height; 
     viewport.minDepth = 0.0f; 
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0}; 
-    scissor.extent = rendererInfo.renderer.swapChain.swapChainExtent;
+    scissor.extent = renderObject.renderer.swapChain.swapChainExtent;
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType =  VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -74,7 +74,7 @@ void GraphicsPipeline::create() {
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO; 
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = rendererInfo.renderer.physicalDevice.msaaSamples;
+    multisampling.rasterizationSamples = renderObject.renderer.physicalDevice.msaaSamples;
     multisampling.minSampleShading = 1.0f; // Optional 
     multisampling.pSampleMask = nullptr; // Optional 
     multisampling.alphaToCoverageEnable = VK_FALSE; // Optional 
@@ -122,9 +122,9 @@ void GraphicsPipeline::create() {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &rendererInfo.descriptorSetLayout.descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &renderObject.descriptorSetLayout.descriptorSetLayout;
 
-    if (vkCreatePipelineLayout(rendererInfo.renderer.logicalDevice.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
+    if (vkCreatePipelineLayout(renderObject.renderer.logicalDevice.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
         Debug::log(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
@@ -143,7 +143,7 @@ void GraphicsPipeline::create() {
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = rendererInfo.shader.shaderStages;
+    pipelineInfo.pStages = renderObject.shader.shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
@@ -151,12 +151,12 @@ void GraphicsPipeline::create() {
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = rendererInfo.renderer.renderPass.renderPass;
+    pipelineInfo.renderPass = renderObject.renderer.renderPass.renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(rendererInfo.renderer.logicalDevice.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(renderObject.renderer.logicalDevice.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         
         Debug::log(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
@@ -166,7 +166,7 @@ void GraphicsPipeline::create() {
 
 GraphicsPipeline::~GraphicsPipeline() {
     Debug::log(INFO, "Destroying graphics pipeline"); 
-    vkDestroyPipeline(rendererInfo.renderer.logicalDevice.device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(rendererInfo.renderer.logicalDevice.device, pipelineLayout, nullptr);
+    vkDestroyPipeline(renderObject.renderer.logicalDevice.device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(renderObject.renderer.logicalDevice.device, pipelineLayout, nullptr);
     Debug::log(SUCCESS, "Graphics pipeline destroyed!"); 
 };

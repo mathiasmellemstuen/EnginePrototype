@@ -14,9 +14,9 @@
 #include "graphics/texture.h"
 #include "graphics/vertexBuffer.h"
 
-#include "utility/dataParsing/yamlParser.h"
-#include "utility/dataParsing/jsonParser.h"
-#include "utility/dataParsing/csvParser.h"
+#include "yaml/yamlParser.h"
+#include "json/jsonParser.h"
+#include "csv/csvParser.h"
 #include "utility/debug.h"
 
 #include <any>
@@ -25,58 +25,21 @@
 #include <SDL2/SDL.h>
 #include <functional>
 #include <glm/glm.hpp>
+#include <string>
+
+#include "utility/properties.h"
 
 int main(int argc, char *argv[]) {
+    
+    std::string filePath = "properties.yaml"; 
+    YamlParser props(filePath);
+    props.print();
+//    properties = &props;
+    std::string s = props["windows"]["game"]["title"];
+    std::cout << "Properties: " << s << std::endl;
 
     Debug::log(INFO, "Starting application."); 
     Debug::setupDebugWindow(); 
-/*
-    {// Yaml parsing test
-        std::cout << "*** YamlParser ***" << std::endl;
-
-        YamlParser parser("Test_data/test.yaml");
-        int i = parser["test types"]["base"]["desimal"];
-
-        std::cout << i << std::endl;
-
-  
-        int i = parser["test types"]["base"]["desimal"];
-        std::cout << "i = " << i << std::endl;
- 
-
-        std::cout << "*** YamlParser ***" << std::endl;
-    }
-
-    {// Json parser test
-        std::cout << "*** JsonParser ***" << std::endl;
-
-        JsonParser parser("Test_data/test.json");
-        int i = parser["test types"]["desimal"];
-
-        std::cout << i << std::endl;
-
-        parser.print();
-
-        std::cout << "*** JsonParser ***" << std::endl;
-    }
-
-    {// CSV parser test
-        std::cout << "*** CsvParser ***" << std::endl;
-        
-        CsvParser parser("Test_data/test.csv");
-        std::string s = parser["d1"][0];
-
-        std::cout << s << std::endl;
-
-        std::cout << "*** CsvParser ***" << std::endl;
-    }
-
-*/
-    
-
-    
-
-//    setup();
     
     std::vector<Vertex> verticies = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
@@ -125,7 +88,7 @@ int main(int argc, char *argv[]) {
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers2, offsets2);
         vkCmdBindIndexBuffer(commandBuffer,renderObject1.vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderObject1.graphicsPipeline.pipelineLayout, 0, 1, &rendererInfo1.descriptorPool.descriptorSets[currentCommandBuffer], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderObject1.graphicsPipeline.pipelineLayout, 0, 1, &renderObject1.descriptorPool.descriptorSets[currentCommandBuffer], 0, nullptr);
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(renderObject1.vertexBuffer.indices.size()), 1, 0, 0, 0);
 
     };

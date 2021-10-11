@@ -6,3 +6,5 @@
 thirdparty/imgui/
 -I
 thirdparty/glm/
+-I
+thirdparty/cpp-data-parsing/src/
