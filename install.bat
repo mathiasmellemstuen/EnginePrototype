@@ -6,7 +6,11 @@ git submodule update --init --recursive
 git pull --recurse-submodules
 
 echo "Installing SDL library on your system"
-cd thirdparty/SDL/VisualC/SDL
+cd thirdparty/SDL/include
+mkdir SDL2
+xcopy . SDL2
+cd ../VisualC/SDL
+
 msbuild /P:Configuration=Release /p:Platform=x64 SDL.vcxproj
 cd x64/Release/
 copy SDL2.lib "../../../../../../SDL2.lib"
@@ -18,12 +22,21 @@ copy SDL2main.lib "../../../../../../SDL2main.lib"
 
 echo "Setting up imgui"
 cd ../../../../../imgui/imgui
-copy "backends/imgui_impl_sdl.cpp" "imgui_impl_sdl.cpp"
-copy "backends/imgui_impl_sdl.h" "imgui_impl_sdl.h"
-copy "backends/imgui_impl_vulkan.cpp" "imgui_impl_vulkan.cpp"
-copy "backends/imgui_impl_vulkan.h" "imgui_impl_vulkan.h"
-Rmdir /S "backends/"
-Rmdir /S "examples/""
-Rmdir /S "docs/""
-Rmdir /S "misc/"
+cd backends/
+copy imgui_impl_sdl.cpp "../imgui_impl_sdl.cpp"
+copy imgui_impl_sdl.h "../imgui_impl_sdl.h"
+copy imgui_impl_vulkan.cpp "../imgui_impl_vulkan.cpp"
+copy imgui_impl_vulkan.h "../imgui_impl_vulkan.h"
+cd ..
+Rmdir /S backends
+Rmdir /S "examples
+Rmdir /S docs
+Rmdir /S misc
+cd ../../
+
+echo "Setting up dataparser"
+cd thirdparty/cpp-data-parsing/src
+del main.cpp
 cd ../../../
+
+mkdir build
