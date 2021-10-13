@@ -227,7 +227,7 @@ void Debug::setupDebugWindow() {
     VkSurfaceKHR surface;
 
     if(SDL_Vulkan_CreateSurface(debugSdlWindow, instance, &surface) == 0) {
-        Debug::log(ERROR, "Faile to create Vulkan surface for debug window."); 
+        //Debug::log(ERROR, "Faile to create Vulkan surface for debug window."); 
     }
 
     int w, h; 
@@ -240,7 +240,7 @@ void Debug::setupDebugWindow() {
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamily, surface, &res);
 
     if(res != VK_TRUE) {
-        Debug::log(ERROR, "No WSI support on physical device."); 
+        //Debug::log(ERROR, "No WSI support on physical device."); 
     }
 
     //Selecting surface format

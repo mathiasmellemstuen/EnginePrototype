@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "utility/debug.h"
+
 #include "graphics/vertex.h"
 #include "graphics/window.h"
 #include "graphics/renderer.h"
@@ -17,7 +19,6 @@
 #include "yaml/yamlParser.h"
 #include "json/jsonParser.h"
 #include "csv/csvParser.h"
-#include "utility/debug.h"
 
 #include <any>
 #include <vector>
@@ -30,7 +31,8 @@
 #include "utility/properties.h"
 
 int main(int argc, char *argv[]) {
-    
+
+    Debug::log(INFO, "Hello world!");
     std::string filePath = "properties.yaml"; 
     YamlParser props(filePath);
     props.print();

@@ -16,11 +16,12 @@ target_include_directories(ENGINEPROTOTYPE  PUBLIC "${CMAKE_SOURCE_DIR}/src"
                                             PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/rang/include/"
                                             PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/stb/"
                                             PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/tinyobjloader"
-                                            PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/")
+                                            PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/"
+                                            PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include/")
 find_package(Vulkan REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE "/vulkan-sdk/1.2.176.1/x86_64/include")
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 
-find_package(SDL2 REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
+#target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
+set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/thirdparty/SDL/VisualC/x64/Release/SDL2.lib;${CMAKE_SOURCE_DIR}/thirdparty/SDL/VisualC/x64/Release/SDL2main.lib")
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
