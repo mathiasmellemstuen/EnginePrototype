@@ -2,7 +2,9 @@
 .vscode/settings.json
 .VSCodeCounter
 engine
-engine.exe
+*.exe
 src/utility/.DS_Store
 imgui.ini
 build/
+*.lib
+*.dll

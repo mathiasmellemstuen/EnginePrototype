@@ -23,5 +23,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE "/vulkan-sdk/1.2.176.1/x86_64
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 
 #target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/thirdparty/SDL/VisualC/x64/Release/SDL2.lib;${CMAKE_SOURCE_DIR}/thirdparty/SDL/VisualC/x64/Release/SDL2main.lib")
+set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.lib;${CMAKE_SOURCE_DIR}/SDL2main.lib")
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})

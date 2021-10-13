@@ -4,7 +4,6 @@
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/include",
                 "C:/VulkanSDK/1.2.176.1/Include"
             ],
             "defines": [
@@ -22,7 +21,6 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/include",
                 "/vulkan-sdk/1.2.176.1/x86_64/include"
             ],
             "defines": [],
