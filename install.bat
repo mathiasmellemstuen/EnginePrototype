@@ -28,11 +28,11 @@ copy imgui_impl_sdl.h "../imgui_impl_sdl.h"
 copy imgui_impl_vulkan.cpp "../imgui_impl_vulkan.cpp"
 copy imgui_impl_vulkan.h "../imgui_impl_vulkan.h"
 cd ..
-Rmdir /S backends
-Rmdir /S "examples
-Rmdir /S docs
-Rmdir /S misc
-cd ../../
+Rmdir /S /q backends
+Rmdir /S /q examples
+Rmdir /S /q docs
+Rmdir /S /q misc
+cd ../../../
 
 echo "Setting up dataparser"
 cd thirdparty/cpp-data-parsing/src
