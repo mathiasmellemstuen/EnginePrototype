@@ -13,6 +13,7 @@
 3. Run install.sh with sudo
 2. Check if the paths in compileShaders.sh is correct.
 4. Run compileAndRunMac.sh 
+
 ## Installing on Linux
 1. Install the Vulkan SDK for mac from the LunarXchange website.
 2. Check if the paths in compileShaders.sh is correct.
