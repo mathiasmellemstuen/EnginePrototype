@@ -19,9 +19,18 @@ target_include_directories(ENGINEPROTOTYPE  PUBLIC "${CMAKE_SOURCE_DIR}/src"
                                             PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/"
                                             PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include/")
 find_package(Vulkan REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE "/vulkan-sdk/1.2.176.1/x86_64/include")
+# target_include_directories(${PROJECT_NAME} PRIVATE "/vulkan-sdk/1.2.176.1/x86_64/include")
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 
 #target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.lib;${CMAKE_SOURCE_DIR}/SDL2main.lib")
+if (${WIN32})
+    set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.lib;${CMAKE_SOURCE_DIR}/SDL2main.lib")
+endif()
+if (${APPLE})
+    set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.la")
+endif()
+if (${UNIX} AND NOT ${APPLE})
+    # TODO: Set SDL2_LIBRARIES for linux
+endif()
+
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
