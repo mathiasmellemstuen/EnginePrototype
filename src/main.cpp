@@ -1,11 +1,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include <tinyobjloader/tiny_obj_loader.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include <stb/stb_image.h>
 
 #include "utility/debug.h"
-
 #include "graphics/vertex.h"
 #include "graphics/window.h"
 #include "graphics/renderer.h"
@@ -16,9 +15,9 @@
 #include "graphics/texture.h"
 #include "graphics/vertexBuffer.h"
 
-#include "yaml/yamlParser.h"
-#include "json/jsonParser.h"
-#include "csv/csvParser.h"
+#include "cpp-data-parsing/yaml/yamlParser.h"
+#include "cpp-data-parsing/json/jsonParser.h"
+#include "cpp-data-parsing/csv/csvParser.h"
 
 #include <any>
 #include <vector>

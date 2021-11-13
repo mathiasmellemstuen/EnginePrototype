@@ -8,3 +8,5 @@ imgui.ini
 build/
 *.lib
 *.dll
+.DS_Store
+include/

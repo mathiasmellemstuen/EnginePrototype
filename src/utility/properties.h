@@ -1,7 +1,7 @@
 #ifndef ENGINEPROTOTYPE_PROPERTIES
 #define ENGINEPROTOTYPE_PROPERTIES
 
-#include <yaml/yamlParser.h>
+#include <cpp-data-parsing/yaml/yamlParser.h>
 
 static YamlParser* properties;
 

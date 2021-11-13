@@ -1,6 +1,6 @@
 #include "model.h"
 #include "../utility/debug.h"
-#include <tiny_obj_loader.h>
+#include <tinyobjloader/tiny_obj_loader.h>
 #include <stdexcept>
 #include <unordered_map>
 

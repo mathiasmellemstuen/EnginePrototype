@@ -24,3 +24,23 @@ rm -r misc/
 echo "Setting up cpp-data-parser"
 cd ../../cpp-data-parsing/src
 rm main.cpp
+
+cd ../../
+# (cd src && find . -name '*.h' -print | tar --create --files-from -) | (cd dst && tar xvfp -)
+mkdir ../include/SDL2
+mkdir ../include/stb
+mkdir ../include/cpp-data-parsing
+mkdir ../include/imgui
+mkdir ../include/rang
+mkdir ../include/tinyobjloader
+mkdir ../include/glm
+
+(cd SDL/include && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/SDL2 && tar xvfp -)
+(cd stb/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/stb/ && tar xvfp -)
+(cd cpp-data-parsing/src/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/cpp-data-parsing/ && tar xvfp -)
+(cd imgui/imgui/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/imgui/ && tar xvfp -)
+(cd rang/include/ && find . -name '*.hpp' -print | tar --create --files-from -) | (cd ../include/rang/ && tar xvfp -)
+(cd glm/glm/ && find . -name '*.hpp' -print | tar --create --files-from -) | (cd ../include/glm/ && tar xvfp -)
+(cd glm/glm/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/glm/ && tar xvfp -)
+(cd glm/glm/ && find . -name '*.inl' -print | tar --create --files-from -) | (cd ../include/glm/ && tar xvfp -)
+(cd tinyobjloader/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/tinyobjloader/ && tar xvfp -)

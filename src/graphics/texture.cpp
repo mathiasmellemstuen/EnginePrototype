@@ -1,5 +1,5 @@
 #include "texture.h"
-#include <stb_image.h>
+#include <stb/stb_image.h>
 #include <stdexcept>
 #include "../utility/debug.h"
 #include <cstring>
