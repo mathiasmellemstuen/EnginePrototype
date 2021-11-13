@@ -11,7 +11,7 @@ make
 sudo make install
 
 echo "Setting up imgui"
-cd ../imgui/imgui
+cd ../imgui/
 cp backends/imgui_impl_sdl.cpp imgui_impl_sdl.cpp
 cp backends/imgui_impl_sdl.h imgui_impl_sdl.h
 cp backends/imgui_impl_vulkan.cpp imgui_impl_vulkan.cpp
@@ -22,7 +22,7 @@ rm -r docs/
 rm -r misc/
 
 echo "Setting up cpp-data-parser"
-cd ../../cpp-data-parsing/src
+cd ../cpp-data-parsing/src
 rm main.cpp
 
 cd ../../
