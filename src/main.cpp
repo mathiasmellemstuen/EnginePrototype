@@ -28,6 +28,7 @@
 #include <string>
 
 #include "utility/properties.h"
+#include "input/mouseInput.h"
 
 int main(int argc, char *argv[]) {
 
@@ -91,7 +92,6 @@ int main(int argc, char *argv[]) {
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderObject1.graphicsPipeline.pipelineLayout, 0, 1, &renderObject1.descriptorPool.descriptorSets[currentCommandBuffer], 0, nullptr);
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(renderObject1.vertexBuffer.indices.size()), 1, 0, 0, 0);
-
     };
     
     renderer.loop(); 

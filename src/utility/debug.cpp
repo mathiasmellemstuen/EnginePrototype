@@ -123,8 +123,6 @@ void Debug::setupDebugWindow() {
     debugSdlWindow = SDL_CreateWindow("Engineprototype DEBUG", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN |  SDL_WINDOW_RESIZABLE);
     Debug::log(SUCCESS, "Created debug window context."); 
 
-    
-
     uint32_t extensionsCount = 0;
     SDL_Vulkan_GetInstanceExtensions(debugSdlWindow, &extensionsCount, NULL);
     const char** extensions = new const char*[extensionsCount];
@@ -227,7 +225,7 @@ void Debug::setupDebugWindow() {
     VkSurfaceKHR surface;
 
     if(SDL_Vulkan_CreateSurface(debugSdlWindow, instance, &surface) == 0) {
-        //Debug::log(ERROR, "Faile to create Vulkan surface for debug window."); 
+        Debug::log(ERROR, "Faile to create Vulkan surface for debug window."); 
     }
 
     int w, h; 
@@ -240,7 +238,7 @@ void Debug::setupDebugWindow() {
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamily, surface, &res);
 
     if(res != VK_TRUE) {
-        //Debug::log(ERROR, "No WSI support on physical device."); 
+        Debug::log(ERROR, "No WSI support on physical device."); 
     }
 
     //Selecting surface format
@@ -354,7 +352,6 @@ void Debug::drawDebugWindow() {
 
         const bool isMinimized = (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f);
         if (!isMinimized) {
-
             ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.0f);
             wd->ClearValue.color.float32[0] = clearColor.x * clearColor.w;
             wd->ClearValue.color.float32[1] = clearColor.y * clearColor.w;

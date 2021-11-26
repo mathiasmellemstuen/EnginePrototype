@@ -5,6 +5,7 @@
 #include "../utility/debug.h"
 #include "commandPool.h"
 #include <string>
+#include "../input/mouseInput.h"
 
 Renderer::Renderer(Window& window):
 
@@ -48,6 +49,9 @@ void Renderer::loop() {
         }
 
         while(SDL_PollEvent(&window.event)) {
+
+            MouseInput::update(window.event);
+
             if(window.event.type == SDL_QUIT) {
                 window.running = false;
                 
@@ -86,7 +90,7 @@ void Renderer::cleanupSwapChain() {
 
     //TODO: Find a way to destroy the current pipeline...
     //vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
-   //vkDestroyPipelineLayout(logicalDevice.device, I>graphicsPipeline.pipelineLayout, nullptr);
+    //vkDestroyPipelineLayout(logicalDevice.device, I>graphicsPipeline.pipelineLayout, nullptr);
     vkDestroyRenderPass(logicalDevice.device, renderPass.renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {

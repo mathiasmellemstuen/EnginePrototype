@@ -29,7 +29,7 @@ if (${WIN32})
     set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.lib;${CMAKE_SOURCE_DIR}/SDL2main.lib")
 endif()
 if (${APPLE})
-    set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.la")
+    set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.a")
 endif()
 if (${UNIX} AND NOT ${APPLE})
     # TODO: Set SDL2_LIBRARIES for linux
