@@ -343,10 +343,10 @@ void Debug::drawDebugWindow() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Mouse position");
+        ImGui::Begin("Input", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         std::string xText = "X: " + std::to_string(MouseInput::mousePosition.x);
         std::string yText = "Y: " + std::to_string(MouseInput::mousePosition.y);
-        ImGui::Text(xText.c_str()); 
+        ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
         ImGui::End(); 
 
