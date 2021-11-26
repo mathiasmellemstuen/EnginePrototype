@@ -35,6 +35,7 @@ mkdir ../include/imgui
 mkdir ../include/rang
 mkdir ../include/tinyobjloader
 mkdir ../include/glm
+mkdir ../include/implot
 
 (cd SDL/include && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/SDL2 && tar xvfp -)
 (cd stb/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/stb/ && tar xvfp -)
@@ -45,3 +46,6 @@ mkdir ../include/glm
 (cd glm/glm/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/glm/ && tar xvfp -)
 (cd glm/glm/ && find . -name '*.inl' -print | tar --create --files-from -) | (cd ../include/glm/ && tar xvfp -)
 (cd tinyobjloader/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/tinyobjloader/ && tar xvfp -)
+(cd implot/ && find . -name '*.h' -print | tar --create --files-from -) | (cd ../include/imgui/ && tar xvfp -)
+(cd implot/ && find . -name '*.h' -print | tar --create --files-from -) | (cd imgui/ && tar xvfp -)
+(cd implot/ && find . -name '*.cpp' -print | tar --create --files-from -) | (cd imgui/ && tar xvfp -)

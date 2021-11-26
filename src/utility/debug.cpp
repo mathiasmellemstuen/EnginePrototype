@@ -5,6 +5,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl.h>
 #include <imgui/imgui_impl_vulkan.h>
+#include <imgui/implot.h>
 
 #include "../graphics/renderer.h"
 #include "SDL2/SDL_video.h"
@@ -343,6 +344,8 @@ void Debug::drawDebugWindow() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
+
+        // Drawing the input window
         ImGui::Begin("Input", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         std::string xText = "X: " + std::to_string(MouseInput::mousePosition.x);
         std::string yText = "Y: " + std::to_string(MouseInput::mousePosition.y);
