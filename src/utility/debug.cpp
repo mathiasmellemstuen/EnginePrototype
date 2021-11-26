@@ -18,6 +18,7 @@
 
 #define _WIN32_WINNT 0x0A000007
 #include <rang/rang.hpp>
+#include "../input/mouseInput.h"
 
 VkAllocationCallbacks* Debug::vulkanAllocator = NULL; 
 VkInstance Debug::instance = VK_NULL_HANDLE;
@@ -342,8 +343,11 @@ void Debug::drawDebugWindow() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Test vindu!"); 
-        ImGui::Text("Dette er litt tekst!"); 
+        ImGui::Begin("Mouse position");
+        std::string xText = "X: " + std::to_string(MouseInput::mousePosition.x);
+        std::string yText = "Y: " + std::to_string(MouseInput::mousePosition.y);
+        ImGui::Text(xText.c_str()); 
+        ImGui::Text(yText.c_str());
         ImGui::End(); 
 
         ImGui::Render();
