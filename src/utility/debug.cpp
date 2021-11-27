@@ -394,7 +394,7 @@ void Debug::drawDebugWindow() {
                 x[i] = i;
             }
 
-            ImPlot::PlotLine("My line plot", x, recordedFps.data(), recordedFps.size()); 
+            ImPlot::PlotLine("fps", x, recordedFps.data(), recordedFps.size()); 
             ImPlot::EndPlot();
         }
         ImGui::End();
