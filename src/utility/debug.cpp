@@ -379,13 +379,11 @@ void Debug::drawDebugWindow() {
 
         double xMax = recordedFps.size();
         double yMax = 0; 
-        double yMin = 100000000;
 
         for(float f : recordedFps) {
             yMax = f > yMax ? f : yMax; 
-            yMin = f < yMin ? f : yMin; 
         }
-        ImPlot::SetNextAxisLinks(ImAxis_Y1,&yMin, &yMax);
+        ImPlot::SetNextAxisLinks(ImAxis_Y1,&yMax, &yMax);
         ImPlot::SetNextAxisLinks(ImAxis_X1,&xMax, &xMax);
 
         if(ImPlot::BeginPlot("FPS (Frames per second)")) {
@@ -397,7 +395,7 @@ void Debug::drawDebugWindow() {
             }
 
             ImPlot::PlotLine("My line plot", x, recordedFps.data(), recordedFps.size()); 
-            ImPlot::EndPlot(); 
+            ImPlot::EndPlot();
         }
         ImGui::End();
         ImGui::Render();
