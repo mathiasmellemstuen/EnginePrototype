@@ -14,6 +14,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl.h>
 #include <imgui/imgui_impl_vulkan.h>
+#include <vector>
 
 class Renderer;
 
@@ -64,6 +65,10 @@ class Debug {
         static ImGui_ImplVulkanH_Window* wd; 
         static SDL_Window* debugSdlWindow;
         static bool debugWindowRunning;
+        static std::vector<float> recordedFps;
+        static Uint32 lastTime;
+        static Uint32 currentTime;
+        static Uint32 amountOfFrames;  
+        static void calculateFps(); 
 };
-
 #endif

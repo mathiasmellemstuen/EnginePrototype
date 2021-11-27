@@ -6,6 +6,7 @@
 #include <imgui/imgui_impl_sdl.h>
 #include <imgui/imgui_impl_vulkan.h>
 #include <imgui/implot.h>
+#include <imgui/implot_internal.h>
 
 #include "../graphics/renderer.h"
 #include "SDL2/SDL_video.h"
@@ -36,7 +37,27 @@ bool Debug::swapChainRebuild = false;
 ImGui_ImplVulkanH_Window* Debug::wd; 
 SDL_Window* Debug::debugSdlWindow;
 bool Debug::debugWindowRunning = true;
+std::vector<float> Debug::recordedFps = {};
+Uint32 Debug::lastTime = SDL_GetTicks(); 
+Uint32 Debug::currentTime = 0; 
+Uint32 Debug::amountOfFrames = 0; 
 
+void Debug::calculateFps() {
+
+    amountOfFrames++;
+
+    if(lastTime < SDL_GetTicks() - 1000) {
+        
+        lastTime = SDL_GetTicks(); 
+        currentTime = amountOfFrames; 
+        amountOfFrames = 0; 
+
+        if(currentTime == 0 || currentTime == 1)
+            return; 
+
+        recordedFps.push_back((float)currentTime); 
+    }
+}
 void Debug::log(LogLevel logLevel, std::string message) {
     
     //We will not pring anything if NOTDEBUG is defined. This should in theory also make the compiler remove all the log functions under compiling if NOTDEBUG is defined.
@@ -263,6 +284,7 @@ void Debug::setupDebugWindow() {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForVulkan(debugSdlWindow);
@@ -344,20 +366,46 @@ void Debug::drawDebugWindow() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-
         // Drawing the input window
         ImGui::Begin("Input", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         std::string xText = "X: " + std::to_string(MouseInput::mousePosition.x);
         std::string yText = "Y: " + std::to_string(MouseInput::mousePosition.y);
+        ImGui::Text("Mouse Position:");
         ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
         ImGui::End(); 
 
+        ImGui::Begin("Profiler");
+
+        double xMax = recordedFps.size();
+        double yMax = 0; 
+        double yMin = 100000000;
+
+        for(float f : recordedFps) {
+            yMax = f > yMax ? f : yMax; 
+            yMin = f < yMin ? f : yMin; 
+        }
+        ImPlot::SetNextAxisLinks(ImAxis_Y1,&yMin, &yMax);
+        ImPlot::SetNextAxisLinks(ImAxis_X1,&xMax, &xMax);
+
+        if(ImPlot::BeginPlot("FPS (Frames per second)")) {
+            
+            float x[recordedFps.size()];  
+
+            for(int i = 0; i < recordedFps.size(); i++) {
+                x[i] = i;
+            }
+
+            ImPlot::PlotLine("My line plot", x, recordedFps.data(), recordedFps.size()); 
+            ImPlot::EndPlot(); 
+        }
+        ImGui::End();
         ImGui::Render();
 
         ImDrawData* drawData = ImGui::GetDrawData();
 
         const bool isMinimized = (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f);
+
         if (!isMinimized) {
             ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.0f);
             wd->ClearValue.color.float32[0] = clearColor.x * clearColor.w;

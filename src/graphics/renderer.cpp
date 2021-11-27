@@ -40,10 +40,12 @@ syncObjects(*this)
 {};
 
 void Renderer::loop() {
-
+    
     commandBuffers.create(0); 
     while(window.running) {
 
+        Debug::calculateFps(); 
+        
         if(!Debug::debugWindowRunning) {
             window.running = false;
         }
