@@ -50,40 +50,16 @@ void Renderer::loop() {
             window.running = false;
         }
 
-        while(SDL_PollEvent(&window.event)) {
+        eventManager.update(*window.sdlWindow);
 
-            MouseInput::update(window.event);
-
-            if(window.event.type == SDL_QUIT) {
-                window.running = false;
-                
-                Debug::log("SDL_Quit event is happening."); 
-                if(Debug::debugWindowRunning) {
-                    Debug::cleanupDebugWindow();
-                }
-            }
-            if (window.event.type == SDL_WINDOWEVENT && window.event.window.event == SDL_WINDOWEVENT_CLOSE && window.event.window.windowID == SDL_GetWindowID(window.sdlWindow)) {
-
-                window.running = false;
-                
-                Debug::log("SDL_Quit event is happening."); 
-                if(Debug::debugWindowRunning) {
-                    Debug::cleanupDebugWindow();
-                }
-            }
-            if (window.event.type == SDL_WINDOWEVENT && window.event.window.event == SDL_WINDOWEVENT_RESIZED && window.event.window.windowID == SDL_GetWindowID(window.sdlWindow)) {
-
-                //Window is resized, re creating swapchain: 
-                window.framebufferResized = true; 
-            }
-        }
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);
-        Debug::drawDebugWindow();
+        Debug::drawDebugWindow(eventManager.event);
     }
 };
 
 void Renderer::cleanupSwapChain() {
+
     for (size_t i = 0; i < frameBuffers.swapChainFramebuffers.size(); i++) {
         vkDestroyFramebuffer(logicalDevice.device, frameBuffers.swapChainFramebuffers[i], nullptr);
     }

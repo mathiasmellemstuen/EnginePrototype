@@ -329,24 +329,23 @@ void Debug::setupDebugWindow() {
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
-
     #endif
 }
 
-void Debug::drawDebugWindow() {
+void Debug::drawDebugWindow(SDL_Event& event) {
     #ifndef NOTDEBUG
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT) {
-                Debug::cleanupDebugWindow(); 
-                debugWindowRunning = false;
-            }
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
-                Debug::cleanupDebugWindow(); 
-                debugWindowRunning = false; 
-            }
-        }
+
+        // while (SDL_PollEvent(&event)) {
+        //     ImGui_ImplSDL2_ProcessEvent(&event);
+        //     if (event.type == SDL_QUIT) {
+        //         Debug::cleanupDebugWindow(); 
+        //         debugWindowRunning = false;
+        //     }
+        //     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
+        //         Debug::cleanupDebugWindow(); 
+        //         debugWindowRunning = false; 
+        //     }
+        // }
 
         // Resize swap chain?
         if (swapChainRebuild) {
@@ -373,6 +372,13 @@ void Debug::drawDebugWindow() {
         ImGui::Text("Mouse Position:");
         ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
+    
+        std::string leftMouseButtonPressed = "Mouse button (left) pressed: " + std::to_string(MouseInput::mouseLeftIsPressed); 
+        ImGui::Text(leftMouseButtonPressed.c_str());
+
+        std::string rightMouseButtonPressed = "Mouse button (right) pressed: " + std::to_string(MouseInput::mouseRightIsPressed);
+        ImGui::Text(rightMouseButtonPressed.c_str());
+
         ImGui::End(); 
 
         ImGui::Begin("Profiler");

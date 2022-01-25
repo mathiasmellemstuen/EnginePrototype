@@ -22,6 +22,7 @@
 #include "depthResources.h"
 #include "colorResources.h"
 #include "renderObject.h"
+#include "eventManager.h"
 
 #include <functional>
 #include <vector>
@@ -29,6 +30,7 @@
 class Renderer {
     public:
         Window& window;
+        EventManager eventManager;
         VulkanInstance vulkanInstance;
         PhysicalDevice physicalDevice; 
         LogicalDevice logicalDevice;

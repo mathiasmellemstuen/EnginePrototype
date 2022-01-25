@@ -47,7 +47,7 @@ class Debug {
         static void log(glm::vec4 vec4); 
         
         static void setupDebugWindow(); 
-        static void drawDebugWindow();
+        static void drawDebugWindow(SDL_Event& event);
         static void cleanupDebugWindow();
 
         static VkInstance instance;

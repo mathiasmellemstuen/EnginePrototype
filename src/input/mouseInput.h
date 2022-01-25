@@ -6,7 +6,13 @@
 
 class MouseInput {
     public:
-        inline static glm::vec2 mousePosition; 
+        inline static glm::vec2 mousePosition;
+        inline static bool mouseLeftIsPressed;
+        inline static bool mouseLeftOnDown; 
+        inline static bool mouseLeftOnUp;
+        inline static bool mouseRightIsPressed; 
+        inline static bool mouseRightOnDown; 
+        inline static bool mouseRightOnUp; 
         static void update(SDL_Event& event);
 };
 
