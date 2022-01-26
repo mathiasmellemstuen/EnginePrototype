@@ -31,17 +31,17 @@
 #include "input/mouseInput.h"
 #include "input/keyboardInput.h"
 
+YamlParser* properties = nullptr;
+
 int main(int argc, char *argv[]) {
 
     Debug::log(INFO, "Hello world!");
     std::string filePath = "properties.yaml"; 
-    YamlParser props(filePath);
-    props.print();
-//    properties = &props;
-    std::string s = props["windows"]["game"]["title"];
-    std::cout << "Properties: " << s << std::endl;
-
-    Debug::log(INFO, "Starting application."); 
+    properties = new YamlParser(filePath);
+    std::cout << properties << std::endl; 
+    int xPos = (*properties)["windows"]["game"]["resolution"]["width"];
+    std::cout << xPos << std::endl;
+    // // Debug::log(INFO, "Starting application."); 
     Debug::setupDebugWindow(); 
     
     std::vector<Vertex> verticies = {

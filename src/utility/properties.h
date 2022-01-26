@@ -3,6 +3,6 @@
 
 #include <cpp-data-parsing/yaml/yamlParser.h>
 
-static YamlParser* properties;
+extern YamlParser* properties;
 
 #endif

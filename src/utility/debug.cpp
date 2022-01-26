@@ -12,6 +12,8 @@
 #include "../input/mouseInput.h"
 #include "../input/keyboardInput.h"
 
+#include "properties.h"
+
 #include "SDL2/SDL_video.h"
 #include "vulkan/vulkan_core.h"
 #include <cstddef>
@@ -144,8 +146,20 @@ void Debug::setupDebugWindow() {
         
     Debug::log(INFO, "Creating debug window");
 
-    //TODO: Change value to propertiees values and not hardcoded values.
-    debugSdlWindow = SDL_CreateWindow("Engineprototype DEBUG", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN |  SDL_WINDOW_RESIZABLE);
+    std::string title = (*properties)["windows"]["debug"]["title"];
+
+    int width = (*properties)["windows"]["debug"]["resolution"]["width"];
+    int height = (*properties)["windows"]["debug"]["resolution"]["height"];
+    debugSdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN |  SDL_WINDOW_RESIZABLE);
+    
+    std::cout << "getting here.." << std::endl; 
+    std::cout << properties << std::endl; 
+    int xPos = (*properties)["windows"]["debug"]["position"]["x"];
+    int yPos = (*properties)["windows"]["debug"]["position"]["y"];
+    std::cout << "getting here too..." << std::endl; 
+    std::cout << xPos << std::endl; 
+    SDL_SetWindowPosition(debugSdlWindow, xPos, yPos);
+    
     Debug::log(SUCCESS, "Created debug window context."); 
 
     uint32_t extensionsCount = 0;
@@ -250,7 +264,7 @@ void Debug::setupDebugWindow() {
     VkSurfaceKHR surface;
 
     if(SDL_Vulkan_CreateSurface(debugSdlWindow, instance, &surface) == 0) {
-        Debug::log(ERROR, "Faile to create Vulkan surface for debug window."); 
+        Debug::log("Failed to create Vulkan surface for debug window."); 
     }
 
     int w, h; 
@@ -263,7 +277,7 @@ void Debug::setupDebugWindow() {
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamily, surface, &res);
 
     if(res != VK_TRUE) {
-        Debug::log(ERROR, "No WSI support on physical device."); 
+        Debug::log("No WSI support on physical device."); 
     }
 
     //Selecting surface format
@@ -409,13 +423,15 @@ void Debug::drawDebugWindow(SDL_Event& event) {
 
         if(ImPlot::BeginPlot("FPS (Frames per second)")) {
             
-            float x[recordedFps.size()];  
+            float* x = new float[recordedFps.size()];  
 
             for(int i = 0; i < recordedFps.size(); i++) {
                 x[i] = i;
             }
 
-            ImPlot::PlotLine("fps", x, recordedFps.data(), recordedFps.size()); 
+            ImPlot::PlotLine("fps", x, recordedFps.data(), recordedFps.size());
+
+            delete[] x;
             ImPlot::EndPlot();
         }
         ImGui::End();

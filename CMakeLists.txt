@@ -32,8 +32,8 @@ endif()
 if (${APPLE})
     set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.a")
 endif()
-if (${UNIX} AND NOT ${APPLE})
-    # TODO: Set SDL2_LIBRARIES for linux
-endif()
+# if (${UNIX} AND NOT ${APPLE})
+#     # TODO: Set SDL2_LIBRARIES for linux
+# endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
