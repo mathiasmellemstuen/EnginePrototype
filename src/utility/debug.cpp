@@ -9,6 +9,9 @@
 #include <imgui/implot_internal.h>
 
 #include "../graphics/renderer.h"
+#include "../input/mouseInput.h"
+#include "../input/keyboardInput.h"
+
 #include "SDL2/SDL_video.h"
 #include "vulkan/vulkan_core.h"
 #include <cstddef>
@@ -20,7 +23,6 @@
 
 #define _WIN32_WINNT 0x0A000007
 #include <rang/rang.hpp>
-#include "../input/mouseInput.h"
 
 VkAllocationCallbacks* Debug::vulkanAllocator = NULL; 
 VkInstance Debug::instance = VK_NULL_HANDLE;
@@ -379,6 +381,19 @@ void Debug::drawDebugWindow(SDL_Event& event) {
         std::string rightMouseButtonPressed = "Mouse button (right) pressed: " + std::to_string(MouseInput::mouseRightIsPressed);
         ImGui::Text(rightMouseButtonPressed.c_str());
 
+        std::string pressedKeys = "Keyboard pressed: "; 
+
+
+        for(int i = 0; i < KeyboardInput::keys.size(); i++) {
+            if(KeyboardInput::keys[i].key != '\n') {
+                pressedKeys += KeyboardInput::keys[i].key;
+                
+                if(i < KeyboardInput::keys.size() - 1) {
+                    pressedKeys += ", ";
+                }
+            }
+        }
+        ImGui::Text(pressedKeys.c_str());
         ImGui::End(); 
 
         ImGui::Begin("Profiler");
@@ -411,7 +426,7 @@ void Debug::drawDebugWindow(SDL_Event& event) {
         const bool isMinimized = (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f);
 
         if (!isMinimized) {
-            ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.0f);
+            ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
             wd->ClearValue.color.float32[0] = clearColor.x * clearColor.w;
             wd->ClearValue.color.float32[1] = clearColor.y * clearColor.w;
             wd->ClearValue.color.float32[2] = clearColor.z * clearColor.w;

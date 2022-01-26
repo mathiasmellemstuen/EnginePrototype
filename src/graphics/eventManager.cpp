@@ -1,14 +1,18 @@
 #include "eventManager.h"
 #include "../utility/debug.h"
 #include "../input/mouseInput.h"
+#include "../input/keyboardInput.h"
 #include "window.h"
 #include <SDL2/SDL.h>
 
 void EventManager::update(SDL_Window& window) {
 
+        KeyboardInput::frameUpdate(); 
+
         while(SDL_PollEvent(&event)) {
 
             MouseInput::update(event);
+            KeyboardInput::update(event); 
 
             if(event.type == SDL_QUIT) {
                 // window.running = false;
