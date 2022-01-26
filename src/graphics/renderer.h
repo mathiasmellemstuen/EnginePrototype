@@ -46,7 +46,11 @@ class Renderer {
         SyncObjects syncObjects;
         RenderObject* currentRenderObject; 
 
-        std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> updateFunction;
+        uint64_t now;
+        uint64_t last;
+
+        std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> renderFunction;
+        std::function<void(float deltaTime)> updateFunction;
 
         Renderer(Window& window);
         void loop();

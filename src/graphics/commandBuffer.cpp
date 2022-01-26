@@ -68,7 +68,7 @@ void CommandBuffers::create(uint32_t currentImage) {
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             
-            renderer.updateFunction(commandBuffers[i], i, currentImage);
+            renderer.renderFunction(commandBuffers[i], i, currentImage);
         
         vkCmdEndRenderPass(commandBuffers[i]);
 

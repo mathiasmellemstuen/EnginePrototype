@@ -6,6 +6,7 @@
 #include "commandPool.h"
 #include <string>
 #include "../input/mouseInput.h"
+#include "../input/keyboardInput.h"
 
 Renderer::Renderer(Window& window):
 
@@ -40,10 +41,20 @@ syncObjects(*this)
 {};
 
 void Renderer::loop() {
-    
+
+
+    now = SDL_GetPerformanceCounter(); 
+    last = 0; 
+
     commandBuffers.create(0); 
     while(window.running) {
+        
+        // Calculating delta time
+        last = now; 
+        now = SDL_GetPerformanceCounter(); 
+        float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency()); 
 
+        // For debug window
         Debug::calculateFps(); 
         
         if(!Debug::debugWindowRunning) {
@@ -51,6 +62,8 @@ void Renderer::loop() {
         }
 
         eventManager.update(*window.sdlWindow);
+
+        updateFunction(deltaTime);
 
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);

@@ -2,26 +2,24 @@
 #include "../utility/debug.h"
 #include "keyData.h"
 #include <vector>
+#include <cctype>
 
 void KeyboardInput::frameUpdate() {
-    // Clearing every event that should only stay there for one frame, clearing those from the last frame
+
     for(int i = 0; i < KeyboardInput::keys.size(); i++) {
         if(KeyboardInput::keys[i].up == true) {
             
+            // Clearing every event that should only stay there for one frame, clearing those from the last frame
             KeyboardInput::keys.erase(KeyboardInput::keys.begin() + i); 
-            // KeyboardInput::keys[i].key = '\n';
-            // KeyboardInput::keys[i].pressed = false; 
-            // KeyboardInput::keys[i].down = false; 
-            // KeyboardInput::keys[i].up = false;
+        }
+        if(KeyboardInput::keys[i].down) {
+
+            KeyboardInput::keys[i].down = false; 
+            KeyboardInput::keys[i].pressed = true;
         }
     }
+};
 
-    // if(KeyboardInput::keys[0].key == '\n') {
-    //     for(int i = 1; i < 4; i++) {
-    //         KeyboardInput::keys[i - 1] = KeyboardInput::keys[i]; 
-    //     }
-    // }
-}
 
 void KeyboardInput::update(SDL_Event& event) {
 
@@ -30,23 +28,9 @@ void KeyboardInput::update(SDL_Event& event) {
 
         for(int i = 0; i < KeyboardInput::keys.size(); i++) {
             if(KeyboardInput::keys[i].key == key) {
-                
                 if(KeyboardInput::keys[i].pressed) 
                     return;
-
-                if(KeyboardInput::keys[i].down) {
-
-                    KeyboardInput::keys[i].down = false; 
-                    KeyboardInput::keys[i].pressed = true;
-                    return; 
-                }
             }
-            //  else if(KeyboardInput::keys[i].key == '\n') {
-
-            //         KeyboardInput::keys[i].key = key; 
-            //         KeyboardInput::keys[i].down = true;
-            //         return;
-            // }
         }
 
         KeyboardInput::keys.push_back({key, true, false, false});
@@ -63,4 +47,34 @@ void KeyboardInput::update(SDL_Event& event) {
             }
         }
     }
+};
+
+bool KeyboardInput::keyDown(const char& key) {
+
+    for(int i = 0; i < KeyboardInput::keys.size(); i++) {
+        if(std::toupper(KeyboardInput::keys[i].key) == std::toupper(key)) {
+            return KeyboardInput::keys[i].down; 
+        }
+    }
+    return false;
+};
+
+bool KeyboardInput::keyUp(const char& key) {
+
+    for(int i = 0; i < KeyboardInput::keys.size(); i++) {
+        if(std::toupper(KeyboardInput::keys[i].key) == key) {
+            return KeyboardInput::keys[i].up; 
+        }
+    }
+    return false;
+};
+
+bool KeyboardInput::keyPressed(const char& key) {
+    
+    for(int i = 0; i < KeyboardInput::keys.size(); i++) {
+        if(std::toupper(KeyboardInput::keys[i].key) == std::toupper(key)) {
+            return KeyboardInput::keys[i].pressed; 
+        }
+    }
+    return false;
 };
