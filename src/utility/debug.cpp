@@ -152,12 +152,8 @@ void Debug::setupDebugWindow() {
     int height = (*properties)["windows"]["debug"]["resolution"]["height"];
     debugSdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN |  SDL_WINDOW_RESIZABLE);
     
-    std::cout << "getting here.." << std::endl; 
-    std::cout << properties << std::endl; 
     int xPos = (*properties)["windows"]["debug"]["position"]["x"];
     int yPos = (*properties)["windows"]["debug"]["position"]["y"];
-    std::cout << "getting here too..." << std::endl; 
-    std::cout << xPos << std::endl; 
     SDL_SetWindowPosition(debugSdlWindow, xPos, yPos);
     
     Debug::log(SUCCESS, "Created debug window context."); 
@@ -350,17 +346,18 @@ void Debug::setupDebugWindow() {
 
 void Debug::drawDebugWindow(SDL_Event& event) {
     #ifndef NOTDEBUG
-
-        // while (SDL_PollEvent(&event)) {
-        //     ImGui_ImplSDL2_ProcessEvent(&event);
-        //     if (event.type == SDL_QUIT) {
-        //         Debug::cleanupDebugWindow(); 
-        //         debugWindowRunning = false;
-        //     }
-        //     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
-        //         Debug::cleanupDebugWindow(); 
-        //         debugWindowRunning = false; 
-        //     }
+        
+        //TODO: Add this codeblock to another loop so it works
+        // // while (SDL_PollEvent(&event)) {
+        // //     ImGui_ImplSDL2_ProcessEvent(&event);
+        // //     if (event.type == SDL_QUIT) {
+        // //         Debug::cleanupDebugWindow(); 
+        // //         debugWindowRunning = false;
+        // //     }
+        // //     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
+        // //         Debug::cleanupDebugWindow(); 
+        // //         debugWindowRunning = false; 
+        // //     }
         // }
 
         // Resize swap chain?
