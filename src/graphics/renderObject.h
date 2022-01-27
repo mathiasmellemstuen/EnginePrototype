@@ -8,17 +8,15 @@
 #include "uniformBuffer.h"
 #include "descriptorSetLayout.h"
 #include "descriptorPool.h"
+#include "../core/transform.h"
 
 #include <vector>
 #include <glm/glm.hpp>
 
 class Renderer;
 
-class RenderObject {
-    public:
-        glm::vec3 position;
-        glm::vec3 nextRotationDirection;
-        float nextRotationAngles; 
+struct RenderObject {
+        Transform& transform;
         Renderer& renderer;
         Texture& texture;
         Shader shader;
@@ -26,11 +24,7 @@ class RenderObject {
         DescriptorSetLayout descriptorSetLayout;
         DescriptorPool descriptorPool;
         GraphicsPipeline graphicsPipeline;
-        
-        RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
-        ~RenderObject();
-        void create();
-        glm::mat4 createModelMatrix();
+        std::function<void(RenderObject& self, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> render;
 };
 
 #endif

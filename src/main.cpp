@@ -31,6 +31,8 @@
 #include "input/mouseInput.h"
 #include "input/keyboardInput.h"
 
+#include "core/object.h"
+
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
@@ -46,8 +48,8 @@ int main(int argc, char *argv[]) {
     Debug::setupDebugWindow(); 
     
     std::vector<Vertex> verticies = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.4f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.4f}},
         {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
         {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 
@@ -58,8 +60,12 @@ int main(int argc, char *argv[]) {
     };
 
     std::vector<uint32_t> indices = {
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
+        0, 1, 3, 3, 1, 2,
+        1, 5, 2, 2, 5, 6,
+        5, 4, 6, 6, 4, 7,
+        4, 0, 7, 7, 0, 3,
+        3, 2, 7, 7, 2, 6,
+        4, 5, 0, 0, 5, 1
     };
 
     Model model("models/viking_room.obj");
@@ -69,11 +75,39 @@ int main(int argc, char *argv[]) {
     Shader shader(renderer, "shaders/vert.spv", "shaders/frag.spv");
 
     Texture tex(renderer, "textures/viking_room.png");
-    Texture tex2(renderer, "textures/texture.png");
+    Texture tex2(renderer, "textures/philosophers.png");
 
     VertexBuffer buffer(renderer, model.vertices, model.indices);
     VertexBuffer buffer2(renderer, verticies, indices);
-     
+    std::function<void(float deltaTime)> updateF = [&](float deltaTime) {
+        
+        if(KeyboardInput::keyPressed('w')) {
+            //renderObject1.position.x -= 0.01f * deltaTime; 
+            //mat1 = renderObject1.createModelMatrix();
+        }
+
+        if(KeyboardInput::keyPressed('s')) {
+            //renderObject1.position.x += 0.01f * deltaTime; 
+            //mat1 = renderObject1.createModelMatrix();
+        }
+        if(KeyboardInput::keyPressed('a')) {
+            //renderObject1.position.y -= 0.01f * deltaTime; 
+            //mat1 = renderObject1.createModelMatrix();
+        }
+        if(KeyboardInput::keyPressed('d')) {
+            //renderObject1.position.y += 0.01f * deltaTime; 
+            //mat1 = renderObject1.createModelMatrix();
+        }
+        if(KeyboardInput::keyPressed('q')) {
+            //renderObject1.nextRotationAngles += 0.01f * deltaTime;
+            //mat1 = renderObject1.createModelMatrix();
+        }
+        if(KeyboardInput::keyPressed('e')) {
+            //renderObject1.nextRotationAngles -= 0.01f * deltaTime;
+            //mat1 = renderObject1.createModelMatrix();
+        }
+    };
+    Object cube("Cube", Transform(), updateF,{Transform(), renderer, tex2, shader, buffer2, })
     RenderObject renderObject1(renderer, tex2, shader, buffer2);
     // RenderObject renderObject2(renderer, tex2, shader, buffer2);
     renderObject1.position = glm::vec3(0.0f, 0.0f, -1.0f);

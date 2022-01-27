@@ -49,8 +49,8 @@ class Renderer {
         uint64_t now;
         uint64_t last;
 
-        std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> renderFunction;
-        std::function<void(float deltaTime)> updateFunction;
+        // std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> renderFunction;
+        // std::function<void(float deltaTime)> updateFunction;
 
         Renderer(Window& window);
         void loop();
