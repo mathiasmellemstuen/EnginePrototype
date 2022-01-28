@@ -32,6 +32,7 @@
 #include "input/keyboardInput.h"
 
 #include "core/object.h"
+#include "core/transform.h"
 
 YamlParser* properties = nullptr;
 
@@ -79,86 +80,36 @@ int main(int argc, char *argv[]) {
 
     VertexBuffer buffer(renderer, model.vertices, model.indices);
     VertexBuffer buffer2(renderer, verticies, indices);
-    std::function<void(float deltaTime)> updateF = [&](float deltaTime) {
+
+    std::string name = "Cube";
+    Transform transform;
+    RenderObject cubeRender(renderer, tex2, shader, buffer2); 
+
+    Object cube(name, transform, cubeRender);
+    std::function<void(float deltaTime)> u = [&](float deltaTime) {
         
+        Debug::log("Something else"); 
         if(KeyboardInput::keyPressed('w')) {
-            //renderObject1.position.x -= 0.01f * deltaTime; 
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.position.x -= 0.01f * deltaTime; 
         }
 
         if(KeyboardInput::keyPressed('s')) {
-            //renderObject1.position.x += 0.01f * deltaTime; 
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.position.x += 0.01f * deltaTime; 
         }
         if(KeyboardInput::keyPressed('a')) {
-            //renderObject1.position.y -= 0.01f * deltaTime; 
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.position.y -= 0.01f * deltaTime; 
         }
         if(KeyboardInput::keyPressed('d')) {
-            //renderObject1.position.y += 0.01f * deltaTime; 
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.position.y += 0.01f * deltaTime; 
         }
         if(KeyboardInput::keyPressed('q')) {
-            //renderObject1.nextRotationAngles += 0.01f * deltaTime;
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.angle += 0.01f * deltaTime;
         }
         if(KeyboardInput::keyPressed('e')) {
-            //renderObject1.nextRotationAngles -= 0.01f * deltaTime;
-            //mat1 = renderObject1.createModelMatrix();
+            cube.transform.angle -= 0.01f * deltaTime;
         }
     };
-    Object cube("Cube", Transform(), updateF,{Transform(), renderer, tex2, shader, buffer2, })
-    RenderObject renderObject1(renderer, tex2, shader, buffer2);
-    // RenderObject renderObject2(renderer, tex2, shader, buffer2);
-    renderObject1.position = glm::vec3(0.0f, 0.0f, -1.0f);
-    renderObject1.nextRotationAngles = 3.14f/4;
-    glm::mat4 mat1 = renderObject1.createModelMatrix();
-    
-    renderer.currentRenderObject = &renderObject1;
-
-    renderer.renderFunction = [&](VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage) {
-
-        renderer.uniformBuffer.update(currentImage, mat1);
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderObject1.graphicsPipeline.graphicsPipeline);
-        VkBuffer vertexBuffers[] = {renderObject1.vertexBuffer.vertexBuffer};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer,renderObject1.vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderObject1.graphicsPipeline.pipelineLayout, 0, 1, &renderObject1.descriptorPool.descriptorSets[currentCommandBuffer], 0, nullptr);
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(renderObject1.vertexBuffer.indices.size()), 1, 0, 0, 0);
-
-    };
-
-    renderer.updateFunction = [&](float deltaTime) {
-        
-        if(KeyboardInput::keyPressed('w')) {
-            renderObject1.position.x -= 0.01f * deltaTime; 
-            mat1 = renderObject1.createModelMatrix();
-        }
-
-        if(KeyboardInput::keyPressed('s')) {
-            renderObject1.position.x += 0.01f * deltaTime; 
-            mat1 = renderObject1.createModelMatrix();
-        }
-        if(KeyboardInput::keyPressed('a')) {
-            renderObject1.position.y -= 0.01f * deltaTime; 
-            mat1 = renderObject1.createModelMatrix();
-        }
-        if(KeyboardInput::keyPressed('d')) {
-            renderObject1.position.y += 0.01f * deltaTime; 
-            mat1 = renderObject1.createModelMatrix();
-        }
-        if(KeyboardInput::keyPressed('q')) {
-            renderObject1.nextRotationAngles += 0.01f * deltaTime;
-            mat1 = renderObject1.createModelMatrix();
-        }
-        if(KeyboardInput::keyPressed('e')) {
-            renderObject1.nextRotationAngles -= 0.01f * deltaTime;
-            mat1 = renderObject1.createModelMatrix();
-        }
-    };
-    
+    cube.setUpdate(u); 
     renderer.loop(); 
     Debug::log(INFO, "Exiting application!"); 
     return 0;

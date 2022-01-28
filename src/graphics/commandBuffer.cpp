@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <vector>
 #include <array>
+#include <functional>
 
 #include "renderer.h"
 #include "vulkan/vulkan_core.h"
@@ -73,7 +74,7 @@ void CommandBuffers::create(uint32_t currentImage) {
             // renderer.renderFunction(commandBuffers[i], i, currentImage);
 
             for(Object& object : Object::objects)
-                object.renderObject.render(commandBuffers[i], i, currentImage);
+                object.renderObject.render(object.transform, commandBuffers[i], i, currentImage);
         
         vkCmdEndRenderPass(commandBuffers[i]);
 

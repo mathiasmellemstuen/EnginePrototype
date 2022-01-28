@@ -8,6 +8,7 @@
 #include "../input/mouseInput.h"
 #include "../input/keyboardInput.h"
 #include "../core/object.h"
+#include <iostream>
 
 Renderer::Renderer(Window& window):
 
@@ -65,8 +66,9 @@ void Renderer::loop() {
         eventManager.update(*window.sdlWindow);
 
         // updateFunction(deltaTime);
-        for(Object& object : Object::objects)
+        for(Object& object : Object::objects) {
             object.update(deltaTime);
+        }
 
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);

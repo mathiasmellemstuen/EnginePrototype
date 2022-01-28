@@ -1,7 +1,7 @@
 #include "transform.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-Transform::Transform(glm::vec3& position, float& angle, glm::vec3& rotationDirection, glm::vec3& scale) {
+Transform::Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection, glm::vec3 scale) {
 
     this->position = position;
     this->angle = angle; 
@@ -9,10 +9,10 @@ Transform::Transform(glm::vec3& position, float& angle, glm::vec3& rotationDirec
     this->scale = scale;
 
 };
-Transform::Transform(glm::vec3& position, float& angle, glm::vec3& rotationDirection) {
+Transform::Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection) {
     Transform(position, angle, rotationDirection, glm::vec3(1.0f, 1.0f, 1.0f));
 };
-Transform::Transform(glm::vec3& position) {
+Transform::Transform(glm::vec3 position) {
     float angle = 0.0f;
     Transform(position, angle, glm::vec3(0.0f, 0.0f, 0.0f));
 };

@@ -11,9 +11,9 @@ class Transform {
         glm::vec3 scale;
 
         Transform();
-        Transform(glm::vec3& position);
-        Transform(glm::vec3& position, float& angle, glm::vec3& rotationDirection);
-        Transform(glm::vec3& position, float& angle, glm::vec3& rotationDirection, glm::vec3& scale);
+        Transform(glm::vec3 position);
+        Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection);
+        Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection, glm::vec3 scale);
 
         glm::mat4& getModel();
 

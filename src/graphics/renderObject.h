@@ -12,19 +12,25 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <functional>
 
-class Renderer;
+#include "renderer.h"
 
-struct RenderObject {
-        Transform& transform;
+class RenderObject {
+    public: 
         Renderer& renderer;
         Texture& texture;
-        Shader shader;
-        VertexBuffer vertexBuffer;
+        Shader& shader;
+        VertexBuffer& vertexBuffer;
         DescriptorSetLayout descriptorSetLayout;
         DescriptorPool descriptorPool;
         GraphicsPipeline graphicsPipeline;
-        std::function<void(RenderObject& self, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> render;
+        std::function<void(Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> render;
+
+        RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
+        
+        void setDefaultRendering();
+        void setCustomRendering(std::function<void(Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)>& render);
 };
 
 #endif

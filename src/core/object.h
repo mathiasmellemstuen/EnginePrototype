@@ -16,9 +16,10 @@ class Object {
 
         std::string& name;
         Transform& transform;
-        RenderObject& renderObject; 
-        std::function<void(float deltaTime)>& update;
-        Object(std::string& name, Transform& transform, std::function<void(float deltaTime)>& update,  RenderObject& renderObject);
+        RenderObject& renderObject;
+        std::function<void(float deltaTime)> update;
+        Object(std::string& name, Transform& transform, RenderObject& renderObject);
+        void setUpdate(std::function<void(float deltaTime)>& update);
 
 };
 
