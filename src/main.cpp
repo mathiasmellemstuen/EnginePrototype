@@ -83,10 +83,10 @@ int main(int argc, char *argv[]) {
 
     std::string name = "Cube";
     Transform transform;
-    RenderObject cubeRender(renderer, tex2, shader, buffer2); 
+    RenderObject cubeRender(renderer, tex2, shader, buffer2);
 
     Object cube(name, transform, cubeRender);
-    std::function<void(float deltaTime)> u = [&](float deltaTime) {
+    std::function<void(float& deltaTime)> u = [&](float& deltaTime) {
         
         Debug::log("Something else"); 
         if(KeyboardInput::keyPressed('w')) {
