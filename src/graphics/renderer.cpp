@@ -71,7 +71,7 @@ void Renderer::loop() {
 
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);
-        Debug::drawDebugWindow(eventManager.event);
+        Debug::drawDebugWindow();
     }
 };
 

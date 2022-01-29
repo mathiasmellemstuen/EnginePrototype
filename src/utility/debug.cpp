@@ -347,7 +347,14 @@ void Debug::setupDebugWindow() {
     #endif
 }
 
-void Debug::drawDebugWindow(SDL_Event& event) {
+bool Debug::updateDebugWindowEvents(SDL_Event& event) {
+    if(event.window.windowID == SDL_GetWindowID(Debug::debugSdlWindow)) {
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        return true;
+    }
+    return false;
+};
+void Debug::drawDebugWindow() {
     #ifndef NOTDEBUG
         
         //TODO: Add this codeblock to another loop so it works
@@ -435,7 +442,10 @@ void Debug::drawDebugWindow(SDL_Event& event) {
             ImPlot::EndPlot();
         }
         ImGui::End();
-        ImGui::Begin("Objects"); 
+        ImGui::Begin("Objects");
+        // char buffer[255]{};
+        // ImGui::InputText("search", buffer, sizeof(buffer));
+        // std::string input(buffer);
 
         for(Object* object : Object::objects) {
 

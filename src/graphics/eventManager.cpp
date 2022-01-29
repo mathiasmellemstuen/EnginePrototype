@@ -5,21 +5,23 @@
 #include "window.h"
 #include <SDL2/SDL.h>
 #include <imgui/imgui.h>
+#include <iostream>
 
 void EventManager::update(SDL_Window& window) {
 
         KeyboardInput::frameUpdate(); 
 
         while(SDL_PollEvent(&event)) {
+            
+            //This line is causing problems where the game screen is black? 
+            if(Debug::updateDebugWindowEvents(event)) {
+                return;
+            }
 
             MouseInput::update(event);
             KeyboardInput::update(event); 
             
-            #ifndef NOTDEBUG
-                if(event.window.windowID != SDL_GetWindowID(&window))
-                    ImGui_ImplSDL2_ProcessEvent(&event);
-            #endif 
-            
+
             if(event.type == SDL_QUIT) {
                 // window.running = false;
                 
@@ -32,10 +34,10 @@ void EventManager::update(SDL_Window& window) {
 
                 // window.running = false;
                 
-                Debug::log("SDL_Quit event is happening."); 
-                if(Debug::debugWindowRunning) {
-                    Debug::cleanupDebugWindow();
-                }
+                Debug::log("SDL_Quit event is happening.");
+                // if(Debug::debugWindowRunning) {
+                //     Debug::cleanupDebugWindow();
+                // }
             }
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(&window)) {
 
