@@ -4,6 +4,7 @@
 #include "../input/keyboardInput.h"
 #include "window.h"
 #include <SDL2/SDL.h>
+#include <imgui/imgui.h>
 
 void EventManager::update(SDL_Window& window) {
 
@@ -13,7 +14,12 @@ void EventManager::update(SDL_Window& window) {
 
             MouseInput::update(event);
             KeyboardInput::update(event); 
-
+            
+            #ifndef NOTDEBUG
+                if(event.window.windowID != SDL_GetWindowID(&window))
+                    ImGui_ImplSDL2_ProcessEvent(&event);
+            #endif 
+            
             if(event.type == SDL_QUIT) {
                 // window.running = false;
                 

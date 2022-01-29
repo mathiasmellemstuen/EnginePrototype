@@ -15,6 +15,7 @@
 #include <functional>
 
 #include "renderer.h"
+#include "../core/component.h"
 
 class RenderObject {
     public: 
@@ -30,7 +31,6 @@ class RenderObject {
         RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
         
         void setDefaultRendering();
-        void setCustomRendering(std::function<void(Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)>& render);
 };
 
 #endif

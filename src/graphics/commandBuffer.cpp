@@ -73,8 +73,9 @@ void CommandBuffers::create(uint32_t currentImage) {
             
             // renderer.renderFunction(commandBuffers[i], i, currentImage);
 
-            for(Object& object : Object::objects)
-                object.renderObject.render(object.transform, commandBuffers[i], i, currentImage);
+            for(Object* object : Object::objects)
+                if(object->renderObject != nullptr)
+                    object->renderObject->render(object->transform, commandBuffers[i], i, currentImage);
         
         vkCmdEndRenderPass(commandBuffers[i]);
 

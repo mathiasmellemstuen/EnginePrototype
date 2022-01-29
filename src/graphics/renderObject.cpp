@@ -19,7 +19,3 @@ void RenderObject::setDefaultRendering() {
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vertexBuffer.indices.size()), 1, 0, 0, 0);
     };
 };
-
-void RenderObject::setCustomRendering(std::function<void(Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)>& render) {
-    this->render = render;
-};

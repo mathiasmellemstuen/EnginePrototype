@@ -23,6 +23,9 @@
 #include <glm/vec2.hpp>
 #include <iostream>
 
+#include "../core/object.h"
+#include "../core/component.h"
+
 #define _WIN32_WINNT 0x0A000007
 #include <rang/rang.hpp>
 
@@ -431,6 +434,19 @@ void Debug::drawDebugWindow(SDL_Event& event) {
             delete[] x;
             ImPlot::EndPlot();
         }
+        ImGui::End();
+        ImGui::Begin("Objects"); 
+
+        for(Object* object : Object::objects) {
+
+            ImGui::Text(std::string("Object: " + object->name + " #" + std::to_string(object->id)).c_str());
+
+            for(Component* component : object->components) {
+                ImGui::Text(std::string("Component: " + component->name + " #" + std::to_string(component->id)).c_str());
+                component->debug();
+            }
+        }
+
         ImGui::End();
         ImGui::Render();
 

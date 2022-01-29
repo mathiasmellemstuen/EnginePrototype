@@ -65,9 +65,8 @@ void Renderer::loop() {
 
         eventManager.update(*window.sdlWindow);
 
-        // updateFunction(deltaTime);
-        for(Object& object : Object::objects) {
-            object.update(deltaTime);
+        for(Object* object : Object::objects) {
+            object->update(deltaTime);
         }
 
         drawFrame(); 

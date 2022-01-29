@@ -80,19 +80,21 @@ int main(int argc, char *argv[]) {
 
     VertexBuffer buffer(renderer, model.vertices, model.indices);
     VertexBuffer buffer2(renderer, verticies, indices);
-
-    std::string name = "Cube";
-    Transform transform;
     RenderObject cubeRender(renderer, tex2, shader, buffer2);
 
-    Object cube(name, transform, cubeRender);
-    std::function<void(float& deltaTime)> u = [&](float& deltaTime) {
+    Object cube("Cube", &cubeRender);
+    
+    Component c1; 
+    Component c2;
+
+    cube.addComponent(&c1); 
+    cube.addComponent(&c2); 
+
+    cube.update = [&](float& deltaTime) {
         
-        Debug::log("Something else"); 
         if(KeyboardInput::keyPressed('w')) {
             cube.transform.position.x -= 0.01f * deltaTime; 
         }
-
         if(KeyboardInput::keyPressed('s')) {
             cube.transform.position.x += 0.01f * deltaTime; 
         }
@@ -109,7 +111,7 @@ int main(int argc, char *argv[]) {
             cube.transform.angle -= 0.01f * deltaTime;
         }
     };
-    cube.setUpdate(u); 
+    Debug::log("Reaching this part of the code too..."); 
     renderer.loop(); 
     Debug::log(INFO, "Exiting application!"); 
     return 0;
