@@ -47,7 +47,8 @@ bool Debug::debugWindowRunning = true;
 std::vector<float> Debug::recordedFps = {};
 Uint32 Debug::lastTime = SDL_GetTicks(); 
 Uint32 Debug::currentTime = 0; 
-Uint32 Debug::amountOfFrames = 0; 
+Uint32 Debug::amountOfFrames = 0;
+Object* Debug::selectedObject = nullptr;
 
 void Debug::calculateFps() {
 
@@ -443,21 +444,26 @@ void Debug::drawDebugWindow() {
         }
         ImGui::End();
         ImGui::Begin("Objects");
-        // char buffer[255]{};
-        // ImGui::InputText("search", buffer, sizeof(buffer));
-        // std::string input(buffer);
+ 
+        char buffer[255]{};
+        ImGui::InputText("search", buffer, sizeof(buffer));
+        std::string input(buffer);
 
         for(Object* object : Object::objects) {
+            
+            std::string title = std::string(object->name + " #" + std::to_string(object->id)).c_str();
 
-            ImGui::Text(std::string("Object: " + object->name + " #" + std::to_string(object->id)).c_str());
-
-            for(Component* component : object->components) {
-                ImGui::Text(std::string("Component: " + component->name + " #" + std::to_string(component->id)).c_str());
-                component->debug();
+            if(ImGui::Button(title.c_str())) {
+                Debug::selectedObject = object;
             }
+
         }
+        ImVec2 size = ImGui::GetWindowSize();
+        ImVec2 pos = ImGui::GetWindowPos();
 
         ImGui::End();
+        Debug::drawSelectedObject(pos, size);
+
         ImGui::Render();
 
         ImDrawData* drawData = ImGui::GetDrawData();
@@ -550,6 +556,31 @@ void Debug::drawDebugWindow() {
     #endif
 }
 
+void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
+
+    if(Debug::selectedObject != nullptr) {
+        std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
+        ImGui::SetNextWindowSize(size);
+        ImGui::SetNextWindowPos(pos);
+
+        ImGui::Begin(title.c_str());
+
+        if(ImGui::Button("X")) {
+            Debug::selectedObject = nullptr;
+            return;
+        }
+
+        ImGui::Text("Components: ");
+
+        for(Component* component : Debug::selectedObject->components) {
+
+            ImGui::Text(std::string(component->name + " #" + std::to_string(component->id)).c_str());
+            component->debug();
+        }
+
+        ImGui::End();
+    }
+};
 void Debug::cleanupDebugWindow() {
     #ifndef NOTDEBUG
         vkDeviceWaitIdle(device);

@@ -23,8 +23,8 @@ Transform::Transform() {
 glm::mat4& Transform::getModel() {
     model = glm::mat4(1.0f);
     
-    model = glm::rotate(model, angle, rotationDirection);
     model = glm::translate(model, position); 
+    model = glm::rotate(model, angle, rotationDirection);
 
     return model;
 };

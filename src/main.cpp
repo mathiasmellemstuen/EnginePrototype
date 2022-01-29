@@ -94,21 +94,27 @@ int main(int argc, char *argv[]) {
         
         if(KeyboardInput::keyPressed('w')) {
             cube.transform.position.x -= 0.01f * deltaTime; 
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed('s')) {
             cube.transform.position.x += 0.01f * deltaTime; 
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed('a')) {
             cube.transform.position.y -= 0.01f * deltaTime; 
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed('d')) {
             cube.transform.position.y += 0.01f * deltaTime; 
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed('q')) {
             cube.transform.angle += 0.01f * deltaTime;
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed('e')) {
             cube.transform.angle -= 0.01f * deltaTime;
+            cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
     };
     Debug::log("Reaching this part of the code too..."); 

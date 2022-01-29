@@ -54,11 +54,12 @@ void Renderer::loop() {
         // Calculating delta time
         last = now; 
         now = SDL_GetPerformanceCounter(); 
-        float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency()); 
+        float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency());
 
         // For debug window
         Debug::calculateFps(); 
-        
+        Debug::drawDebugWindow();
+
         if(!Debug::debugWindowRunning) {
             window.running = false;
         }
@@ -69,9 +70,9 @@ void Renderer::loop() {
             object->update(deltaTime);
         }
 
+        
         drawFrame(); 
         vkDeviceWaitIdle(logicalDevice.device);
-        Debug::drawDebugWindow();
     }
 };
 

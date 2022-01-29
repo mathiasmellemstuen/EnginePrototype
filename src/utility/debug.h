@@ -16,6 +16,7 @@
 #include <imgui/imgui_impl_vulkan.h>
 #include <vector>
 
+#include "../core/object.h"
 class Renderer;
 
 enum LogLevel {
@@ -50,6 +51,8 @@ class Debug {
         static void drawDebugWindow();
         static bool updateDebugWindowEvents(SDL_Event& event);
         static void cleanupDebugWindow();
+        static void calculateFps(); 
+        static void drawSelectedObject(ImVec2 pos, ImVec2 size);
 
         static VkInstance instance;
         static VkAllocationCallbacks* vulkanAllocator;
@@ -70,6 +73,6 @@ class Debug {
         static Uint32 lastTime;
         static Uint32 currentTime;
         static Uint32 amountOfFrames;  
-        static void calculateFps(); 
+        static Object* selectedObject;
 };
 #endif
