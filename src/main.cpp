@@ -1,3 +1,4 @@
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     cube.addComponent(&c1); 
     cube.addComponent(&c2); 
-
+    cube.transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     cube.update = [&](float& deltaTime) {
         
         if(KeyboardInput::keyPressed('w')) {
@@ -117,8 +118,23 @@ int main(int argc, char *argv[]) {
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
     };
-    Debug::log("Reaching this part of the code too..."); 
-    renderer.loop(); 
-    Debug::log(INFO, "Exiting application!"); 
+    renderer.loop();
+
+    cubeRender.descriptorPool.clean(); 
+    cubeRender.descriptorSetLayout.clean(); 
+    cubeRender.shader.clean(); 
+    cubeRender.texture.clean();
+    cubeRender.vertexBuffer.clean();
+    // Debug::log("Before"); 
+    // cubeRender.graphicsPipeline.clean();
+    // Debug::log("Somwethign"); 
+    renderer.cleanupSwapChain(); 
+    renderer.syncObjects.clean(); 
+    renderer.commandPool.clean();
+    renderer.logicalDevice.clean(); 
+    renderer.vulkanInstance.clean(); 
+    window.clean();
+    Debug::log("Exiting application!"); 
+    SDL_Quit();
     return 0;
 }

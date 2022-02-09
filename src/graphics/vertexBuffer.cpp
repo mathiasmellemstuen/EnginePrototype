@@ -58,7 +58,7 @@ void VertexBuffer::createIndexBuffer(std::vector<uint32_t>& indices) {
     vkFreeMemory(renderer.logicalDevice.device, stagingBufferMemory, nullptr);
 }
 
-void VertexBuffer::cleanup() {
+void VertexBuffer::clean() {
     
     vkDestroyBuffer(renderer.logicalDevice.device, indexBuffer, nullptr);
     vkFreeMemory(renderer.logicalDevice.device, indexBufferMemory, nullptr);
@@ -67,6 +67,3 @@ void VertexBuffer::cleanup() {
     vkFreeMemory(renderer.logicalDevice.device, vertexBufferMemory, nullptr);
 
 }
-VertexBuffer::~VertexBuffer() {
-    cleanup();
-};

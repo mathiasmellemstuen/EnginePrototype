@@ -43,6 +43,6 @@ DescriptorSetLayout::DescriptorSetLayout(RenderObject& renderObject) : renderObj
     create();
 }
 
-DescriptorSetLayout::~DescriptorSetLayout() {
+void DescriptorSetLayout::clean() {
     vkDestroyDescriptorSetLayout(renderObject.renderer.logicalDevice.device, descriptorSetLayout, nullptr);
 }

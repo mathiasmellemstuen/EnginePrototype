@@ -49,9 +49,6 @@ class Renderer {
         uint64_t now;
         uint64_t last;
 
-        // std::function<void(VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> renderFunction;
-        // std::function<void(float deltaTime)> updateFunction;
-
         Renderer(Window& window);
         void loop();
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
@@ -66,8 +63,8 @@ class Renderer {
         VkSampleCountFlagBits getMaxUsableSampleCount();
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void useRenderObject(RenderObject& renderObject); 
-    private: 
         void cleanupSwapChain();
+    private: 
         void reCreateSwapChain();
         void drawFrame();
 };

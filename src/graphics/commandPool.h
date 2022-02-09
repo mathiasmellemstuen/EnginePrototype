@@ -10,7 +10,7 @@ class CommandPool {
         VkCommandPool commandPool; 
         void create(); 
         CommandPool(Renderer& renderer); 
-        ~CommandPool(); 
+        void clean(); 
     private:
         Renderer& renderer;
 };

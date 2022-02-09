@@ -18,7 +18,7 @@ SwapChain::SwapChain(Renderer& renderer) : renderer(renderer) {
     
 };
 
-SwapChain::~SwapChain() {
+void SwapChain::clean() {
     Debug::log(INFO, "Destroying swap chain"); 
     vkDestroySwapchainKHR(renderer.logicalDevice.device, swapChain, nullptr);
     Debug::log(SUCCESS, "Swap chain destroyed"); 

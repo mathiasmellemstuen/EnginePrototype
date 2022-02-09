@@ -8,7 +8,7 @@ RenderPass::RenderPass(Renderer& renderer) : renderer(renderer) {
     create();
 }
 
-RenderPass::~RenderPass() {
+void RenderPass::clean() {
     vkDestroyRenderPass(renderer.logicalDevice.device, renderPass, nullptr);
 };
 

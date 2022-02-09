@@ -63,7 +63,7 @@ VulkanInstance::VulkanInstance(Renderer& renderer) : renderer(renderer) {
     Debug::log(SUCCESS, "Successfully created a window surface"); 
 };
 
-VulkanInstance::~VulkanInstance() {
+void VulkanInstance::clean() {
     Debug::log(INFO, "Destroying window surface"); 
     Debug::log(INFO, "Destroying vulkan instance"); 
     vkDestroySurfaceKHR(instance, surface, nullptr);

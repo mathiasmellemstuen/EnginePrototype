@@ -11,7 +11,7 @@ class DescriptorSetLayout {
         VkDescriptorSetLayout descriptorSetLayout;
         void create(); 
         DescriptorSetLayout(RenderObject& renderObject); 
-        ~DescriptorSetLayout();
+        void clean();
     private:
         RenderObject& renderObject;
 };

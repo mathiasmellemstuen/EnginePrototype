@@ -153,7 +153,7 @@ Texture::Texture(Renderer& renderer, const std::string& texturePath) : renderer(
     create();  
 }
 
-Texture::~Texture() {
+void Texture::clean() {
     vkDestroySampler(renderer.logicalDevice.device, textureSampler, nullptr);
     vkDestroyImageView(renderer.logicalDevice.device, textureImageView, nullptr); 
 }

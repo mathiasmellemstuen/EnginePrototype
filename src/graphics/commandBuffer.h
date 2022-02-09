@@ -12,7 +12,7 @@ class CommandBuffers {
         CommandBuffers(Renderer& renderer); 
         void create(uint32_t currentImage);
         void allocateCommandBuffers(); 
-        ~CommandBuffers(); 
+        void clean(); 
     private:
         Renderer& renderer;
 };

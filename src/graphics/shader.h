@@ -11,7 +11,7 @@ class Renderer;
 class Shader {
     public:
         Shader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath); 
-        ~Shader();
+        void clean();
         VkShaderModule vertexShaderModule; 
         VkShaderModule fragmentShaderModule;
         VkPipelineShaderStageCreateInfo shaderStages[2]; 

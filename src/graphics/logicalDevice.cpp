@@ -75,7 +75,7 @@ void LogicalDevice::create() {
     Debug::log(SUCCESS, "Created logical device!"); 
 }
 
-LogicalDevice::~LogicalDevice() {
+void LogicalDevice::clean() {
     Debug::log(INFO, "Destroying logical device"); 
     vkDestroyDevice(device, nullptr);
     Debug::log(SUCCESS, "Logical device destroyed"); 

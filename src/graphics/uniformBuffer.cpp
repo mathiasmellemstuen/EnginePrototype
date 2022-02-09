@@ -23,8 +23,8 @@ void UniformBuffer::update(uint32_t currentImage, glm::mat4& model) {
     UniformBufferObject ubo{};
     ubo.model = model; 
     // ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), 1920.0f / 1080.0f, 0.1f,10.0f);
+    ubo.view = glm::lookAt(glm::vec3(10.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(45.0f, 1920.0f / 1080.0f, 0.1f,100.0f);
     ubo.proj[1][1] *= -1;
 
     void* data;
@@ -53,7 +53,7 @@ UniformBuffer::UniformBuffer(Renderer& renderer) : renderer(renderer) {
     create(); 
 }
 
-UniformBuffer::~UniformBuffer() {
+void UniformBuffer::clean() {
     for (size_t i = 0; i < allocatedSwapChainSize; i++) {
         vkDestroyBuffer(renderer.logicalDevice.device, uniformBuffers[i], nullptr);
         vkFreeMemory(renderer.logicalDevice.device, uniformBuffersMemory[i], nullptr);

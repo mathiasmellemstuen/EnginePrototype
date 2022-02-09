@@ -12,7 +12,7 @@ class DepthResources {
         VkImageView depthImageView;
         void create(); 
         DepthResources(Renderer& renderer); 
-        ~DepthResources();
+        void clean();
     private:
         Renderer& renderer;
 };

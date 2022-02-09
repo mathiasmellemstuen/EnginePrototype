@@ -46,7 +46,7 @@ VkImageView ImageViews::createImageView(VkImage image, VkFormat format, VkImageA
     return imageView;
 }
 
-ImageViews::~ImageViews(){
+void ImageViews::clean(){
     Debug::log(INFO, "Destroying image views"); 
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(renderer.logicalDevice.device, imageView, nullptr);

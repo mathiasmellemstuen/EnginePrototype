@@ -11,7 +11,7 @@ class ImageViews {
     public: 
         std::vector<VkImageView> swapChainImageViews;
         ImageViews(Renderer& renderer); 
-        ~ImageViews();
+        void clean();
         void create(); 
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
     private:

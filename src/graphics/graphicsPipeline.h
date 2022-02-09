@@ -11,7 +11,7 @@ class GraphicsPipeline {
         VkPipelineLayout pipelineLayout;
         void create();
         GraphicsPipeline(RenderObject& renderObject); 
-        ~GraphicsPipeline();
+        void clean();
         void createRenderPass(); 
     private:
         RenderObject& renderObject;

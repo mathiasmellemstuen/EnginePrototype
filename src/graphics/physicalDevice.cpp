@@ -122,6 +122,6 @@ PhysicalDevice::PhysicalDevice(Renderer& renderer) : renderer(renderer) {
     
 };
 
-PhysicalDevice::~PhysicalDevice() {
+void PhysicalDevice::clean() {
 
 };

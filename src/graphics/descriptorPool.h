@@ -13,7 +13,7 @@ class DescriptorPool {
         void create();
         void createDescriptorSets();
         DescriptorPool(RenderObject& renderObject); 
-        ~DescriptorPool(); 
+        void clean(); 
     private:
         RenderObject& renderObject;
 };

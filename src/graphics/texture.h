@@ -21,7 +21,7 @@ class Texture {
         void createTextureSampler();
         void create(); 
         Texture(Renderer& renderer, const std::string& texturePath); 
-        ~Texture();
+        void clean();
     private:
         Renderer& renderer;
         const std::string& texturePath;

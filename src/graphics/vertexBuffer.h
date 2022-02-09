@@ -15,9 +15,8 @@ class VertexBuffer {
         VkDeviceMemory indexBufferMemory;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        void cleanup(); 
+        void clean(); 
         VertexBuffer(Renderer& renderer, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
-        ~VertexBuffer();
     private:
         Renderer& renderer;
         void createVertexBuffer(std::vector<Vertex>& vertices);

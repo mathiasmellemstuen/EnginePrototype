@@ -45,7 +45,7 @@ void FrameBuffers::create() {
     Debug::log(SUCCESS, "Successfully created all framebuffers.");
 };
 
-FrameBuffers::~FrameBuffers() {
+void FrameBuffers::clean() {
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(renderer.logicalDevice.device, framebuffer, nullptr); 
     }

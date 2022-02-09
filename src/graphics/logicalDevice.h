@@ -12,7 +12,7 @@ class LogicalDevice {
         VkQueue presentQueue;
         void create(); 
         LogicalDevice(Renderer& renderer);
-        ~LogicalDevice();
+        void clean();
     private:
         Renderer& renderer;
 };

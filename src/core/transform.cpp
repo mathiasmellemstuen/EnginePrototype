@@ -1,7 +1,9 @@
 #include "transform.h"
+#include "../utility/debug.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
-Transform::Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection, glm::vec3 scale) {
+Transform::Transform(const glm::vec3& position, const float& angle, const glm::vec3& rotationDirection, const glm::vec3& scale) {
 
     this->position = position;
     this->angle = angle; 
@@ -9,22 +11,32 @@ Transform::Transform(glm::vec3 position, float angle, glm::vec3 rotationDirectio
     this->scale = scale;
 
 };
-Transform::Transform(glm::vec3 position, float angle, glm::vec3 rotationDirection) {
-    Transform(position, angle, rotationDirection, glm::vec3(1.0f, 1.0f, 1.0f));
+Transform::Transform(const glm::vec3& position, const float& angle, const glm::vec3& rotationDirection) {
+    this->position = position;
+    this->angle = angle;
+    this->rotationDirection = rotationDirection;
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 };
-Transform::Transform(glm::vec3 position) {
-    float angle = 0.0f;
-    Transform(position, angle, glm::vec3(0.0f, 0.0f, 0.0f));
+Transform::Transform(const glm::vec3& position) {
+    this->position = position;
+    this->angle = 0;
+    this->rotationDirection = glm::vec3(0.0f, 0.0f, 1.0);
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 Transform::Transform() {
-    Transform(glm::vec3(0.0f, 0.0f, 0.0f));
+    this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->angle = 0;
+    this->rotationDirection = glm::vec3(0.0f, 0.0f, 1.0);
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
 glm::mat4& Transform::getModel() {
-    model = glm::mat4(1.0f);
-    
-    model = glm::translate(model, position); 
-    model = glm::rotate(model, angle, rotationDirection);
+    Debug::log(rotationDirection);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotationDirection);
+    glm::mat4 translation = glm::translate(glm::mat4(1.0f), position);
+
+    model = rotation * translation;
+    Debug::log(glm::to_string(model));
 
     return model;
 };

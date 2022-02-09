@@ -14,7 +14,7 @@ class SwapChain {
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
         SwapChain(Renderer& renderer);
-        ~SwapChain();
+        void clean();
         void create();
     private:
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

@@ -28,6 +28,6 @@ void CommandPool::create() {
     Debug::log(SUCCESS, "Command pool created!"); 
 }
 
-CommandPool::~CommandPool() {
+void CommandPool::clean() {
     vkDestroyCommandPool(renderer.logicalDevice.device, commandPool, nullptr);
-}
+};

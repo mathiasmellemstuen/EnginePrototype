@@ -6,8 +6,9 @@
 #include <SDL2/SDL.h>
 #include <imgui/imgui.h>
 #include <iostream>
+#include "window.h"
 
-void EventManager::update(SDL_Window& window) {
+void EventManager::update(Window& window) {
 
         KeyboardInput::frameUpdate(); 
 
@@ -30,19 +31,21 @@ void EventManager::update(SDL_Window& window) {
             //         Debug::cleanupDebugWindow();
             //     }
             // }
-            // if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(&window)) {
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
 
-            //     // window.running = false;
+                window.running = false;
                 
-            //     Debug::log("SDL_Quit event is happening.");
-            //     // if(Debug::debugWindowRunning) {
-            //     //     Debug::cleanupDebugWindow();
-            //     // }
-            // }
-            // if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(&window)) {
-
-            //     //Window is resized, re creating swapchain: 
-            //     // window.framebufferResized = true; 
-            // }
+                Debug::log("SDL_Quit event is happening.");
+                if(Debug::debugWindowRunning) {
+                    Debug::cleanupDebugWindow();
+                    Debug::debugWindowRunning = false;
+                }
+                return; 
+            }
+            if (window.running && event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(window.sdlWindow)) {
+                
+                //Window is resized, re creating swapchain: 
+                window.framebufferResized = true;
+            }
         }
 }

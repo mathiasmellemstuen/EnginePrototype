@@ -14,14 +14,14 @@ void DepthResources::create() {
     depthImageView = renderer.imageViews.createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
     Debug::log(SUCCESS, "Created depth resources!"); 
-}
+};
 
 DepthResources::DepthResources(Renderer& renderer) : renderer(renderer) {
     create();
-}
+};
 
-DepthResources::~DepthResources() {
+void DepthResources::clean() {
     vkDestroyImageView(renderer.logicalDevice.device, depthImageView, nullptr);
     vkDestroyImage(renderer.logicalDevice.device, depthImage, nullptr);
     vkFreeMemory(renderer.logicalDevice.device, depthImageMemory, nullptr);
-}
+};

@@ -36,7 +36,7 @@ Shader::Shader(Renderer& renderer, std::string vertexShaderPath, std::string fra
     Debug::log(SUCCESS, "Successfully created shader!"); 
 };
 
-Shader::~Shader() {
+void Shader::clean() {
 
     vkDestroyShaderModule(renderer.logicalDevice.device, this->vertexShaderModule, nullptr);
     vkDestroyShaderModule(renderer.logicalDevice.device, this->fragmentShaderModule, nullptr);

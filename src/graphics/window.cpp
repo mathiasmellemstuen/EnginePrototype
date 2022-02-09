@@ -35,7 +35,7 @@ Window::Window() {
 
 };
 
-Window::~Window() {
+void Window::clean() {
     Debug::log(INFO, "Destroying SDL window");
     SDL_DestroyWindow(sdlWindow);
     sdlWindow = nullptr; 

@@ -16,7 +16,7 @@ class UniformBuffer {
         void setPosition(glm::vec3 position);
         void create(); 
         UniformBuffer(Renderer& renderer); 
-        ~UniformBuffer(); 
+        void clean(); 
     private:
         size_t allocatedSwapChainSize;
         Renderer& renderer;

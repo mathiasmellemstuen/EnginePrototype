@@ -11,7 +11,7 @@ class FrameBuffers {
         std::vector<VkFramebuffer> swapChainFramebuffers;
         FrameBuffers(Renderer& renderer);
         void create(); 
-        ~FrameBuffers(); 
+        void clean(); 
     private: 
         Renderer& renderer;
     };

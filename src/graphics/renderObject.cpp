@@ -1,5 +1,7 @@
 #include "renderObject.h"
+#include "../utility/debug.h"
 #include <functional>
+#include <iostream>
 
 RenderObject::RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer) : renderer(renderer), texture(texture), shader(shader), vertexBuffer(vertexBuffer), descriptorSetLayout(*this), descriptorPool(*this), graphicsPipeline(*this) {
     setDefaultRendering();

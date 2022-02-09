@@ -60,11 +60,7 @@ void Renderer::loop() {
         Debug::calculateFps(); 
         Debug::drawDebugWindow();
 
-        if(!Debug::debugWindowRunning) {
-            window.running = false;
-        }
-
-        eventManager.update(*window.sdlWindow);
+        eventManager.update(window);
 
         for(Object* object : Object::objects) {
             object->update(deltaTime);
@@ -84,9 +80,10 @@ void Renderer::cleanupSwapChain() {
 
     vkFreeCommandBuffers(logicalDevice.device, commandPool.commandPool, static_cast<uint32_t>(commandBuffers.commandBuffers.size()), commandBuffers.commandBuffers.data());
 
-    //TODO: Find a way to destroy the current pipeline...
-    //vkDestroyPipeline(logicalDevice.device, graphicsPipeline.graphicsPipeline, nullptr);
-    //vkDestroyPipelineLayout(logicalDevice.device, I>graphicsPipeline.pipelineLayout, nullptr);
+    for(Object* object : Object::objects) {
+        vkDestroyPipeline(logicalDevice.device, object->renderObject->graphicsPipeline.graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(logicalDevice.device, object->renderObject->graphicsPipeline.pipelineLayout, nullptr);
+    }
     vkDestroyRenderPass(logicalDevice.device, renderPass.renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.swapChainImageViews.size(); i++) {
@@ -94,16 +91,20 @@ void Renderer::cleanupSwapChain() {
     }
 
     vkDestroySwapchainKHR(logicalDevice.device, swapChain.swapChain, nullptr);
+
 };
 
 void Renderer::reCreateSwapChain() {
-    
+
+    if(!window.running)
+        return;
+
     Debug::log(INFO, "Recreating the swapchain!"); 
 
     int width = 0, height = 0;
     SDL_GetWindowSize(window.sdlWindow, &width, &height);
 
-    while (width == 0 || height == 0) {
+    while ((width == 0 || height == 0) && window.running) {
         SDL_GetWindowSize(window.sdlWindow, &width, &height);
         SDL_Delay(1); 
     }
@@ -119,11 +120,15 @@ void Renderer::reCreateSwapChain() {
     depthResources.create(); 
     frameBuffers.create();
     uniformBuffer.create(); 
-        //TODO: Find a way to create the current descriptor pool
-    //rendererInfo->descriptorPool.create(); 
+    
+    for(Object* object : Object::objects)
+        object->renderObject->descriptorPool.create();
+
     currentRenderObject->descriptorPool.create(); 
-    //commandBuffers.create(0);
+    commandBuffers.create(0);
     commandBuffers.allocateCommandBuffers();
+
+    Debug::log(SUCCESS, "Done recreating swapchain!"); 
 };
 
 void Renderer::drawFrame() {
@@ -145,7 +150,7 @@ void Renderer::drawFrame() {
     }
     syncObjects.imagesInFlight[imageIndex] = syncObjects.inFlightFences[syncObjects.currentFrame];
 
-    //uniformBuffer.update(imageIndex); 
+   // uniformBuffer.update(imageIndex); 
     commandBuffers.create(imageIndex);
 
     VkSubmitInfo submitInfo{};

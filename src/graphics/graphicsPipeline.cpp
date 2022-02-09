@@ -164,7 +164,7 @@ void GraphicsPipeline::create() {
     Debug::log(SUCCESS, "Created graphics pipeline!"); 
 };
 
-GraphicsPipeline::~GraphicsPipeline() {
+void GraphicsPipeline::clean() {
     Debug::log(INFO, "Destroying graphics pipeline"); 
     vkDestroyPipeline(renderObject.renderer.logicalDevice.device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(renderObject.renderer.logicalDevice.device, pipelineLayout, nullptr);

@@ -12,7 +12,7 @@ class ColorResources {
         VkImageView colorImageView;
         void create();
         ColorResources(Renderer& renderer);
-        ~ColorResources();
+        void clean(); 
     private:
         Renderer& renderer;
 };

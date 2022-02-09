@@ -88,6 +88,6 @@ DescriptorPool::DescriptorPool(RenderObject& renderObject) : renderObject(render
     create(); 
 }
 
-DescriptorPool::~DescriptorPool() {
+void DescriptorPool::clean() {
     vkDestroyDescriptorPool(renderObject.renderer.logicalDevice.device, descriptorPool, nullptr);
-}
+}; 

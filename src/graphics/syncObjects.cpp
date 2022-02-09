@@ -36,13 +36,15 @@ SyncObjects::SyncObjects(Renderer& renderer) : renderer(renderer) {
     Debug::log(SUCCESS, "Successfully created sync objects!");
 };
 
-SyncObjects::~SyncObjects() {
+void SyncObjects::clean() {
 
+    Debug::log("Deletion started");
     //TODO: Change 2 with max frames in flight variable from properties.
     for (size_t i = 0; i < 2; i++) {
         vkDestroySemaphore(renderer.logicalDevice.device, renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(renderer.logicalDevice.device, imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(renderer.logicalDevice.device, inFlightFences[i], nullptr);
     }
+    Debug::log("Deletion ended"); 
 };
 

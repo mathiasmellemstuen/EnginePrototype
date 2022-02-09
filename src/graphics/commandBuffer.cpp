@@ -89,6 +89,6 @@ void CommandBuffers::create(uint32_t currentImage) {
 
 };
 
-CommandBuffers::~CommandBuffers() {
+void CommandBuffers::clean() {
 
-}
+};

@@ -11,7 +11,7 @@ class VulkanInstance {
         VkInstance instance;
         VkSurfaceKHR surface;
         VulkanInstance(Renderer& renderer); 
-        ~VulkanInstance(); 
+        void clean(); 
     private:
         Renderer& renderer;
 };

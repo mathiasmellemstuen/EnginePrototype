@@ -10,7 +10,7 @@ class Window {
         bool running = true; 
         bool framebufferResized = false;
         Window(); 
-        ~Window();
+        void clean();
 
 };
 #endif

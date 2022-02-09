@@ -17,7 +17,7 @@ ColorResources::ColorResources(Renderer& renderer) : renderer(renderer) {
     create(); 
 };
 
-ColorResources::~ColorResources() {
+void ColorResources::clean() {
     vkDestroyImageView(renderer.logicalDevice.device, colorImageView, nullptr);
     vkDestroyImage(renderer.logicalDevice.device, colorImage, nullptr);
     vkFreeMemory(renderer.logicalDevice.device, colorImageMemory, nullptr);

@@ -21,7 +21,7 @@ class PhysicalDevice {
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkPhysicalDeviceProperties physicalDeviceProperties; 
         PhysicalDevice(Renderer& renderer);
-        ~PhysicalDevice();
+        void clean();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         VkSurfaceKHR* surface;
         VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;

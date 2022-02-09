@@ -592,6 +592,5 @@ void Debug::cleanupDebugWindow() {
         vkDestroyDevice(device, vulkanAllocator);
         vkDestroyInstance(instance, vulkanAllocator); 
         SDL_DestroyWindow(debugSdlWindow);
-        SDL_Quit();
     #endif
 }

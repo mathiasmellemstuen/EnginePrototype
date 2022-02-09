@@ -9,7 +9,7 @@ class RenderPass {
     public:
         VkRenderPass renderPass; 
         RenderPass(Renderer& renderer);
-        ~RenderPass();
+        void clean();
         void create();
     private:
         Renderer& renderer;

@@ -15,7 +15,7 @@ class SyncObjects {
         size_t currentFrame = 0;
 
         SyncObjects(Renderer& renderer); 
-        ~SyncObjects(); 
+        void clean(); 
     
     private:
         Renderer& renderer; 
