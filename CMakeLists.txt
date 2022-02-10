@@ -18,7 +18,7 @@ target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdpart
 find_package(Vulkan REQUIRED)
 # find_package(SDL2 REQUIRED)
 
-set(SDL2_LIBRARY_DIR "C:/Users/Mathias/Desktop/sdl2/SDL2-2.0.20/x86_64-w64-mingw32/lib")
+set(SDL2_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.20/x86_64-w64-mingw32/lib")
 
 # target_link_libraries(${PROJECT_NAME} SDL2::SDL2)
 # target_include_directories(${PROJECT_NAME} PRIVATE "/vulkan-sdk/1.2.176.1/x86_64/include")

@@ -1,7 +1,5 @@
 #include "keyboardInput.h"
 #include "../utility/debug.h"
-#include "keyData.h"
-#include <vector>
 #include <string>
 #include <ctype.h>
 
@@ -50,7 +48,7 @@ void KeyboardInput::update(SDL_Event& event) {
         KeyboardInput::keys.push_back({key, true, false, false});
 
     } else if(event.type == SDL_KEYUP) {
-        std::string key = std::string(SDL_GetKeyName(event.key.keysym.sym));
+        std::string key = convertStringToUpper(std::string(SDL_GetKeyName(event.key.keysym.sym)));
 
         for(int i = 0; i < KeyboardInput::keys.size(); i++) {
             if(KeyboardInput::keys[i].key == key) {
