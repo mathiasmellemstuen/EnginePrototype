@@ -407,7 +407,7 @@ void Debug::drawDebugWindow() {
 
 
         for(int i = 0; i < KeyboardInput::keys.size(); i++) {
-            if(KeyboardInput::keys[i].key != '\n') {
+            if(KeyboardInput::keys[i].key != "\n") {
                 pressedKeys += KeyboardInput::keys[i].key;
                 
                 if(i < KeyboardInput::keys.size() - 1) {

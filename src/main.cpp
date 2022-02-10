@@ -1,4 +1,3 @@
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -93,27 +92,27 @@ int main(int argc, char *argv[]) {
     cube.transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     cube.update = [&](float& deltaTime) {
         
-        if(KeyboardInput::keyPressed('w')) {
+        if(KeyboardInput::keyPressed("w")) {
             cube.transform.position.x -= 0.01f * deltaTime; 
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
-        if(KeyboardInput::keyPressed('s')) {
+        if(KeyboardInput::keyPressed("s")) {
             cube.transform.position.x += 0.01f * deltaTime; 
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
-        if(KeyboardInput::keyPressed('a')) {
+        if(KeyboardInput::keyPressed("a")) {
             cube.transform.position.y -= 0.01f * deltaTime; 
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
-        if(KeyboardInput::keyPressed('d')) {
+        if(KeyboardInput::keyPressed("d")) {
             cube.transform.position.y += 0.01f * deltaTime; 
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
-        if(KeyboardInput::keyPressed('q')) {
+        if(KeyboardInput::keyPressed("q")) {
             cube.transform.angle += 0.01f * deltaTime;
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
-        if(KeyboardInput::keyPressed('e')) {
+        if(KeyboardInput::keyPressed("e")) {
             cube.transform.angle -= 0.01f * deltaTime;
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
@@ -125,10 +124,7 @@ int main(int argc, char *argv[]) {
     cubeRender.shader.clean(); 
     cubeRender.texture.clean();
     cubeRender.vertexBuffer.clean();
-    // Debug::log("Before"); 
-    // cubeRender.graphicsPipeline.clean();
-    // Debug::log("Somwethign"); 
-    renderer.cleanupSwapChain(); 
+    renderer.cleanupSwapChain();
     renderer.syncObjects.clean(); 
     renderer.commandPool.clean();
     renderer.logicalDevice.clean(); 

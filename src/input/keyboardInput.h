@@ -13,9 +13,9 @@ class KeyboardInput {
         inline static std::vector<KeyData> keys;
         static void update(SDL_Event& event);
         static void frameUpdate();
-        static bool keyDown(const char& key); 
-        static bool keyUp(const char& key);
-        static bool keyPressed(const char& key);
+        static bool keyDown(const std::string& key);
+        static bool keyUp(const std::string& key);
+        static bool keyPressed(const std::string& key);
 };
 
 #endif
