@@ -582,7 +582,7 @@ void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
         ImGui::End();
     }
 
-    if(closeSelectedObject == true) {
+    if(closeSelectedObject) {
         Debug::selectedObject = nullptr;
     }
 };

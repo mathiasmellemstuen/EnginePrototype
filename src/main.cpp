@@ -109,11 +109,11 @@ int main(int argc, char *argv[]) {
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed("q")) {
-            cube.transform.angle += 0.01f * deltaTime;
+            cube.transform.angle += 0.05f * deltaTime;
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if(KeyboardInput::keyPressed("e")) {
-            cube.transform.angle -= 0.01f * deltaTime;
+            cube.transform.angle -= 0.05f * deltaTime;
             cube.transform.rotationDirection = glm::vec3(0.0f, 0.0f, 1.0f);
         }
     };

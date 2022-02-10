@@ -35,7 +35,7 @@ glm::mat4& Transform::getModel() {
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotationDirection);
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), position);
 
-    model = rotation * translation;
+    model = translation * rotation;
 
     return model;
 };
