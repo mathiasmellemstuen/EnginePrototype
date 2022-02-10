@@ -558,6 +558,8 @@ void Debug::drawDebugWindow() {
 
 void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
 
+    bool closeSelectedObject = false;
+
     if(Debug::selectedObject != nullptr) {
         std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
         ImGui::SetNextWindowSize(size);
@@ -566,8 +568,7 @@ void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
         ImGui::Begin(title.c_str());
 
         if(ImGui::Button("X")) {
-            Debug::selectedObject = nullptr;
-            return;
+            closeSelectedObject = true;
         }
 
         ImGui::Text("Components: ");
@@ -579,6 +580,10 @@ void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
         }
 
         ImGui::End();
+    }
+
+    if(closeSelectedObject == true) {
+        Debug::selectedObject = nullptr;
     }
 };
 void Debug::cleanupDebugWindow() {
