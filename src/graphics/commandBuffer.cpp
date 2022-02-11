@@ -18,6 +18,8 @@
 #include "renderObject.h"
 #include "../core/object.h"
 
+#include "camera.h"
+
 CommandBuffers::CommandBuffers(Renderer& renderer) : renderer(renderer) {
     
     allocateCommandBuffers();
@@ -71,11 +73,9 @@ void CommandBuffers::create(uint32_t currentImage) {
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             
-            // renderer.renderFunction(commandBuffers[i], i, currentImage);
-
             for(Object* object : Object::objects) {
                 if(object->renderObject != nullptr) {
-                    object->renderObject->render(object->transform, commandBuffers[i], i, currentImage);
+                    object->renderObject->render(*Camera::mainCamera, object->transform, commandBuffers[i], i, currentImage);
                 }
             }
         

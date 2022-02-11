@@ -13,7 +13,7 @@
 #include "renderer.h"
 #include "../utility/debug.h"
 
-void UniformBuffer::update(uint32_t currentImage, glm::mat4& model) {
+void UniformBuffer::update(uint32_t currentImage, glm::mat4& view, glm::mat4& projection, glm::mat4& model) {
     
     static auto startTime = std::chrono::high_resolution_clock::now();
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -23,8 +23,10 @@ void UniformBuffer::update(uint32_t currentImage, glm::mat4& model) {
     UniformBufferObject ubo{};
     ubo.model = model; 
     // ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(10.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(45.0f, 1920.0f / 1080.0f, 0.1f,100.0f);
+    //ubo.view = glm::lookAt(glm::vec3(10.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //ubo.proj = glm::perspective(45.0f, 1920.0f / 1080.0f, 0.1f,100.0f);
+    ubo.view = view;
+    ubo.proj = projection;
     ubo.proj[1][1] *= -1;
 
     void* data;

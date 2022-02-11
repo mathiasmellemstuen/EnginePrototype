@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "../core/object.h"
+
 class Renderer;
 
 enum LogLevel {
@@ -31,8 +32,8 @@ class Debug {
         static void log(LogLevel logLevel, std::string message);
 
         static void log(LogLevel logLevel, glm::vec2 vec2);
-        static void log(LogLevel logLevel, glm::vec3 vec3); 
-        static void log(LogLevel logLevel, glm::vec4 vec4); 
+        static void log(LogLevel logLevel, glm::vec3 vec3);
+        static void log(LogLevel logLevel, glm::vec4 vec4);
 
         static void log(LogLevel logLevel, int value);
         static void log(LogLevel logLevel, float value);

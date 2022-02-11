@@ -1,6 +1,6 @@
 #include "eventManager.h"
 #include "../utility/debug.h"
-#include "../input/mouseInput.h"
+#include "../input/mouse.h"
 #include "../input/keyboardInput.h"
 #include "window.h"
 #include <SDL2/SDL.h>
@@ -10,17 +10,18 @@
 
 void EventManager::update(Window& window) {
 
-        KeyboardInput::frameUpdate(); 
+        KeyboardInput::frameUpdate();
+        Mouse::frameUpdate();
 
-        while(SDL_PollEvent(&event)) {
+    while(SDL_PollEvent(&event)) {
 
-            //This line is causing problems where the game screen is black? 
+        //This line is causing problems where the game screen is black?
             if(Debug::updateDebugWindowEvents(event)) {
                 return;
             }
 
-            MouseInput::update(event);
-            KeyboardInput::update(event); 
+            Mouse::update(event);
+            KeyboardInput::update(event);
             
 
             // if(event.type == SDL_QUIT) {

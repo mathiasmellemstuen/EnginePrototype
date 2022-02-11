@@ -1,4 +1,5 @@
 #include "renderObject.h"
+#include "camera.h"
 #include "../utility/debug.h"
 #include <functional>
 #include <iostream>
@@ -8,9 +9,9 @@ RenderObject::RenderObject(Renderer& renderer, Texture& texture, Shader& shader,
 };
 
 void RenderObject::setDefaultRendering() {
-    render = [&](Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage) {
+    render = [&](Camera& camera, Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage) {
 
-        renderer.uniformBuffer.update(currentImage, transform.getModel());
+        renderer.uniformBuffer.update(currentImage, camera.view, camera.projection, transform.getModel());
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);
         VkBuffer vertexBuffers[] = {vertexBuffer.vertexBuffer};
         VkDeviceSize offsets[] = {0};

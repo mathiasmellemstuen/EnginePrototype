@@ -25,7 +25,7 @@ Window::Window() {
 
     int width = (*properties)["windows"]["game"]["resolution"]["width"];
     int height = (*properties)["windows"]["game"]["resolution"]["height"];
-    sdlWindow = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    sdlWindow = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_INPUT_FOCUS);
 
     int xPos = (*properties)["windows"]["game"]["position"]["x"]; 
     int yPos = (*properties)["windows"]["game"]["position"]["y"]; 

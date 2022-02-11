@@ -9,7 +9,7 @@
 #include <imgui/implot_internal.h>
 
 #include "../graphics/renderer.h"
-#include "../input/mouseInput.h"
+#include "../input/mouse.h"
 #include "../input/keyboardInput.h"
 
 #include "properties.h"
@@ -88,8 +88,7 @@ void Debug::log(LogLevel logLevel, std::string message) {
             default:
             break; 
         }
-
-        std::cout << "] " << message << std::endl; 
+        std::cout << "] " << message << std::endl;
     #endif
 };
 
@@ -106,7 +105,7 @@ void Debug::log(LogLevel logLevel, glm::vec4 vec4) {
 };
 
 void Debug::log(std::string message) {
-    Debug::log(INFO, message); 
+    Debug::log(INFO, message);
 };
 
 void Debug::log(glm::vec2 vec2) {
@@ -147,7 +146,8 @@ void Debug::log(double value) {
 
 void Debug::setupDebugWindow() {
     #ifndef NOTDEBUG
-        
+
+
     Debug::log(INFO, "Creating debug window");
 
     std::string title = (*properties)["windows"]["debug"]["title"];
@@ -302,6 +302,8 @@ void Debug::setupDebugWindow() {
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.MouseDrawCursor = false;
+
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForVulkan(debugSdlWindow);
     ImGui_ImplVulkan_InitInfo initInfo = {};
@@ -357,19 +359,9 @@ bool Debug::updateDebugWindowEvents(SDL_Event& event) {
 };
 void Debug::drawDebugWindow() {
     #ifndef NOTDEBUG
-        
-        //TODO: Add this codeblock to another loop so it works
-        // // while (SDL_PollEvent(&event)) {
-        // //     ImGui_ImplSDL2_ProcessEvent(&event);
-        // //     if (event.type == SDL_QUIT) {
-        // //         Debug::cleanupDebugWindow(); 
-        // //         debugWindowRunning = false;
-        // //     }
-        // //     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(debugSdlWindow)) {
-        // //         Debug::cleanupDebugWindow(); 
-        // //         debugWindowRunning = false; 
-        // //     }
-        // }
+
+
+
 
         // Resize swap chain?
         if (swapChainRebuild) {
@@ -391,16 +383,21 @@ void Debug::drawDebugWindow() {
 
         // Drawing the input window
         ImGui::Begin("Input", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        std::string xText = "X: " + std::to_string(MouseInput::mousePosition.x);
-        std::string yText = "Y: " + std::to_string(MouseInput::mousePosition.y);
+        std::string xText = "X: " + std::to_string(Mouse::mousePosition.x);
+        std::string yText = "Y: " + std::to_string(Mouse::mousePosition.y);
         ImGui::Text("Mouse Position:");
         ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
-    
-        std::string leftMouseButtonPressed = "Mouse button (left) pressed: " + std::to_string(MouseInput::mouseLeftIsPressed); 
+        ImGui::Text("Mouse acceleration:");
+        xText = "X: " + std::to_string(Mouse::mouseAcceleration.x);
+        yText = "Y: " + std::to_string(Mouse::mouseAcceleration.y);
+        ImGui::Text(xText.c_str());
+        ImGui::Text(yText.c_str());
+
+    std::string leftMouseButtonPressed = "Mouse button (left) pressed: " + std::to_string(Mouse::mouseLeftIsPressed);
         ImGui::Text(leftMouseButtonPressed.c_str());
 
-        std::string rightMouseButtonPressed = "Mouse button (right) pressed: " + std::to_string(MouseInput::mouseRightIsPressed);
+        std::string rightMouseButtonPressed = "Mouse button (right) pressed: " + std::to_string(Mouse::mouseRightIsPressed);
         ImGui::Text(rightMouseButtonPressed.c_str());
 
         std::string pressedKeys = "Keyboard pressed: "; 

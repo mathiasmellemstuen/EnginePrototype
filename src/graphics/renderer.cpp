@@ -5,7 +5,7 @@
 #include "../utility/debug.h"
 #include "commandPool.h"
 #include <string>
-#include "../input/mouseInput.h"
+#include "../input/mouse.h"
 #include "../input/keyboardInput.h"
 #include "../core/object.h"
 #include <iostream>
@@ -66,8 +66,7 @@ void Renderer::loop() {
             object->update(deltaTime);
         }
 
-        
-        drawFrame(); 
+        drawFrame();
         vkDeviceWaitIdle(logicalDevice.device);
     }
 };
@@ -121,8 +120,9 @@ void Renderer::reCreateSwapChain() {
     frameBuffers.create();
     uniformBuffer.create(); 
     
-    for(Object* object : Object::objects)
+    for(Object* object : Object::objects) {
         object->renderObject->descriptorPool.create();
+    }
 
     currentRenderObject->descriptorPool.create(); 
     commandBuffers.create(0);

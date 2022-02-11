@@ -12,7 +12,7 @@ class UniformBuffer {
     public:
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
-        void update(uint32_t currentImage, glm::mat4& model);
+        void update(uint32_t currentImage, glm::mat4& view, glm::mat4& projection, glm::mat4& model);
         void setPosition(glm::vec3 position);
         void create(); 
         UniformBuffer(Renderer& renderer); 

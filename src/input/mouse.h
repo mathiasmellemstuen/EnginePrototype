@@ -3,9 +3,11 @@
 
 #include <glm/vec2.hpp>
 #include <SDL2/SDL.h>
+#include "../graphics/window.h"
 
-class MouseInput {
+class Mouse {
     public:
+        inline static glm::vec2 mouseAcceleration;
         inline static glm::vec2 mousePosition;
         inline static bool mouseLeftIsPressed;
         inline static bool mouseLeftOnDown; 
@@ -13,7 +15,13 @@ class MouseInput {
         inline static bool mouseRightIsPressed; 
         inline static bool mouseRightOnDown; 
         inline static bool mouseRightOnUp; 
+
         static void update(SDL_Event& event);
+        static void frameUpdate();
+
+        static void enableRelativeMouse();
+        static void disableRelativeMouse();
+        static bool isMouseRelative();
 };
 
 #endif
