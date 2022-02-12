@@ -26,6 +26,12 @@ Object::Object(const std::string& name, RenderObject* renderObject) : name(name)
         ImGui::InputFloat3("Position", arr);
         transform.position = {arr[0], arr[1], arr[2]};
 
+        ImGui::SliderFloat("Angle", &transform.angle, -360, 360);
+
+        float arr2[3] = {transform.rotationDirection.x, transform.rotationDirection.y, transform.rotationDirection.z};
+        ImGui::InputFloat3("Rotation direction", arr2);
+        transform.rotationDirection = {arr2[0], arr2[1], arr2[2]};
+
         ImGui::Text("Components: ");
 
         for(Component* component : components) {
