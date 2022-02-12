@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
     Texture goldTexture(renderer, "textures/gold.png");
     VertexBuffer buffer(renderer, cubeModel.vertices, cubeModel.indices);
     RenderObject cubeRender(renderer, goldTexture, shader, buffer);
+
     Object cube("Cube", &cubeRender);
     cube.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);
 

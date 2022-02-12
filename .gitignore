@@ -1,4 +1,4 @@
-
+cmake-build-debug/
 .vscode/settings.json
 .VSCodeCounter
 engine
@@ -10,3 +10,4 @@ build/
 *.dll
 .DS_Store
 include/
+.idea/
