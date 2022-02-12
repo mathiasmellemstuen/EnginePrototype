@@ -75,7 +75,6 @@ void Camera::updateMatrices() {
         if(freeLookOrientation.y < -89.0f) {
             freeLookOrientation.y = -89.0f;
         }
-
         float yaw = freeLookOrientation.y;
         float pitch = -freeLookOrientation.x;
         glm::vec3 direction;

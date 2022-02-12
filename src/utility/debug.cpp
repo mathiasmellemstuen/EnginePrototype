@@ -360,9 +360,6 @@ bool Debug::updateDebugWindowEvents(SDL_Event& event) {
 void Debug::drawDebugWindow() {
     #ifndef NOTDEBUG
 
-
-
-
         // Resize swap chain?
         if (swapChainRebuild) {
 
@@ -558,23 +555,14 @@ void Debug::drawSelectedObject(ImVec2 pos, ImVec2 size) {
     bool closeSelectedObject = false;
 
     if(Debug::selectedObject != nullptr) {
-        std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
         ImGui::SetNextWindowSize(size);
         ImGui::SetNextWindowPos(pos);
-
-        ImGui::Begin(title.c_str());
+        ImGui::Begin("Object");
 
         if(ImGui::Button("X")) {
             closeSelectedObject = true;
         }
-
-        ImGui::Text("Components: ");
-
-        for(Component* component : Debug::selectedObject->components) {
-
-            ImGui::Text(std::string(component->name + " #" + std::to_string(component->id)).c_str());
-            component->debug();
-        }
+        Debug::selectedObject->debug();
 
         ImGui::End();
     }

@@ -12,5 +12,6 @@ Component::Component() {
     name = "Component";
 
     debug = [&](){
+        ImGui::Text(std::string(name + " #" + std::to_string(id)).c_str());
     };
 };

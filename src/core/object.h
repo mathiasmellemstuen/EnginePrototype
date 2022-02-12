@@ -20,7 +20,8 @@ class Object {
         Transform transform;
         RenderObject* renderObject;
         std::function<void(float& deltaTime)> update;
-        std::vector<Component*> components; 
+        std::function<void()> debug;
+        std::vector<Component*> components;
         Object(const std::string& name, RenderObject* renderObject);
         virtual void addComponent(Component* component);
 };

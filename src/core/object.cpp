@@ -3,8 +3,9 @@
 #include <string>
 #include <functional>
 #include "../utility/debug.h"
+#include <imgui/imgui.h>
 
-int Object::NEXT_ID = 0; 
+int Object::NEXT_ID = 0;
 std::vector<Object*> Object::objects;
 
 Object::Object(const std::string& name, RenderObject* renderObject) : name(name), renderObject(renderObject) {
@@ -14,7 +15,24 @@ Object::Object(const std::string& name, RenderObject* renderObject) : name(name)
 
     objects.push_back(this);
 
-    update =  [&](float& deltaTime){};
+    update = [&](float& deltaTime){
+
+    };
+
+    debug = [&](){
+        std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
+
+        float  arr[3] = {transform.position.x, transform.position.y, transform.position.z};
+        ImGui::InputFloat3("Position", arr);
+        transform.position = {arr[0], arr[1], arr[2]};
+
+        ImGui::Text("Components: ");
+
+        for(Component* component : components) {
+
+            component->debug();
+        }
+    };
 };
 
 void Object::addComponent(Component* component) {
