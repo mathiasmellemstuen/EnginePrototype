@@ -121,10 +121,10 @@ void Renderer::reCreateSwapChain() {
     uniformBuffer.create(); 
     
     for(Object* object : Object::objects) {
-        object->renderObject->descriptorPool.create();
+        object->descriptorPool.create();
     }
 
-    currentRenderObject->descriptorPool.create(); 
+    //currentRenderObject->descriptorPool.create();
     commandBuffers.create(0);
     commandBuffers.allocateCommandBuffers();
 

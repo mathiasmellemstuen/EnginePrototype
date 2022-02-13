@@ -75,7 +75,7 @@ void CommandBuffers::create(uint32_t currentImage) {
             
             for(Object* object : Object::objects) {
                 if(object->renderObject != nullptr) {
-                    object->renderObject->render(*Camera::mainCamera, object->transform, commandBuffers[i], i, currentImage);
+                    object->renderObject->render(*Camera::mainCamera, object->transform, object->descriptorPool, commandBuffers[i], i, currentImage);
                 }
             }
         

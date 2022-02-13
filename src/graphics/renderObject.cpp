@@ -4,12 +4,12 @@
 #include <functional>
 #include <iostream>
 
-RenderObject::RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer) : renderer(renderer), texture(texture), shader(shader), vertexBuffer(vertexBuffer), descriptorSetLayout(*this), descriptorPool(*this), graphicsPipeline(*this) {
+RenderObject::RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer) : renderer(renderer), texture(texture), shader(shader), vertexBuffer(vertexBuffer), descriptorSetLayout(*this), graphicsPipeline(*this) {
     setDefaultRendering();
 };
 
 void RenderObject::setDefaultRendering() {
-    render = [&](Camera& camera, Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage) {
+    render = [&](Camera& camera, Transform& transform, DescriptorPool& descriptorPool, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage) {
 
         renderer.uniformBuffer.update(currentImage, camera.view, camera.projection, transform.getModel());
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.graphicsPipeline);

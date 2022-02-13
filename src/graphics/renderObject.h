@@ -26,9 +26,8 @@ class RenderObject {
         Shader& shader;
         VertexBuffer& vertexBuffer;
         DescriptorSetLayout descriptorSetLayout;
-        DescriptorPool descriptorPool;
         GraphicsPipeline graphicsPipeline;
-        std::function<void(Camera& camera, Transform& transform, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> render;
+        std::function<void(Camera& camera, Transform& transform, DescriptorPool& descriptorPool, VkCommandBuffer& commandBuffer, int currentCommandBuffer, uint32_t currentImage)> render;
 
         RenderObject(Renderer& renderer, Texture& texture, Shader& shader, VertexBuffer& vertexBuffer);
         

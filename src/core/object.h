@@ -9,6 +9,7 @@
 #include <functional>
 #include <vector>
 #include "component.h"
+#include "../graphics/descriptorPool.h"
 
 class Object {
     public:
@@ -19,6 +20,7 @@ class Object {
         std::string name;
         Transform transform;
         RenderObject* renderObject;
+        DescriptorPool descriptorPool;
         std::function<void(float& deltaTime)> update;
         std::function<void()> debug;
         std::vector<Component*> components;

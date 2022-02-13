@@ -19,7 +19,7 @@ void UniformBuffer::update(uint32_t currentImage, glm::mat4& view, glm::mat4& pr
     ubo.model = model; 
     ubo.view = view;
     ubo.proj = projection;
-    ubo.proj[1][1] *= -1;
+    //ubo.proj[1][1] *= -1;
 
     void* data;
     vkMapMemory(renderer.logicalDevice.device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);

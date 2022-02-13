@@ -4,14 +4,16 @@
 #include <functional>
 #include "../utility/debug.h"
 #include <imgui/imgui.h>
+#include "../graphics/descriptorPool.h"
 
 int Object::NEXT_ID = 0;
 std::vector<Object*> Object::objects;
 
-Object::Object(const std::string& name, RenderObject* renderObject) : name(name), renderObject(renderObject) {
+Object::Object(const std::string& name, RenderObject* renderObject) : name(name), renderObject(renderObject), descriptorPool(*renderObject){
 
     id = NEXT_ID;
     NEXT_ID += 1;
+
 
     objects.push_back(this);
 
