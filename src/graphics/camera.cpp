@@ -61,10 +61,10 @@ void Camera::updateMatrices() {
             this->position += this->freeFlightSpeed * deltaTime * left();
         }
         if(KeyboardInput::keyPressed("space")) {
-            this->position -= this->freeFlightSpeed * deltaTime * up;
+            this->position += this->freeFlightSpeed * deltaTime * up;
         }
         if(KeyboardInput::keyPressed("left ctrl")) {
-            this->position += this->freeFlightSpeed * deltaTime * up;
+            this->position -= this->freeFlightSpeed * deltaTime * up;
         }
         freeLookOrientation.x += Mouse::mouseAcceleration.x * deltaTime * freeFlightSensitivity;
         freeLookOrientation.y += Mouse::mouseAcceleration.y * deltaTime * freeFlightSensitivity;
@@ -75,8 +75,7 @@ void Camera::updateMatrices() {
         if(freeLookOrientation.y < -89.0f) {
             freeLookOrientation.y = -89.0f;
         }
-
-        float yaw = freeLookOrientation.y;
+        float yaw = -freeLookOrientation.y;
         float pitch = -freeLookOrientation.x;
         glm::vec3 direction;
 
@@ -88,6 +87,21 @@ void Camera::updateMatrices() {
         updateMatrices();
     };
 
+    debug = [&]() {
+        std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
+
+        float  arr[3] = {this->position.x, this->position.y, this->position.z};
+        ImGui::InputFloat3("Position", arr);
+        this->position = {arr[0], arr[1], arr[2]};
+        updateMatrices();
+
+        ImGui::Text("Components: ");
+
+        for(Component* component : components) {
+
+            component->debug();
+        }
+    };
 }
 
 glm::vec3 Camera::left() const {

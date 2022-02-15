@@ -34,8 +34,6 @@ depthResources(*this),
 
 frameBuffers(*this),
 
-uniformBuffer(*this),
-
 commandBuffers(*this),
 
 syncObjects(*this)
@@ -118,13 +116,12 @@ void Renderer::reCreateSwapChain() {
     colorResources.create(); 
     depthResources.create(); 
     frameBuffers.create();
-    uniformBuffer.create(); 
-    
+
     for(Object* object : Object::objects) {
-        object->renderObject->descriptorPool.create();
+        object->renderInstance.descriptorPool.create();
     }
 
-    currentRenderObject->descriptorPool.create(); 
+    //currentRenderObject->descriptorPool.create();
     commandBuffers.create(0);
     commandBuffers.allocateCommandBuffers();
 

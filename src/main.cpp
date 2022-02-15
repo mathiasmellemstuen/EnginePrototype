@@ -61,12 +61,15 @@ int main(int argc, char *argv[]) {
     Texture goldTexture(renderer, "textures/gold.png");
     VertexBuffer buffer(renderer, cubeModel.vertices, cubeModel.indices);
     RenderObject cubeRender(renderer, goldTexture, shader, buffer);
+    RenderObject cube2Render(renderer, goldTexture, shader, buffer);
+
     Object cube("Cube", &cubeRender);
-    cube.transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    cube.renderInstance.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);
 
     // Creating another identical cube and moving it to another position
-    Object cube2("Cube2", &cubeRender);
-    cube2.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
+    Object cube2("Cube2", &cube2Render);
+    cube2.renderInstance.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
+
 
     // Rapidxml paring testing
     {
@@ -80,7 +83,7 @@ int main(int argc, char *argv[]) {
 
     renderer.loop();
 
-    cubeRender.descriptorPool.clean(); 
+    //cubeRender.descriptorPool.clean();
     cubeRender.descriptorSetLayout.clean(); 
     cubeRender.shader.clean(); 
     cubeRender.texture.clean();

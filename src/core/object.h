@@ -9,6 +9,7 @@
 #include <functional>
 #include <vector>
 #include "component.h"
+#include "../graphics/renderInstance.h"
 
 class Object {
     public:
@@ -17,10 +18,11 @@ class Object {
 
         int id;
         std::string name;
-        Transform transform;
         RenderObject* renderObject;
+        RenderInstance renderInstance;
         std::function<void(float& deltaTime)> update;
-        std::vector<Component*> components; 
+        std::function<void()> debug;
+        std::vector<Component*> components;
         Object(const std::string& name, RenderObject* renderObject);
         virtual void addComponent(Component* component);
 };

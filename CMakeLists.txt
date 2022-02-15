@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(ENGINEPROTOTYPE)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
 add_definitions(-DSDL_MAIN_HANDLED)
 
 file(GLOB_RECURSE SRC "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOURCE_DIR}/src/*.cpp")
@@ -10,7 +10,7 @@ file(GLOB_RECURSE IMGUI "${CMAKE_SOURCE_DIR}/thirdparty/imgui/*.h" "${CMAKE_SOUR
 # file(GLOB_RECURSE IMPLOT "${CMAKE_SOURCE_DIR}/thirdparty/implot/*.h" "${CMAKE_SOURCE_DIR}/thirdparty/implot/*.cpp")
 file(GLOB_RECURSE CPPDATAPARSER "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*.h" "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*cpp")
 
-add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h)
+add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h src/graphics/renderInstance.h src/graphics/renderInstance.cpp)
 
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include")
