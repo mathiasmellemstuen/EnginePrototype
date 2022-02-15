@@ -34,6 +34,9 @@
 #include "core/transform.h"
 #include "graphics/camera.h"
 
+#include "rapidxml/rapidxml.hpp"
+
+
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
@@ -64,6 +67,12 @@ int main(int argc, char *argv[]) {
     // Creating another identical cube and moving it to another position
     Object cube2("Cube2", &cubeRender);
     cube2.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
+
+    // Rapidxml paring testing
+    {
+        Model testModel("Cube", Model::DAE);
+    }
+    // end
 
     Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
 
