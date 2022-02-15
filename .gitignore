@@ -11,3 +11,4 @@ build/
 .DS_Store
 include/
 .idea/
+/cmake-build-debug
