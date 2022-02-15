@@ -90,9 +90,32 @@ void Camera::updateMatrices() {
     debug = [&]() {
         std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
 
+
+        // Position
         float  arr[3] = {this->position.x, this->position.y, this->position.z};
         ImGui::InputFloat3("Position", arr);
         this->position = {arr[0], arr[1], arr[2]};
+
+        // Up
+        arr[0] = this->up.x;
+        arr[1] = this->up.y;
+        arr[2] = this->up.z;
+        ImGui::InputFloat3("Up", arr);
+        this->up = {arr[0], arr[1], arr[2]};
+
+        // Front
+        arr[0] = this->front.x;
+        arr[1] = this->front.y;
+        arr[2] = this->front.z;
+        ImGui::InputFloat3("Front", arr);
+        this->front = {arr[0], arr[1], arr[2]};
+
+        // Freelook rotation
+        arr[0] = this->freeLookOrientation.x;
+        arr[1] = this->freeLookOrientation.y;
+        ImGui::InputFloat2("Rotation (euler)", arr);
+        this->freeLookOrientation = {arr[0], arr[1]};
+
         updateMatrices();
 
         ImGui::Text("Components: ");
