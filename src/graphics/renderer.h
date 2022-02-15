@@ -14,7 +14,6 @@
 #include "frameBuffers.h"
 #include "commandPool.h"
 #include "vertexBuffer.h"
-#include "uniformBuffer.h"
 #include "descriptorPool.h"
 #include "commandBuffer.h"
 #include "syncObjects.h"
@@ -41,7 +40,6 @@ class Renderer {
         ColorResources colorResources;
         DepthResources depthResources;
         FrameBuffers frameBuffers;
-        UniformBuffer uniformBuffer; 
         CommandBuffers commandBuffers;
         SyncObjects syncObjects;
         RenderObject* currentRenderObject; 

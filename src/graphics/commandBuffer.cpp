@@ -17,6 +17,7 @@
 #include "vulkan/vulkan_core.h"
 #include "renderObject.h"
 #include "../core/object.h"
+#include "renderInstance.h"
 
 #include "camera.h"
 
@@ -75,7 +76,7 @@ void CommandBuffers::create(uint32_t currentImage) {
             
             for(Object* object : Object::objects) {
                 if(object->renderObject != nullptr) {
-                    object->renderObject->render(*Camera::mainCamera, object->transform, object->descriptorPool, commandBuffers[i], i, currentImage);
+                    object->renderObject->render(*Camera::mainCamera, object->renderInstance, commandBuffers[i], i, currentImage);
                 }
             }
         

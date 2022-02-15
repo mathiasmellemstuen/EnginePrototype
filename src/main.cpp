@@ -61,14 +61,14 @@ int main(int argc, char *argv[]) {
     RenderObject cube2Render(renderer, goldTexture, shader, buffer);
 
     Object cube("Cube", &cubeRender);
-    cube.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);
+    cube.renderInstance.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);
 
     // Creating another identical cube and moving it to another position
     Object cube2("Cube2", &cube2Render);
-    cube2.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
+    cube2.renderInstance.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
 
 
-    Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 90.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
+    Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
 
     Mouse::enableRelativeMouse();
 
