@@ -87,6 +87,21 @@ void Camera::updateMatrices() {
         updateMatrices();
     };
 
+    debug = [&]() {
+        std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
+
+        float  arr[3] = {this->position.x, this->position.y, this->position.z};
+        ImGui::InputFloat3("Position", arr);
+        this->position = {arr[0], arr[1], arr[2]};
+        updateMatrices();
+
+        ImGui::Text("Components: ");
+
+        for(Component* component : components) {
+
+            component->debug();
+        }
+    };
 }
 
 glm::vec3 Camera::left() const {
