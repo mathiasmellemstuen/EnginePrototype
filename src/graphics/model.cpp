@@ -10,6 +10,7 @@
 #include <glm/gtx/hash.hpp>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 namespace std {
     template<> struct hash<Vertex> {

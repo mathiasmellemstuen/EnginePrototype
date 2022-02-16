@@ -9,7 +9,7 @@
 
 void Camera::updateMatrices() {
     view = glm::lookAt(position, position + front, up);
-    projection = glm::perspective(fov, aspectRatio, near, far);
+    projection = glm::perspective(glm::radians(fov), aspectRatio, near, far);
     projection[1][1] *= -1;
 }
 
@@ -31,6 +31,7 @@ void Camera::updateMatrices() {
     this->freeFlightSensitivity = 30.0f;
 
     this->mode = FREELOOK;
+
     updateMatrices();
 
     update = [&](float& deltaTime) {
@@ -73,15 +74,22 @@ void Camera::updateMatrices() {
         if(freeLookOrientation.y > 89.0f) {
             freeLookOrientation.y = 89.0f;
         }
+
         if(freeLookOrientation.y < -89.0f) {
             freeLookOrientation.y = -89.0f;
         }
+
+
+        // Keeping the angle between 360 and -360 degrees
+        if(freeLookOrientation.x > 360 || freeLookOrientation.x < -360)
+            freeLookOrientation.x = (int)freeLookOrientation.x % 360;
+
         float yaw = glm::radians(-freeLookOrientation.y);
         float pitch = glm::radians(-freeLookOrientation.x);
 
         front.x = glm::cos(yaw) * glm::cos(pitch);
         front.y = glm::sin(pitch);
-        front.z = glm::sin(yaw) * glm::cos(pitch);
+        front.z = glm::sin(yaw);
         front = glm::normalize(front);
 
         updateMatrices();
@@ -89,7 +97,6 @@ void Camera::updateMatrices() {
 
     debug = [&]() {
         std::string title = std::string(Debug::selectedObject->name + " #" + std::to_string(Debug::selectedObject->id)).c_str();
-
 
         // Position
         float  arr[3] = {this->position.x, this->position.y, this->position.z};

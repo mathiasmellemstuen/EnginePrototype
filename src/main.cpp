@@ -72,6 +72,18 @@ int main(int argc, char *argv[]) {
     cube2.renderInstance.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
 
 
+    // Creating another identical cube and moving it to another position
+    Object cube3("Cube3", &cube2Render);
+    cube3.renderInstance.transform.position = glm::vec3(0.0f, -5.0f, 0.0f);
+
+    // Creating another identical cube and moving it to another position
+    Object cube4("Cube4", &cube2Render);
+    cube4.renderInstance.transform.position = glm::vec3(-5.0f, -5.0f, 0.0f);
+
+    // Creating another identical cube and moving it to another position
+    Object cube5("Cube5", &cube2Render);
+    cube5.renderInstance.transform.position = glm::vec3(-5.0f, 5.0f, 0.0f);
+
     // Rapidxml paring testing
     {
         Model testModel("Cube", Model::DAE);
