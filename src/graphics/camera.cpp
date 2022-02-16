@@ -5,6 +5,7 @@
 #include "../core/object.h"
 #include "../input/keyboardInput.h"
 #include "../input/mouse.h"
+#include "../mathematics/lerp.h"
 
 void Camera::updateMatrices() {
     view = glm::lookAt(position, position + front, up);
@@ -26,8 +27,8 @@ void Camera::updateMatrices() {
     this->fov = fov;
     this->aspectRatio = aspectRatio;
 
-    this->freeFlightSpeed = 0.02f;
-    this->freeFlightSensitivity = 0.05f;
+    this->freeFlightSpeed = 10.0f;
+    this->freeFlightSensitivity = 30.0f;
 
     this->mode = FREELOOK;
     updateMatrices();
@@ -75,14 +76,13 @@ void Camera::updateMatrices() {
         if(freeLookOrientation.y < -89.0f) {
             freeLookOrientation.y = -89.0f;
         }
-        float yaw = -freeLookOrientation.y;
-        float pitch = -freeLookOrientation.x;
-        glm::vec3 direction;
+        float yaw = glm::radians(-freeLookOrientation.y);
+        float pitch = glm::radians(-freeLookOrientation.x);
 
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front = glm::normalize(direction);
+        front.x = glm::cos(yaw) * glm::cos(pitch);
+        front.y = glm::sin(pitch);
+        front.z = glm::sin(yaw) * glm::cos(pitch);
+        front = glm::normalize(front);
 
         updateMatrices();
     };
@@ -115,6 +115,9 @@ void Camera::updateMatrices() {
         arr[1] = this->freeLookOrientation.y;
         ImGui::InputFloat2("Rotation (euler)", arr);
         this->freeLookOrientation = {arr[0], arr[1]};
+
+        ImGui::InputFloat("Flight speed (units/second)", &freeFlightSpeed);
+        ImGui::InputFloat("Free flight mouse sensitivity (degrees/second)", &freeFlightSensitivity);
 
         updateMatrices();
 

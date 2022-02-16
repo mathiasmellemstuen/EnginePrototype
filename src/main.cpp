@@ -55,10 +55,11 @@ int main(int argc, char *argv[]) {
     // Loading all the assets for a cube and creating the cube object
     Model cubeModel("models/cube.obj");
     Shader shader(renderer, "shaders/vert.spv", "shaders/frag.spv");
+    Shader colorShader(renderer, "shaders/colorShader.vert.spv", "shaders/colorShader.frag.spv");
     Texture goldTexture(renderer, "textures/gold.png");
     VertexBuffer buffer(renderer, cubeModel.vertices, cubeModel.indices);
     RenderObject cubeRender(renderer, goldTexture, shader, buffer);
-    RenderObject cube2Render(renderer, goldTexture, shader, buffer);
+    RenderObject cube2Render(renderer, goldTexture, colorShader, buffer);
 
     Object cube("Cube", &cubeRender);
     cube.renderInstance.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);

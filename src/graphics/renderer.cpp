@@ -52,7 +52,7 @@ void Renderer::loop() {
         // Calculating delta time
         last = now; 
         now = SDL_GetPerformanceCounter(); 
-        float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency());
+        float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency()) / 1000.0f;
 
         // For debug window
         Debug::calculateFps(); 

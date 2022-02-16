@@ -38,6 +38,8 @@ public:
     float freeFlightSpeed;
     float freeFlightSensitivity;
 
+    float time;
+
     CameraMode mode;
 
     void updateMatrices();

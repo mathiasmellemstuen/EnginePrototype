@@ -1,6 +1,5 @@
 #include "graphicsPipeline.h"
 #include "../utility/debug.h"
-#include "shader.h"
 #include "vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -128,7 +127,7 @@ void GraphicsPipeline::create() {
         Debug::log(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
-    
+
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencil.depthTestEnable = VK_TRUE;
