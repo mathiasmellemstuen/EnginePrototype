@@ -35,9 +35,10 @@ public:
     float fov;
     float aspectRatio;
 
-    float currentFlightSpeed;
     float freeFlightSpeed;
     float freeFlightSensitivity;
+
+    glm::vec3 currentFlightSpeedTime;
 
     float time;
 

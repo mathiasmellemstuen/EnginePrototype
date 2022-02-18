@@ -51,6 +51,10 @@ void Camera::updateMatrices() {
             return;
 
         if(KeyboardInput::keyPressed("w")) {
+
+            currentFlightSpeedTime.y = currentFlightSpeedTime.y > 1 ? 1 : currentFlightSpeedTime.y += deltaTime;
+            float speed = easeInOutQuadratic(0, this->freeFlightSpeed, currentFlightSpeedTime.y)
+
             currentFlightSpeed = lerp(this->currentFlightSpeed, this->freeFlightSpeed, deltaTime);
             this->position += this->currentFlightSpeed * deltaTime * front;
         } else {

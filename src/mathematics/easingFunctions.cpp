@@ -10,23 +10,23 @@ float easeInSine(const float &startingValue, const float &targetValue, const flo
 }
 
 float easeOutSine(const float &startingValue, const float &targetValue, const float &time) {
-    return 0;
+    return startingValue + targetValue * (sin((time * M_PI) / 2.0f));
 }
 
 float easeInOutSine(const float &startingValue, const float &targetValue, const float &time) {
-    return 0;
+    return startingValue + targetValue * -((cos(M_PI * 2) - 1) / 2);
 }
 
 float easeInQuadratic(const float &startingValue, const float &targetValue, const float &time) {
-    return 0;
+    return startingValue + targetValue * (time * time);
 }
 
 float easeOutQuadratic(const float &startingValue, const float &targetValue, const float &time) {
-    return 0;
+    return startingValue + targetValue * (1 - (1 - time) * (1 - time));
 }
 
 float easeInOutQuadratic(const float &startingValue, const float &targetValue, const float &time) {
-    return 0;
+    return startingValue + targetValue * (time < 0.5 ? 2 * time * time : 1 - pow(-2 * time + 2, 2) / 2);
 }
 
 float easeInCubic(const float &startingValue, const float &targetValue, const float &time) {
