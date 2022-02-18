@@ -38,6 +38,8 @@ public:
     float freeFlightSpeed;
     float freeFlightSensitivity;
 
+    glm::vec3 currentFlightSpeedTime;
+
     float time;
 
     CameraMode mode;

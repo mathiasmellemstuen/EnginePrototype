@@ -5,7 +5,7 @@
 #include "../core/object.h"
 #include "../input/keyboardInput.h"
 #include "../input/mouse.h"
-#include "../mathematics/lerp.h"
+#include "../mathematics/easingFunctions.h"
 
 void Camera::updateMatrices() {
     view = glm::lookAt(position, position + front, up);
@@ -51,22 +51,31 @@ void Camera::updateMatrices() {
             return;
 
         if(KeyboardInput::keyPressed("w")) {
-            this->position += this->freeFlightSpeed * deltaTime * front;
+
+            currentFlightSpeedTime.y = currentFlightSpeedTime.y > 1 ? 1 : currentFlightSpeedTime.y += deltaTime;
+            float speed = easeInOutQuadratic(0, this->freeFlightSpeed, currentFlightSpeedTime.y)
+
+            currentFlightSpeed = lerp(this->currentFlightSpeed, this->freeFlightSpeed, deltaTime);
+            this->position += this->currentFlightSpeed * deltaTime * front;
+        } else {
+            currentFlightSpeed = lerp(this->currentFlightSpeed, 0, deltaTime);
+            this->position += this->currentFlightSpeed * deltaTime * front;
         }
+
         if(KeyboardInput::keyPressed("s")) {
-            this->position -= this->freeFlightSpeed * deltaTime * front;
+            this->position -= this->currentFlightSpeed * deltaTime * front;
         }
         if(KeyboardInput::keyPressed("a")) {
-            this->position -= this->freeFlightSpeed * deltaTime * left();
+            this->position -= this->currentFlightSpeed * deltaTime * left();
         }
         if(KeyboardInput::keyPressed("d")) {
-            this->position += this->freeFlightSpeed * deltaTime * left();
+            this->position += this->currentFlightSpeed * deltaTime * left();
         }
         if(KeyboardInput::keyPressed("space")) {
-            this->position += this->freeFlightSpeed * deltaTime * up;
+            this->position += this->currentFlightSpeed * deltaTime * up;
         }
         if(KeyboardInput::keyPressed("left ctrl")) {
-            this->position -= this->freeFlightSpeed * deltaTime * up;
+            this->position -= this->currentFlightSpeed * deltaTime * up;
         }
         freeLookOrientation.x += Mouse::mouseAcceleration.x * deltaTime * freeFlightSensitivity;
         freeLookOrientation.y += Mouse::mouseAcceleration.y * deltaTime * freeFlightSensitivity;
@@ -78,7 +87,6 @@ void Camera::updateMatrices() {
         if(freeLookOrientation.y < -89.0f) {
             freeLookOrientation.y = -89.0f;
         }
-
 
         // Keeping the angle between 360 and -360 degrees
         if(freeLookOrientation.x > 360 || freeLookOrientation.x < -360)
