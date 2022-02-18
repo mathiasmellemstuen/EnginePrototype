@@ -6,7 +6,7 @@ float lerp(const float &startingValue, const float &targetValue, const float &ti
 }
 
 float easeInSine(const float &startingValue, const float &targetValue, const float &time) {
-    return 1 - cos((time * M_PI) / 2);
+    return startingValue + targetValue * (1.0f - cos((time * M_PI) / 2.0f));
 }
 
 float easeOutSine(const float &startingValue, const float &targetValue, const float &time) {
