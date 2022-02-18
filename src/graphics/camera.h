@@ -35,6 +35,7 @@ public:
     float fov;
     float aspectRatio;
 
+    float currentFlightSpeed;
     float freeFlightSpeed;
     float freeFlightSensitivity;
 
