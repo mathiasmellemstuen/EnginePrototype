@@ -162,20 +162,35 @@ void Model::loadDAE(const std::string &modelPath) {
         face.v = glm::vec3(std::stoi(pStr[i]), std::stoi(pStr[3+i]), std::stoi(pStr[6+i]));
         face.n = glm::vec3(std::stoi(pStr[i+1]), std::stoi(pStr[3+i+1]), std::stoi(pStr[6+i+1]));
         face.t = glm::vec3(std::stoi(pStr[i+2]), std::stoi(pStr[3+i+2]), std::stoi(pStr[6+i+2]));
+        faces.push_back(face);
+
         // face.print();
     }
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
     // Parse all faces to vertex
     for (const auto& face : faces) {
         Vertex vertex{};
 
         vertex.pos = {
-
+            face.v.x, face.v.y, face.v.z
         };
 
         vertex.texCoord = {
-
+            face.t.x, face.t.y
         };
+
+        vertex.color = {
+                face.n.x, face.n.y, face.n.z
+        };
+
+        if (uniqueVertices[vertex] == 0) {
+            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+            vertices.push_back(vertex);
+        }
+
+        indices.push_back(uniqueVertices[vertex]);
     }
 
 }
