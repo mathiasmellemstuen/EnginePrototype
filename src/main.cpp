@@ -85,9 +85,10 @@ int main(int argc, char *argv[]) {
     cube5.renderInstance.transform.position = glm::vec3(-5.0f, 5.0f, 0.0f);
 
     // Rapidxml paring testing
-    {
-        Model testModel("Cube", Model::DAE);
-    }
+    Model testModel("plane", Model::DAE);
+    VertexBuffer buffer2(renderer, testModel.vertices, testModel.indices);
+    RenderObject testRender(renderer, goldTexture, shader, buffer2);
+    Object tModel("Test Model", &testRender);
     // end
 
     Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
