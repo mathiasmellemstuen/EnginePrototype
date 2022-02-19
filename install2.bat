@@ -1,9 +1,9 @@
 @echo off
 
-:: call :subModDown
-:: call :install_SDL
-:: call :setup_imgui
-:: call :setup_dataParser
+call :subModDown
+call :install_SDL
+call :setup_imgui
+call :setup_dataParser
 call :setup_dir
 call :copy
 
@@ -35,7 +35,7 @@ EXIT /B
     
     :: Return to root
     cd ../../../../
-    :: echo %CD%
+    echo %CD%
     echo .
 EXIT /B
 
@@ -54,7 +54,8 @@ EXIT /B
     Rmdir /S /q misc
     
     :: Return to root
-    cd ..
+    cd ../..
+    echo %CD%
     echo .
 EXIT /B
 
