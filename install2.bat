@@ -1,9 +1,9 @@
 @echo off
 
-call :subModDown
-call :install_SDL
-call :setup_imgui
-call :setup_dataParser
+:: call :subModDown
+:: call :install_SDL
+:: call :setup_imgui
+:: call :setup_dataParser
 call :setup_dir
 call :copy
 
@@ -120,6 +120,7 @@ EXIT /B
     call :copy_glm
     call :copy_tinyobjloader
     call :copy_implot
+    call :copy_rapidxml
 EXIT /B
 
 :copy_SDL
@@ -173,5 +174,11 @@ EXIT /B
     xcopy "*.h" "../../include/imgui/" /sy
     xcopy "*.h" "../imgui/" /sy
     xcopy "*.cpp" "../imgui/" /sy
+    cd ..
+EXIT /B
+
+:copy_rapidxml
+    cd rapidxml
+    xcopy "*.hpp" "../../include/rapidxml/" /sya
     cd ..
 EXIT /B
