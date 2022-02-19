@@ -51,31 +51,22 @@ void Camera::updateMatrices() {
             return;
 
         if(KeyboardInput::keyPressed("w")) {
-
-            currentFlightSpeedTime.y = currentFlightSpeedTime.y > 1 ? 1 : currentFlightSpeedTime.y += deltaTime;
-            float speed = easeInOutQuadratic(0, this->freeFlightSpeed, currentFlightSpeedTime.y)
-
-            currentFlightSpeed = lerp(this->currentFlightSpeed, this->freeFlightSpeed, deltaTime);
-            this->position += this->currentFlightSpeed * deltaTime * front;
-        } else {
-            currentFlightSpeed = lerp(this->currentFlightSpeed, 0, deltaTime);
-            this->position += this->currentFlightSpeed * deltaTime * front;
+            this->position += this->freeFlightSpeed * deltaTime * front;
         }
-
         if(KeyboardInput::keyPressed("s")) {
-            this->position -= this->currentFlightSpeed * deltaTime * front;
+            this->position -= this->freeFlightSpeed * deltaTime * front;
         }
         if(KeyboardInput::keyPressed("a")) {
-            this->position -= this->currentFlightSpeed * deltaTime * left();
+            this->position -= this->freeFlightSpeed * deltaTime * left();
         }
         if(KeyboardInput::keyPressed("d")) {
-            this->position += this->currentFlightSpeed * deltaTime * left();
+            this->position += this->freeFlightSpeed * deltaTime * left();
         }
         if(KeyboardInput::keyPressed("space")) {
-            this->position += this->currentFlightSpeed * deltaTime * up;
+            this->position += this->freeFlightSpeed * deltaTime * up;
         }
         if(KeyboardInput::keyPressed("left ctrl")) {
-            this->position -= this->currentFlightSpeed * deltaTime * up;
+            this->position -= this->freeFlightSpeed * deltaTime * up;
         }
         freeLookOrientation.x += Mouse::mouseAcceleration.x * deltaTime * freeFlightSensitivity;
         freeLookOrientation.y += Mouse::mouseAcceleration.y * deltaTime * freeFlightSensitivity;
