@@ -16,9 +16,9 @@ class Model {
         Model(const std::string& modelName, FileType fileType);
 
     private:
-        void loadDAE(const std::string& modelPath);
+        void loadDAE(const std::string& modelPath, const std::string& kake);
         void loadOBJ(const std::string& modelPath);
-
+        inline static std::vector<std::string> splitString(const std::string &s);
 };
 
 #endif

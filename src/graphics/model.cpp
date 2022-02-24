@@ -5,7 +5,7 @@
 #include <rapidxml/rapidxml_utils.hpp>
 #include <stdexcept>
 #include <unordered_map>
-#include "face.h"
+#include "Face.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -28,11 +28,11 @@ Model::Model(const std::string& modelPath) {
 Model::Model(const std::string &modelName, Model::FileType fileType) {
     switch (fileType) {
         case OBJ:
-            loadOBJ("model/" + modelName + ".obj");
+            loadOBJ("models/" + modelName + ".obj");
             break;
         case DAE:
-            loadDAE("model/" + modelName + ".dae");
-
+            loadDAE(modelName, "Cube");
+            break;
     }
 }
 
@@ -78,8 +78,8 @@ void Model::loadOBJ(const std::string& modelPath) {
     }
 }
 
-void Model::loadDAE(const std::string &modelPath) {
-    std::ifstream f("models/Cube.dae");
+void Model::loadDAE(const std::string &modelName, const std::string &kake) {
+    std::ifstream f("models/" + modelName + ".dae");
     std::string str;
     if (f) {
         std::ostringstream ss;
@@ -90,9 +90,7 @@ void Model::loadDAE(const std::string &modelPath) {
     strcpy(tab2, str.c_str());
 
     rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *rootNode = nullptr;
-
-
+    rapidxml::xml_node<> *rootNode;
 
     // Parse the file
     doc.parse<rapidxml::parse_declaration_node | rapidxml::parse_no_data_nodes>(tab2);
@@ -113,84 +111,64 @@ void Model::loadDAE(const std::string &modelPath) {
         rapidxml::xml_attribute<> *currentAtter = sourceNode->first_attribute();
         rapidxml::xml_node<> *currentNode = sourceNode->first_node();
 
-        // std::cout << "node atter name: " << sourceNode->first_attribute()->value() << std::endl;
-        // std::cout << "sourceNode type: " << sourceNode->first_node()->value() << std::endl;
-
         std::string atVal = currentAtter->value();
 
-        if (atVal == "Cube-mesh-map-0") {
-            std::string map = currentNode->value();
-
-            std::cout << map << std::endl;
-
+        // Parsing coords for the triangle corners
+        if (atVal == kake + "-mesh-positions") {
             // Split the value string into a vector string
-            std::stringstream ss(map);
-            std::istream_iterator<std::string> begin(ss);
-            std::istream_iterator<std::string> end;
-            std::vector<std::string> vert(begin, end);
+            std::vector<std::string> vert = splitString(currentNode->value());
 
-
+            for (int i = 0; i < vert.size(); i += 3) {
+                Vertex vertex{};
+                vertex.pos = {
+                    std::stof(vert[i]),
+                    std::stof(vert[i+1]),
+                    std::stof(vert[i+2])
+                };
+                vertices.push_back(vertex);
+            }
         }
 
+        // Some position thing
+        if (atVal == kake + "-mesh-map-0") {
+            std::vector<std::string> vert = splitString(currentNode->value());
+        }
+
+        if (atVal == kake + "-mesh-normals") {
+            std::vector<std::string> vert = splitString(currentNode->value());
+        }
     }
 
     // Loading faces from triangles in the xml
-    rapidxml::xml_node<> *triangles = workingNode->first_node("triangles");
-    if (triangles == nullptr)
-        std::cout << "triangles is null" << std::endl;
-    else
-        std::cout << "triangles: " << triangles->value() << std::endl;
-
-    rapidxml::xml_node<> *p = triangles->first_node("p");
+    rapidxml::xml_node<> *p = workingNode->first_node("triangles")->first_node("p");
+    // rapidxml::xml_attribute<> *countAt = workingNode->first_node("triangles")->first_attribute("count");
     if (p == nullptr)
         std::cout << "p is null" << std::endl;
     else
         std::cout << "p: " << p->value() << std::endl;
 
-    std::stringstream ss(p->value());
-    std::istream_iterator<std::string> begin(ss);
-    std::istream_iterator<std::string> end;
-    std::vector<std::string> pStr(begin, end);
+    std::vector<std::string> pStr = splitString(p->value());
 
-    rapidxml::xml_attribute<> *countAt = triangles->first_attribute("count");
-    // std::vector<Face> faces(std::stoi(countAt->value()));
-    std::vector<Face> faces;
+    for (int i = 0, l = 0; i < pStr.size(); i += 9, l++) {
+        indices.push_back((uint32_t)std::stoi(pStr[i]));
+        indices.push_back((uint32_t)std::stoi(pStr[i+3]));
+        indices.push_back((uint32_t)std::stoi(pStr[i+6]));
 
-    // Add all lines to faces
-    for (int i = 0; i < pStr.size() - 9; i += 9) {
-        Face face;
-        face.v = glm::vec3(std::stoi(pStr[i]), std::stoi(pStr[3+i]), std::stoi(pStr[6+i]));
-        face.n = glm::vec3(std::stoi(pStr[i+1]), std::stoi(pStr[3+i+1]), std::stoi(pStr[6+i+1]));
-        face.t = glm::vec3(std::stoi(pStr[i+2]), std::stoi(pStr[3+i+2]), std::stoi(pStr[6+i+2]));
-        faces.push_back(face);
-
-        // face.print();
+        // NOTE: Use of Vec3 for texCoord?
+        vertices[i].texCoord = {
+                std::stoi(pStr[l+2]),
+                std::stoi(pStr[l+2+3])
+        };
     }
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-    // Parse all faces to vertex
-    for (const auto& face : faces) {
-        Vertex vertex{};
-
-        vertex.pos = {
-            face.v.x, face.v.y, face.v.z
-        };
-
-        vertex.texCoord = {
-            face.t.x, face.t.y
-        };
-
-        vertex.color = {
-                face.n.x, face.n.y, face.n.z
-        };
-
-        if (uniqueVertices[vertex] == 0) {
-            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-            vertices.push_back(vertex);
-        }
-
-        indices.push_back(uniqueVertices[vertex]);
-    }
-
 }
+
+// Split the string on space into a vector of strings
+std::vector<std::string> Model::splitString(const std::string &s) {
+    std::stringstream ss(s);
+
+    return {
+        std::istream_iterator<std::string> (ss),
+        std::istream_iterator<std::string> ()
+    };
+}
+

@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
     Object cube2("Cube2", &cube2Render);
     cube2.renderInstance.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
 
-
     // Creating another identical cube and moving it to another position
     Object cube3("Cube3", &cube2Render);
     cube3.renderInstance.transform.position = glm::vec3(0.0f, -5.0f, 0.0f);
@@ -85,9 +84,10 @@ int main(int argc, char *argv[]) {
     cube5.renderInstance.transform.position = glm::vec3(-5.0f, 5.0f, 0.0f);
 
     // Rapidxml paring testing
-    Model testModel("plane", Model::DAE);
+    Model testModel("Man", Model::DAE);
+    Texture testTexture(renderer, "textures/ManTex.jpg");
     VertexBuffer buffer2(renderer, testModel.vertices, testModel.indices);
-    RenderObject testRender(renderer, goldTexture, shader, buffer2);
+    RenderObject testRender(renderer, testTexture, shader, buffer2);
     Object tModel("Test Model", &testRender);
     // end
 
