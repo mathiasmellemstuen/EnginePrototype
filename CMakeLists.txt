@@ -10,7 +10,7 @@ file(GLOB_RECURSE IMGUI "${CMAKE_SOURCE_DIR}/thirdparty/imgui/*.h" "${CMAKE_SOUR
 # file(GLOB_RECURSE IMPLOT "${CMAKE_SOURCE_DIR}/thirdparty/implot/*.h" "${CMAKE_SOURCE_DIR}/thirdparty/implot/*.cpp")
 file(GLOB_RECURSE CPPDATAPARSER "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*.h" "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*cpp")
 
-add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h src/graphics/renderInstance.h src/graphics/renderInstance.cpp src/graphics/layoutBinding.h src/graphics/Face.cpp src/graphics/Face.h)
+add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h src/graphics/renderInstance.h src/graphics/renderInstance.cpp src/graphics/layoutBinding.h src/utility/XML.cpp src/utility/XML.h)
 
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include")
