@@ -8,6 +8,7 @@
     <mapping directory="$PROJECT_DIR$/thirdparty/imgui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdparty/implot" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdparty/rang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thirdparty/rapidxml" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdparty/stb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/thirdparty/tinyobjloader" vcs="Git" />
   </component>
