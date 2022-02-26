@@ -31,3 +31,6 @@
 [submodule "thirdparty/imgui"]
 	path = thirdparty/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "thirdparty/rapidxml"]
+	path = thirdparty/rapidxml
+	url = https://github.com/Tobhal/rapidxml-fork
