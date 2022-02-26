@@ -35,6 +35,7 @@
 #include "graphics/camera.h"
 
 #include "rapidxml/rapidxml.hpp"
+#include "utility/xml.h"
 
 
 YamlParser* properties = nullptr;
@@ -84,10 +85,9 @@ int main(int argc, char *argv[]) {
     cube5.renderInstance.transform.position = glm::vec3(-5.0f, 5.0f, 0.0f);
 
     // Rapidxml paring testing
-    Model testModel("Man", Model::DAE);
-    Texture testTexture(renderer, "textures/ManTex.jpg");
+    Model testModel("Cube", Model::DAE);
     VertexBuffer buffer2(renderer, testModel.vertices, testModel.indices);
-    RenderObject testRender(renderer, testTexture, shader, buffer2);
+    RenderObject testRender(renderer, goldTexture, shader, buffer2);
     Object tModel("Test Model", &testRender);
     // end
 
