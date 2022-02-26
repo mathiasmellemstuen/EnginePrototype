@@ -5,6 +5,8 @@
 #include <vector>
 #include "vertex.h"
 #include <string>
+#include "rapidxml/rapidxml.hpp"
+
 
 class Model {
     public:
@@ -16,9 +18,11 @@ class Model {
         Model(const std::string& modelName, FileType fileType);
 
     private:
-        void loadDAE(const std::string& modelPath, const std::string& kake);
+        void loadDAE(const std::string& modelPath);
         void loadOBJ(const std::string& modelPath);
         inline static std::vector<std::string> splitString(const std::string &s);
+
+        void parseGeometries(const rapidxml::xml_node<>& node);
 };
 
 #endif

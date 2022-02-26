@@ -1,17 +1,19 @@
 #include "model.h"
 #include "../utility/debug.h"
 #include <tinyobjloader/tiny_obj_loader.h>
+
 #include <rapidxml/rapidxml.hpp>
-#include <rapidxml/rapidxml_utils.hpp>
+#include "../utility/xml.h"
+
 #include <stdexcept>
 #include <unordered_map>
-#include "Face.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <functional>
 
 namespace std {
     template<> struct hash<Vertex> {
@@ -31,7 +33,7 @@ Model::Model(const std::string &modelName, Model::FileType fileType) {
             loadOBJ("models/" + modelName + ".obj");
             break;
         case DAE:
-            loadDAE(modelName, "Cube");
+            loadDAE(modelName);
             break;
     }
 }
@@ -78,7 +80,8 @@ void Model::loadOBJ(const std::string& modelPath) {
     }
 }
 
-void Model::loadDAE(const std::string &modelName, const std::string &kake) {
+void Model::loadDAE(const std::string &modelName) {
+    // Read the file
     std::ifstream f("models/" + modelName + ".dae");
     std::string str;
     if (f) {
@@ -89,76 +92,16 @@ void Model::loadDAE(const std::string &modelName, const std::string &kake) {
     char *tab2 = new char[str.length() + 1];
     strcpy(tab2, str.c_str());
 
+    // Parse the file to xml
     rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *rootNode;
-
-    // Parse the file
     doc.parse<rapidxml::parse_declaration_node | rapidxml::parse_no_data_nodes>(tab2);
 
-    rootNode = doc.first_node("COLLADA");
-    if (rootNode == nullptr)
-        std::cout << "rootNode is null" << std::endl;
+    // Iterate over all child's to the root node
+    XMLNode rootNode(doc.first_node("COLLADA"));
+    for (const auto& node : rootNode) {
 
-    // Get correct node to read the data
-    rapidxml::xml_node<> *workingNode = rootNode->first_node("library_geometries")->first_node("geometry")->first_node("mesh");
-    if (workingNode == nullptr)
-        std::cout << "workingNode is null" << std::endl;
-    else
-        std::cout << "Node val: " << workingNode->name() << std::endl;
-
-    // Iterate over source
-    for (rapidxml::xml_node<> *sourceNode = workingNode->first_node("source"); sourceNode; sourceNode = sourceNode->next_sibling()) {
-        rapidxml::xml_attribute<> *currentAtter = sourceNode->first_attribute();
-        rapidxml::xml_node<> *currentNode = sourceNode->first_node();
-
-        std::string atVal = currentAtter->value();
-
-        // Parsing coords for the triangle corners
-        if (atVal == kake + "-mesh-positions") {
-            // Split the value string into a vector string
-            std::vector<std::string> vert = splitString(currentNode->value());
-
-            for (int i = 0; i < vert.size(); i += 3) {
-                Vertex vertex{};
-                vertex.pos = {
-                    std::stof(vert[i]),
-                    std::stof(vert[i+1]),
-                    std::stof(vert[i+2])
-                };
-                vertices.push_back(vertex);
-            }
-        }
-
-        // Some position thing
-        if (atVal == kake + "-mesh-map-0") {
-            std::vector<std::string> vert = splitString(currentNode->value());
-        }
-
-        if (atVal == kake + "-mesh-normals") {
-            std::vector<std::string> vert = splitString(currentNode->value());
-        }
-    }
-
-    // Loading faces from triangles in the xml
-    rapidxml::xml_node<> *p = workingNode->first_node("triangles")->first_node("p");
-    // rapidxml::xml_attribute<> *countAt = workingNode->first_node("triangles")->first_attribute("count");
-    if (p == nullptr)
-        std::cout << "p is null" << std::endl;
-    else
-        std::cout << "p: " << p->value() << std::endl;
-
-    std::vector<std::string> pStr = splitString(p->value());
-
-    for (int i = 0, l = 0; i < pStr.size(); i += 9, l++) {
-        indices.push_back((uint32_t)std::stoi(pStr[i]));
-        indices.push_back((uint32_t)std::stoi(pStr[i+3]));
-        indices.push_back((uint32_t)std::stoi(pStr[i+6]));
-
-        // NOTE: Use of Vec3 for texCoord?
-        vertices[i].texCoord = {
-                std::stoi(pStr[l+2]),
-                std::stoi(pStr[l+2+3])
-        };
+        if (strcmp(node.name(), "library_geometries") == 0)
+            parseGeometries(node);
     }
 }
 
@@ -172,3 +115,63 @@ std::vector<std::string> Model::splitString(const std::string &s) {
     };
 }
 
+void Model::parseGeometries(const rapidxml::xml_node<>& node) {
+    rapidxml::xml_node<> * geo = node.first_node("geometry");
+    std::string name = geo->first_attribute("name")->value();
+    XMLNode nodes(geo->first_node("mesh"));
+
+    for (const auto& source : nodes) {
+        // Parse mesh position
+        if (strcmp(source.name(), "source") == 0 &&
+            source.first_attribute("id")->value() == (name + "-mesh-positions")) {
+            std::vector<std::string> vert = splitString(source.first_node("float_array")->value());
+
+            for (int i = 0; i < vert.size(); i += 3) {
+                Vertex vertex{};
+                vertex.pos = {
+                        std::stof(vert[i]),
+                        std::stof(vert[i + 1]),
+                        std::stof(vert[i + 2])
+                };
+                vertices.push_back(vertex);
+            }
+        }
+
+        // Parse mesh normals
+        if (strcmp(source.name(), "source") == 0 && source.first_attribute("id")->value() == (name + "-mesh-normals")) {
+            std::vector<std::string> normals = splitString(node.value());
+        }
+
+        // Parse mesh map 0
+        if (strcmp(source.name(), "source") == 0 && source.first_attribute("id")->value() == (name + "-mesh-map-0")) {
+            std::vector<std::string> vert = splitString(node.value());
+        }
+
+        if (strcmp(source.name(), "triangles") == 0) {
+            // Parse offsets for indices
+            rapidxml::xml_node<> *input = source.first_node("input");
+            int vertOffset = std::stoi(input->first_attribute("offset")->value());
+
+            input = input->next_sibling();
+            int normalOffset = std::stoi(input->first_attribute("offset")->value());
+
+            input = input->next_sibling();
+            int texOffset = std::stoi(input->first_attribute("offset")->value());
+
+            // Append indices
+            std::vector<std::string> pStr = splitString(source.first_node("p")->value());
+
+            for (int i = 0, l = 0; i < pStr.size(); i += 9, l++) {
+                indices.push_back((uint32_t) std::stoi(pStr[i + vertOffset]));
+                indices.push_back((uint32_t) std::stoi(pStr[i + vertOffset + 3]));
+                indices.push_back((uint32_t) std::stoi(pStr[i + vertOffset + 6]));
+
+                // NOTE: Use of Vec3 for texCoord?
+                vertices[i].texCoord = {
+                        std::stoi(pStr[l + texOffset]),
+                        std::stoi(pStr[l + texOffset + 3])
+                };
+            }
+        }
+    }
+}
