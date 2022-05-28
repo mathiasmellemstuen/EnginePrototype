@@ -13,6 +13,6 @@ struct UniformBuffer {
 };
 
 UniformBuffer createUniformBuffer(RendererContent& rendererContent);
-void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, glm::mat4& view, glm::mat4& projection, glm::mat4& model);
+void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, glm::mat4& view, glm::mat4& projection, glm::mat4& model, int currentCommandBufferIndex);
 void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer);
 #endif

@@ -21,7 +21,7 @@ void GraphicsEntityInstance::render(RendererContent& rendererContent, glm::mat4&
 
     VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
     
-    updateUniformBuffer(rendererContent, this->uniformBuffer, view, projection, model);
+    updateUniformBuffer(rendererContent, this->uniformBuffer, view, projection, model, currentCommandBufferIndex);
     
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->graphicsPipeline);
     

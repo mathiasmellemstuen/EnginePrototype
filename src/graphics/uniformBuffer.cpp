@@ -27,7 +27,7 @@ UniformBuffer createUniformBuffer(RendererContent& rendererContent) {
 
     return uniformBuffer;
 }
-void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, glm::mat4& view, glm::mat4& projection, glm::mat4& model) {
+void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, glm::mat4& view, glm::mat4& projection, glm::mat4& model, int currentCommandBufferIndex) {
     UniformBufferObject ubo{};
     ubo.model = model; 
     ubo.view = view;
@@ -35,9 +35,9 @@ void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& unifor
 
     //TODO: RendererContent.currentFrame might be the wrong value... Changed from current image
     void* data;
-    vkMapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[rendererContent.currentFrame], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[currentCommandBufferIndex], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[rendererContent.currentFrame]);
+    vkUnmapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[currentCommandBufferIndex]);
 }
 
 void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer) {
