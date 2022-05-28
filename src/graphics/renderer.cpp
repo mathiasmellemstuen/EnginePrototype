@@ -52,9 +52,8 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
                 Transform* currentTransform = object->getComponent<Transform>(); 
 
                 if(currentGraphicsEntityInstance == nullptr || currentTransform == nullptr) {
-                    break;
+                    continue;
                 }
-
                 currentGraphicsEntityInstance->render(rendererContent, Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel(), i);
             }
         

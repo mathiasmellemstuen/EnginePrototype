@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     EventManager eventManager;
 
     // Creating a camera inside a object
-    Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
+    Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
     Object main("Main"); 
     main.addComponent(&camera); 
     
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     GraphicsEntityInstance cubeEntityInstance(rendererContent, &cubeEntity);
 
     // Creating a transform
-    Transform transform({0.0f, 5.0f, 0.0f});
+    Transform transform({0.0f, 0.0f, 0.0f});
 
     // Creating a cube object
     Object cube("Cube"); 
