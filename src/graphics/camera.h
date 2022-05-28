@@ -6,8 +6,7 @@
 #define ENGINEPROTOTYPE_CAMERA_H
 
 #include <glm/glm.hpp>
-#include "../core/object.h"
-
+#include "../core/component.h"
 
 enum CameraMode {
     FREELOOK,
@@ -15,19 +14,15 @@ enum CameraMode {
 };
 
 
-class Camera : public Object {
+class Camera : public Component {
 public:
     inline static Camera* mainCamera;
 
-
     glm::mat4 view;
     glm::mat4 projection;
-
     glm::vec3 position;
-
     glm::vec3 up;
     glm::vec3 front;
-
     glm::vec2 freeLookOrientation;
 
     float near;
@@ -41,6 +36,8 @@ public:
     CameraMode mode;
 
     void updateMatrices();
+    virtual void debug();
+    virtual void update(float& deltaTime);
 
     glm::vec3 left() const;
 

@@ -1,70 +1,67 @@
 #ifndef ENGINEPROTOTYPE_RENDERER
 #define ENGINEPROTOTYPE_RENDERER
 
-#include "vulkanInstance.h"
+#include <vulkan/vulkan.h>
+#include <vector>
+#include "QueueFamilyIndices.h"
 #include "window.h"
-#include "physicalDevice.h"
-#include "logicalDevice.h"
-#include "swapChain.h"
-#include "imageViews.h"
-#include "shader.h"
-#include "descriptorSetLayout.h"
-#include "renderPass.h"
-#include "graphicsPipeline.h"
-#include "frameBuffers.h"
-#include "commandPool.h"
-#include "vertexBuffer.h"
-#include "descriptorPool.h"
-#include "commandBuffer.h"
-#include "syncObjects.h"
-#include "texture.h"
-#include "depthResources.h"
-#include "colorResources.h"
-#include "renderObject.h"
 #include "eventManager.h"
 
-#include <functional>
-#include <vector>
-
-class Renderer {
-    public:
-        Window& window;
-        EventManager eventManager;
-        VulkanInstance vulkanInstance;
-        PhysicalDevice physicalDevice; 
-        LogicalDevice logicalDevice;
-        SwapChain swapChain;
-        ImageViews imageViews;
-        RenderPass renderPass;
-        CommandPool commandPool;
-        ColorResources colorResources;
-        DepthResources depthResources;
-        FrameBuffers frameBuffers;
-        CommandBuffers commandBuffers;
-        SyncObjects syncObjects;
-        RenderObject* currentRenderObject; 
-
-        uint64_t now;
-        uint64_t last;
-
-        Renderer(Window& window);
-        void loop();
-        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-        VkFormat findSupportedFormat(const std::vector<VkFormat>&candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-        VkFormat findDepthFormat();
-        bool hasStencilComponent(VkFormat format);
-        void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-        void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
-        VkSampleCountFlagBits getMaxUsableSampleCount();
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-        void useRenderObject(RenderObject& renderObject); 
-        void cleanupSwapChain();
-    private: 
-        void reCreateSwapChain();
-        void drawFrame();
+struct RendererContent {
+    VkInstance instance;
+    VkSurfaceKHR surface;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDeviceProperties physicalDeviceProperties; 
+    VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    VkDevice device;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSwapchainKHR swapChain;
+    std::vector<VkImage> swapChainImages;
+    VkFormat swapChainImageFormat;
+    VkExtent2D swapChainExtent;
+    std::vector<VkImageView> swapChainImageViews;
+    VkRenderPass renderPass; 
+    VkCommandPool commandPool; 
+    VkImage colorImage;
+    VkDeviceMemory colorImageMemory;
+    VkImageView colorImageView;
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    std::vector<VkCommandBuffer> commandBuffers;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> imagesInFlight;
+    std::vector<VkFence> inFlightFences;
+    size_t currentFrame = 0;
 };
 
+void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImage);
+uint32_t findMemoryType(RendererContent& rendererContent, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+void createImage(RendererContent& rendererContent, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+VkFormat findSupportedFormat(RendererContent& rendererContent, const std::vector<VkFormat>&candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+VkFormat findDepthFormat(RendererContent& rendererContent);
+VkImageView createImageView(RendererContent& rendererContent, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+VkSampleCountFlagBits getMaxUsableSampleCount(RendererContent& rendererContent);
+bool checkDeviceExtensionSupport(RendererContent& rendererContent);
+QueueFamilyIndices findQueueFamilies(RendererContent& rendererContent);
+bool isDeviceSuitable(RendererContent& rendererContent, const VkPhysicalDevice& device);
+VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, Window& window);
+void loop(RendererContent& rendererContent, Window& window, EventManager& eventManager);
+void drawFrame(RendererContent& rendererContent, Window& window);
+void cleanupSwapChain(RendererContent& rendererContent);
+void reCreateSwapChain(RendererContent& rendererContent, Window& window);
+RendererContent createRenderer(Window& window);
+void destroyRenderer(RendererContent& rendererContent);
+void allocateSwapchainDependentRendererContent(RendererContent& rendererContent, Window& window);
+void createBuffer(RendererContent& rendererContent, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+VkCommandBuffer beginSingleTimeCommands(RendererContent& rendererContent);
+void endSingleTimeCommands(RendererContent& rendererContent, VkCommandBuffer commandBuffer);
+bool hasStencilComponent(VkFormat format);
+void generateMipmaps(RendererContent& rendererContent, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+void copyBuffer(RendererContent& rendererContent, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 #endif

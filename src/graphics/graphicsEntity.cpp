@@ -1,20 +1,41 @@
-#include "graphicsPipeline.h"
-#include "../utility/debug.h"
-#include "vertex.h"
-
-#include <vulkan/vulkan.h>
-#include <stdexcept>
-
+#include "graphicsEntity.h"
 #include "renderer.h"
-#include "renderObject.h"
+#include <vulkan/vulkan.h>
+#include "../utility/debug.h"
 
-GraphicsPipeline::GraphicsPipeline(RenderObject& renderObject) : renderObject(renderObject) {
-    
-    this->create(); 
-};
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader, const std::vector<LayoutBinding>& bindings) {
+    GraphicsEntity graphicsEntity; 
+    graphicsEntity.vertexBuffer = vertexBuffer;
+    graphicsEntity.texture = texture;
+    graphicsEntity.shader = shader; 
 
-void GraphicsPipeline::create() {
-    
+    Debug::log(INFO, "Starting setup of Descriptor set layout");
+
+    std::vector<VkDescriptorSetLayoutBinding> lBindings;
+
+    int bindingIndex = 0;
+
+    for(const LayoutBinding& binding : bindings) {
+        VkDescriptorSetLayoutBinding b;
+        b.binding = bindingIndex;
+        b.descriptorCount = 1;
+        b.descriptorType = binding.type;
+        b.stageFlags = binding.stage;
+        b.pImmutableSamplers = nullptr;
+        bindingIndex += 1;
+        lBindings.push_back(b);
+    }
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(lBindings.size());
+    layoutInfo.pBindings = lBindings.data();
+
+    if (vkCreateDescriptorSetLayout(rendererContent.device, &layoutInfo, nullptr, &graphicsEntity.descriptorSetLayout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
+
+    Debug::log(SUCCESS, "Descriptor set layout setup successfull!"); 
     Debug::log(INFO, "Starting to create graphics pipeline"); 
 
     auto bindingDescription = Vertex::getBindingDescription();
@@ -35,14 +56,14 @@ void GraphicsPipeline::create() {
     VkViewport viewport{};
     viewport.x = 0.0f; 
     viewport.y = 0.0f; 
-    viewport.width = (float) renderObject.renderer.swapChain.swapChainExtent.width; 
-    viewport.height = (float) renderObject.renderer.swapChain.swapChainExtent.height; 
+    viewport.width = (float) rendererContent.swapChainExtent.width; 
+    viewport.height = (float) rendererContent.swapChainExtent.height; 
     viewport.minDepth = 0.0f; 
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0}; 
-    scissor.extent = renderObject.renderer.swapChain.swapChainExtent;
+    scissor.extent = rendererContent.swapChainExtent;
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType =  VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -73,7 +94,7 @@ void GraphicsPipeline::create() {
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO; 
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = renderObject.renderer.physicalDevice.msaaSamples;
+    multisampling.rasterizationSamples = rendererContent.msaaSamples;
     multisampling.minSampleShading = 1.0f; // Optional 
     multisampling.pSampleMask = nullptr; // Optional 
     multisampling.alphaToCoverageEnable = VK_FALSE; // Optional 
@@ -121,9 +142,9 @@ void GraphicsPipeline::create() {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &renderObject.descriptorSetLayout.descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &graphicsEntity.descriptorSetLayout;
 
-    if (vkCreatePipelineLayout(renderObject.renderer.logicalDevice.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) { 
+    if (vkCreatePipelineLayout(rendererContent.device, &pipelineLayoutInfo, nullptr, &graphicsEntity.pipelineLayout) != VK_SUCCESS) { 
         Debug::log(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
@@ -142,30 +163,30 @@ void GraphicsPipeline::create() {
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = renderObject.shader.shaderStages;
+    pipelineInfo.pStages = shader->shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = renderObject.renderer.renderPass.renderPass;
+    pipelineInfo.layout = graphicsEntity.pipelineLayout;
+    pipelineInfo.renderPass = rendererContent.renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(renderObject.renderer.logicalDevice.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(rendererContent.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity.graphicsPipeline) != VK_SUCCESS) {
         
         Debug::log(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
     }
     Debug::log(SUCCESS, "Created graphics pipeline!"); 
-};
+    return graphicsEntity; 
+}
 
-void GraphicsPipeline::clean() {
-    Debug::log(INFO, "Destroying graphics pipeline"); 
-    vkDestroyPipeline(renderObject.renderer.logicalDevice.device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(renderObject.renderer.logicalDevice.device, pipelineLayout, nullptr);
-    Debug::log(SUCCESS, "Graphics pipeline destroyed!"); 
-};
+void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity) {
+    vkDestroyPipeline(rendererContent.device, graphicsEntity.graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(rendererContent.device, graphicsEntity.pipelineLayout, nullptr);
+    vkDestroyDescriptorSetLayout(rendererContent.device, graphicsEntity.descriptorSetLayout, nullptr);
+}

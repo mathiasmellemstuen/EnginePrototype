@@ -5,20 +5,17 @@
 #include <string>
 
 #include <vulkan/vulkan.h>
+#include "renderer.h"
 
-class Renderer;
+struct Shader {
+    VkShaderModule vertexShaderModule; 
+    VkShaderModule fragmentShaderModule;
+    VkPipelineShaderStageCreateInfo shaderStages[2]; 
+};
 
-class Shader {
-    public:
-        Shader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath); 
-        void clean();
-        VkShaderModule vertexShaderModule; 
-        VkShaderModule fragmentShaderModule;
-        VkPipelineShaderStageCreateInfo shaderStages[2]; 
-    private:
-        std::vector<char> readFile(const std::string& fileName);
-        VkShaderModule createShaderModule(const std::vector<char>& code);
-        Renderer& renderer;
-};  
+std::vector<char> readFile(const std::string& fileName);
+VkShaderModule createShaderModule(RendererContent& rendererContent, const std::vector<char>& code);
+Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath);
+void freeShader(RendererContent& rendererContent, Shader& shader);
 
 #endif

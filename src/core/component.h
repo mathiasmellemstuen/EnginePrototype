@@ -10,8 +10,8 @@ class Component {
 
         int id; 
         std::string name;
-        std::function<void()> debug; 
-
+        virtual void update(float& deltaTime);
+        virtual void debug();
         Component(); 
 };
 

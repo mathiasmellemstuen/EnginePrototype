@@ -11,11 +11,7 @@ file(GLOB_RECURSE IMGUI "${CMAKE_SOURCE_DIR}/thirdparty/imgui/*.h" "${CMAKE_SOUR
 
 file(GLOB_RECURSE CPPDATAPARSER "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*.h" "${CMAKE_SOURCE_DIR}/thirdparty/cpp-data-parsing/src/*cpp")
 
-<<<<<<< Updated upstream
-add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h src/graphics/renderInstance.h src/graphics/renderInstance.cpp src/graphics/layoutBinding.h src/utility/XML.cpp src/utility/XML.h)
-=======
-add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER} src/graphics/camera.cpp src/graphics/camera.h src/graphics/renderInstance.h src/graphics/renderInstance.cpp src/mathematics/easingFunctions.h src/mathematics/easingFunctions.cpp src/graphics/layoutBinding.h src/graphics/Face.cpp src/graphics/Face.h src/graphics/UI/ColorGUIPanel.cpp src/graphics/UI/ColorGUIPanel.h)
->>>>>>> Stashed changes
+add_executable(ENGINEPROTOTYPE ${SRC} ${IMGUI} ${CPPDATAPARSER})
 
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include")

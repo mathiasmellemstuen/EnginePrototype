@@ -2,19 +2,18 @@
 #include <stb/stb_image.h>
 #include <stdexcept>
 #include "../utility/debug.h"
-#include <cstring>
-#include "physicalDevice.h"
-#include <cmath>
 #include "renderer.h"
-#include "vulkan/vulkan_core.h"
 
-void Texture::create() {
+Texture createTexture(RendererContent& rendererContent, const std::string& texturePath) {
+    Texture texture; 
+    texture.texturePath = texturePath; 
+
     Debug::log(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-    mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+    texture.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 
     if (!pixels) {
         Debug::log(ERROR, "Failed to load texture image!"); 
@@ -24,42 +23,47 @@ void Texture::create() {
     Debug::log(SUCCESS, "Successfully loaded texture image!");
     Debug::log(INFO, "Creating buffer that stores the image/texture"); 
 
-    renderer.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    createBuffer(rendererContent, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, texture.stagingBuffer, texture.stagingBufferMemory);
 
     void* data;
-    vkMapMemory(renderer.logicalDevice.device, stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(rendererContent.device, texture.stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(renderer.logicalDevice.device, stagingBufferMemory);
+    vkUnmapMemory(rendererContent.device, texture.stagingBufferMemory);
     stbi_image_free(pixels);
 
     Debug::log(SUCCESS, "Successfully created buffer"); 
 
-    renderer.createImage(texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+    createImage(rendererContent, texWidth, texHeight, texture.mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture.textureImage, texture.textureImageMemory);
 
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
-    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    transitionImageLayout(rendererContent, texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture.mipLevels);
+    copyBufferToImage(rendererContent, texture.stagingBuffer, texture.textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
 
-    vkDestroyBuffer(renderer.logicalDevice.device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.logicalDevice.device, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(rendererContent.device, texture.stagingBuffer, nullptr);
+    vkFreeMemory(rendererContent.device, texture.stagingBufferMemory, nullptr);
 
-    renderer.generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
+    generateMipmaps(rendererContent, texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, texture.mipLevels);
 
-    createTextureImageView(mipLevels);
-    createTextureSampler();
+    createTextureImageView(rendererContent, texture);
+    createTextureSampler(rendererContent, texture);
 
     Debug::log(SUCCESS, "Created all texture resources!");
+    return texture;
+}
+void freeTexture(RendererContent& rendererContent, Texture& texture) {
+    vkDestroySampler(rendererContent.device, texture.textureSampler, nullptr);
+    vkDestroyImageView(rendererContent.device, texture.textureImageView, nullptr); 
+
 }
 
-
-void Texture::createTextureImageView(uint32_t mipLevels) {
-    textureImageView = renderer.imageViews.createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+void createTextureImageView(RendererContent& rendererContent, Texture& texture) {
+    texture.textureImageView = createImageView(rendererContent, texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, texture.mipLevels);
 }
 
-void Texture::createTextureSampler() {
+void createTextureSampler(RendererContent& rendererContent, Texture& texture) {
     
     VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(renderer.physicalDevice.physicalDevice, &properties);
+    vkGetPhysicalDeviceProperties(rendererContent.physicalDevice, &properties);
 
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -76,19 +80,19 @@ void Texture::createTextureSampler() {
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(mipLevels);
+    samplerInfo.maxLod = static_cast<float>(texture.mipLevels);
     samplerInfo.mipLodBias = 0.0f;
 
-    if (vkCreateSampler(renderer.logicalDevice.device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+    if (vkCreateSampler(rendererContent.device, &samplerInfo, nullptr, &texture.textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
 
-void Texture::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
+void transitionImageLayout(RendererContent& rendererContent, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
 
     Debug::log(INFO, "Starting transitioning image layout"); 
 
-    VkCommandBuffer commandBuffer = renderer.beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands(rendererContent);
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.oldLayout = oldLayout;
@@ -120,14 +124,14 @@ void Texture::transitionImageLayout(VkImage image, VkFormat format, VkImageLayou
     }
     vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-    renderer.endSingleTimeCommands(commandBuffer);
+    endSingleTimeCommands(rendererContent, commandBuffer);
 
     Debug::log(SUCCESS, "Transitioning image layout is done!"); 
 }
 
-void Texture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+void copyBufferToImage(RendererContent& rendererContent, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
 
-    VkCommandBuffer commandBuffer = renderer.beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands(rendererContent);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -146,14 +150,5 @@ void Texture::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, 
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-    renderer.endSingleTimeCommands(commandBuffer);
-}
-
-Texture::Texture(Renderer& renderer, const std::string& texturePath) : renderer(renderer) , texturePath(texturePath) {
-    create();  
-}
-
-void Texture::clean() {
-    vkDestroySampler(renderer.logicalDevice.device, textureSampler, nullptr);
-    vkDestroyImageView(renderer.logicalDevice.device, textureImageView, nullptr); 
+    endSingleTimeCommands(rendererContent, commandBuffer);
 }

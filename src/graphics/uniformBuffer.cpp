@@ -1,7 +1,5 @@
 #include "uniformBuffer.h"
-#include "logicalDevice.h"
 #include "uniformBufferObject.h"
-#include "physicalDevice.h"
 #include "../utility/debug.h"
 
 #define GLM_FORCE_RADIANS
@@ -11,45 +9,40 @@
 #include <cstring>
 
 #include "../utility/debug.h"
-#include "renderObject.h"
-#include "renderInstance.h"
 #include "renderer.h"
 
-void UniformBuffer::update(uint32_t currentImage, glm::mat4& view, glm::mat4& projection, glm::mat4& model) {
+UniformBuffer createUniformBuffer(RendererContent& rendererContent) {
+    UniformBuffer uniformBuffer; 
+    
+    Debug::log(INFO, "Starting creation of uniform buffers.");
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    uniformBuffer.uniformBuffers.resize(rendererContent.swapChainImages.size());
+    uniformBuffer.uniformBuffersMemory.resize(rendererContent.swapChainImages.size());
 
+    for (size_t i = 0; i < rendererContent.swapChainImages.size(); i++) {
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffer.uniformBuffers[i], uniformBuffer.uniformBuffersMemory[i]);
+    }
+
+    Debug::log(SUCCESS, "Successfully created all buffers!"); 
+
+    return uniformBuffer;
+}
+void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, glm::mat4& view, glm::mat4& projection, glm::mat4& model) {
     UniformBufferObject ubo{};
     ubo.model = model; 
     ubo.view = view;
     ubo.proj = projection;
 
+    //TODO: RendererContent.currentFrame might be the wrong value... Changed from current image
     void* data;
-    vkMapMemory(renderInstance.renderObject->renderer.logicalDevice.device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[rendererContent.currentFrame], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(renderInstance.renderObject->renderer.logicalDevice.device, uniformBuffersMemory[currentImage]);
+    vkUnmapMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[rendererContent.currentFrame]);
 }
 
-void UniformBuffer::create() {
-
-    Debug::log(INFO, "Starting creation of uniform buffers.");
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    uniformBuffers.resize(renderInstance.renderObject->renderer.swapChain.swapChainImages.size());
-    uniformBuffersMemory.resize(renderInstance.renderObject->renderer.swapChain.swapChainImages.size());
-
-    allocatedSwapChainSize = renderInstance.renderObject->renderer.swapChain.swapChainImages.size();
-    
-    for (size_t i = 0; i < allocatedSwapChainSize; i++) {
-        renderInstance.renderObject->renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-    }
-
-    Debug::log(SUCCESS, "Successfully created all buffers!"); 
-}
-
-UniformBuffer::UniformBuffer(RenderInstance& renderInstance) : renderInstance(renderInstance) {
-}
-
-void UniformBuffer::clean() {
-    for (size_t i = 0; i < allocatedSwapChainSize; i++) {
-        vkDestroyBuffer(renderInstance.renderObject->renderer.logicalDevice.device, uniformBuffers[i], nullptr);
-        vkFreeMemory(renderInstance.renderObject->renderer.logicalDevice.device, uniformBuffersMemory[i], nullptr);
+void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer) {
+    for (size_t i = 0; i < rendererContent.swapChainImages.size(); i++) {
+        vkDestroyBuffer(rendererContent.device, uniformBuffer.uniformBuffers[i], nullptr);
+        vkFreeMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[i], nullptr);
     }
 }

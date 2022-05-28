@@ -15,7 +15,7 @@ void EventManager::update(Window& window) {
 
     while(SDL_PollEvent(&event)) {
 
-        //This line is causing problems where the game screen is black?
+            //This line is causing problems where the game screen is black?
             if(Debug::updateDebugWindowEvents(event)) {
                 return;
             }
@@ -23,15 +23,6 @@ void EventManager::update(Window& window) {
             Mouse::update(event);
             KeyboardInput::update(event);
             
-
-            // if(event.type == SDL_QUIT) {
-            //     // window.running = false;
-                
-            //     Debug::log("SDL_Quit event is happening."); 
-            //     if(Debug::debugWindowRunning) {
-            //         Debug::cleanupDebugWindow();
-            //     }
-            // }
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
 
                 window.running = false;

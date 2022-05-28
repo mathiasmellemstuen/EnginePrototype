@@ -10,9 +10,12 @@
 #include "graphics/renderer.h"
 #include "graphics/model.h"
 #include "graphics/shader.h"
-#include "graphics/renderObject.h"
 #include "graphics/texture.h"
 #include "graphics/vertexBuffer.h"
+#include "graphics/graphicsEntity.h"
+#include "graphics/graphicsEntityInstance.h"
+#include "graphics/layoutBinding.h"
+#include "graphics/eventManager.h"
 
 #include "cpp-data-parsing/yaml/yamlParser.h"
 #include "cpp-data-parsing/json/jsonParser.h"
@@ -41,73 +44,62 @@
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
-
     Debug::log(INFO, "Starting application."); 
-    Debug::log(INFO, "Loading properties.yaml!");
 
+    // Loading properties file
     std::string filePath = "properties.yaml"; 
     properties = new YamlParser(filePath);
 
-    Debug::log(SUCCESS, "Done loading properties.yaml"); 
-
+    // Starting debugging
     Debug::setupDebugWindow();
 
+    // Creating a window and attaching a renderer
     Window window;
+    RendererContent rendererContent = createRenderer(window);
 
-    Renderer renderer(window);
+    // Creating a event manager
+    EventManager eventManager;
 
-    // Loading all the assets for a cube and creating the cube object
-    Model cubeModel("models/cube.obj");
-    Shader shader(renderer, "shaders/vert.spv", "shaders/frag.spv");
-    Shader colorShader(renderer, "shaders/colorShader.vert.spv", "shaders/colorShader.frag.spv");
-    Texture goldTexture(renderer, "textures/gold.png");
-    VertexBuffer buffer(renderer, cubeModel.vertices, cubeModel.indices);
-    RenderObject cubeRender(renderer, goldTexture, shader, buffer);
-    RenderObject cube2Render(renderer, goldTexture, colorShader, buffer);
-
-    Object cube("Cube", &cubeRender);
-    cube.renderInstance.transform.position = glm::vec3(0.0f, 2.0f, 4.0f);
-
-    // Creating another identical cube and moving it to another position
-    Object cube2("Cube2", &cube2Render);
-    cube2.renderInstance.transform.position = glm::vec3(0.0f, 5.0f, 0.0f);
-
-    // Creating another identical cube and moving it to another position
-    Object cube3("Cube3", &cube2Render);
-    cube3.renderInstance.transform.position = glm::vec3(0.0f, -5.0f, 0.0f);
-
-    // Creating another identical cube and moving it to another position
-    Object cube4("Cube4", &cube2Render);
-    cube4.renderInstance.transform.position = glm::vec3(-5.0f, -5.0f, 0.0f);
-
-    // Creating another identical cube and moving it to another position
-    Object cube5("Cube5", &cube2Render);
-    cube5.renderInstance.transform.position = glm::vec3(-5.0f, 5.0f, 0.0f);
-
-    // Rapidxml paring testing
-    Model testModel("Cube", Model::DAE);
-    VertexBuffer buffer2(renderer, testModel.vertices, testModel.indices);
-    RenderObject testRender(renderer, goldTexture, shader, buffer2);
-    Object tModel("Test Model", &testRender);
-    // end
-
+    // Creating a camera inside a object
     Camera camera(glm::vec3(-5.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
+    Object main("Main"); 
+    main.addComponent(&camera); 
+    
+    // Loading a cube model
+    Model cubeModel("models/cube.obj");
+    
+    // Loading a texture 
+    Texture cubeTexture = createTexture(rendererContent, "textures/gold.png");
 
+    // Loading a shader
+    Shader cubeShader = createShader(rendererContent, "shaders/vert.spv", "shaders/frag.spv");
+
+    // Creating vertex buffer
+    VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
+
+    // Creating bindings
+    std::vector<LayoutBinding> cubeBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBuffer)}, {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}};
+
+    // Creating a graphics entity
+    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader, cubeBindings);
+    
+    // Creating a cube instance
+    GraphicsEntityInstance cubeEntityInstance(rendererContent, &cubeEntity);
+
+    // Creating a transform
+    Transform transform({0.0f, 5.0f, 0.0f});
+
+    // Creating a cube object
+    Object cube("Cube"); 
+    cube.addComponent(&transform); 
+    cube.addComponent(&cubeEntityInstance);
+
+    // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();
 
-    renderer.loop();
+    // Running rendering loop, this is blocking
+    loop(rendererContent, window, eventManager);
 
-    //cubeRender.descriptorPool.clean();
-    cubeRender.descriptorSetLayout.clean(); 
-    cubeRender.shader.clean(); 
-    cubeRender.texture.clean();
-    cubeRender.vertexBuffer.clean();
-    renderer.cleanupSwapChain();
-    renderer.syncObjects.clean(); 
-    renderer.commandPool.clean();
-    renderer.logicalDevice.clean(); 
-    renderer.vulkanInstance.clean(); 
-    window.clean();
     Debug::log("Exiting application!"); 
     SDL_Quit();
     return 0;

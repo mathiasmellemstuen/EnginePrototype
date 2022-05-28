@@ -3,27 +3,23 @@
 
 #include <vulkan/vulkan.h>
 #include <string>
+#include "renderer.h"
 
-class Renderer;
-
-class Texture {
-    public:
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        uint32_t mipLevels;
-        VkImage textureImage;
-        VkDeviceMemory textureImageMemory;
-        VkImageView textureImageView;
-        VkSampler textureSampler;
-        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-        void createTextureImageView(uint32_t mipLevels);
-        void createTextureSampler();
-        void create(); 
-        Texture(Renderer& renderer, const std::string& texturePath); 
-        void clean();
-    private:
-        Renderer& renderer;
-        const std::string& texturePath;
+struct Texture {
+    std::string texturePath; 
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    uint32_t mipLevels;
+    VkImage textureImage;
+    VkDeviceMemory textureImageMemory;
+    VkImageView textureImageView;
+    VkSampler textureSampler;
 };
+
+Texture createTexture(RendererContent& rendererContent, const std::string& texturePath);
+void freeTexture(RendererContent& rendererContent, Texture& texture);
+void createTextureImageView(RendererContent& rendererContent, Texture& texture);
+void createTextureSampler(RendererContent& rendererContent, Texture& texture);
+void transitionImageLayout(RendererContent& rendererContent, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+void copyBufferToImage(RendererContent& rendererContent, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 #endif

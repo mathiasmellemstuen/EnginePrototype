@@ -1,21 +1,18 @@
-#ifndef ENGINEPROTOTYPE_DESCRIPTORPOOL
-#define ENGINEPROTOTYPE_DESCRIPTORPOOL
+#ifndef ENGINEPROTOTYPE_DESCRIPTOR_POOL
+#define ENGINEPROTOTYPE_DESCRIPTOR_POOL
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include "renderer.h"
 
-class RenderInstance;
+class GraphicsEntityInstance; 
 
-class DescriptorPool {
-    public:
-        VkDescriptorPool descriptorPool;
-        std::vector<VkDescriptorSet> descriptorSets;
-        void create();
-        void createDescriptorSets();
-        DescriptorPool(RenderInstance& renderInstance);
-        void clean(); 
-    private:
-        RenderInstance& renderInstance;
+struct DescriptorPool {
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSet> descriptorSets;
 };
+
+DescriptorPool createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance& graphicsEntityInstance);
+void freeDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool);
 
 #endif
