@@ -8,7 +8,6 @@ VkVertexInputBindingDescription Vertex::getBindingDescription() {
 
     return bindingDescription;  
 }
-
 std::array<VkVertexInputAttributeDescription, 3> Vertex::getAttributeDescriptions() {
     std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
     
@@ -29,8 +28,6 @@ std::array<VkVertexInputAttributeDescription, 3> Vertex::getAttributeDescription
 
     return attributeDescriptions;  
 }
-
 bool Vertex::operator==(const Vertex& other) const {
     return pos == other.pos && color == other.color && texCoord == other.texCoord;
 };
-

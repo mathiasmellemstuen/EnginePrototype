@@ -48,13 +48,14 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
             
             for(Object* object : Object::objects) {
                 
-                GraphicsEntityInstance* currentGraphicsEntityInstance = object->getComponent<GraphicsEntityInstance>();
+                GraphicsEntityInstance<UniformBufferObject>* currentGraphicsEntityInstance = object->getComponent<GraphicsEntityInstance<UniformBufferObject>>();
                 Transform* currentTransform = object->getComponent<Transform>(); 
 
                 if(currentGraphicsEntityInstance == nullptr || currentTransform == nullptr) {
                     continue;
                 }
-                currentGraphicsEntityInstance->render(rendererContent, Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel(), i);
+                UniformBufferObject bo = {Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel()};
+                currentGraphicsEntityInstance->render(rendererContent, bo, i);
             }
         
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);

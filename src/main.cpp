@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader, cubeBindings);
     
     // Creating a cube instance
-    GraphicsEntityInstance cubeEntityInstance(rendererContent, &cubeEntity);
+    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(rendererContent, &cubeEntity);
 
     // Creating a transform
     Transform transform({0.0f, 0.0f, 0.0f});
