@@ -15,15 +15,15 @@ template<typename T> class GraphicsEntityInstance : public Component {
         DescriptorPool descriptorPool;
 
         virtual void debug() {
+        //    ImGui::Text(std::string("Type: " + typeid(*this).name()));
             ImGui::Text(std::string(name + " #" + std::to_string(id)).c_str());
-            ImGui::Text("Graphics Entity Instance");
         }
         GraphicsEntityInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity) {
             this->graphicsEntity = graphicsEntity; 
             this->uniformBuffer = createUniformBuffer<T>(rendererContent);
             this->descriptorPool = createDescriptorPool<T>(rendererContent, *this);
         }
-        void render(RendererContent& rendererContent, const T& uniformBufferObject, int currentCommandBufferIndex) {
+        virtual void render(RendererContent& rendererContent, const T& uniformBufferObject, int currentCommandBufferIndex) {
 
             VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
             
@@ -41,6 +41,4 @@ template<typename T> class GraphicsEntityInstance : public Component {
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(graphicsEntity->vertexBuffer->indices.size()), 1, 0, 0, 0);
         }
 };
-
-#include "graphicsEntityInstance.tpp"
 #endif

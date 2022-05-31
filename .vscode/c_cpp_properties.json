@@ -32,8 +32,6 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/include",
-                // "${workspaceFolder}/include/imgui",
-                // "${workspaceFolder}/include/glm",
                 "${workspaceFolder}/src",
                 "/Users/mathias/VulkanSDK/1.2.189.0/macOS/include"
             ],

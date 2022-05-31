@@ -12,7 +12,7 @@
 #include "../core/object.h"
 #include "graphicsEntityInstance.h"
 #include <string>
-
+#include "UI/UIInstance.h"
 uint64_t last = 0; 
 uint64_t now = 0; 
 
@@ -47,15 +47,26 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         vkCmdBeginRenderPass(rendererContent.commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             
             for(Object* object : Object::objects) {
-                
+                // Rendering normal graphics entity instances
                 GraphicsEntityInstance<UniformBufferObject>* currentGraphicsEntityInstance = object->getComponent<GraphicsEntityInstance<UniformBufferObject>>();
                 Transform* currentTransform = object->getComponent<Transform>(); 
 
-                if(currentGraphicsEntityInstance == nullptr || currentTransform == nullptr) {
-                    continue;
+                if(currentGraphicsEntityInstance != nullptr && currentTransform != nullptr) {
+                    UniformBufferObject bo = {Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel()};
+                    currentGraphicsEntityInstance->render(rendererContent, bo, i);
+                    continue; 
                 }
-                UniformBufferObject bo = {Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel()};
-                currentGraphicsEntityInstance->render(rendererContent, bo, i);
+                // Rendering user interface objects
+                UIInstance* currentUIInstance = object->getComponent<UIInstance>();
+
+                if(currentUIInstance != nullptr) {
+                    UIInstanceUniformBufferObject bo = {currentUIInstance->position, currentUIInstance->size, currentUIInstance->color, currentUIInstance->hover()};
+                    currentUIInstance->render(rendererContent, bo, i);
+                    continue; 
+                }
+
+                // TODO: Rendering all custom graphics entities
+
             }
         
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);

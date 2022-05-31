@@ -3,16 +3,20 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include "../graphicsEntity.h"
+#include "../graphicsEntityInstance.h"
 
-class UIInstance {
+struct UIInstanceUniformBufferObject {
+    glm::vec2 position; 
+    glm::vec2 size; 
+    glm::vec3 color;
+    bool hover; 
+};
+class UIInstance : public GraphicsEntityInstance<UIInstanceUniformBufferObject> {
     public:
         glm::vec2 position; 
         glm::vec2 size; 
         glm::vec3 color;
         bool hover();
-        virtual void render();
-        virtual void update();
-        UIInstance(GraphicsEntity* graphicsEntity);
+        UIInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity);
 };
 #endif

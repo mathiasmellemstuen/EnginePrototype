@@ -17,6 +17,8 @@
 #include "graphics/layoutBinding.h"
 #include "graphics/eventManager.h"
 
+#include "graphics/UI/UIInstance.h"
+
 #include "cpp-data-parsing/yaml/yamlParser.h"
 #include "cpp-data-parsing/json/jsonParser.h"
 #include "cpp-data-parsing/csv/csvParser.h"
@@ -93,6 +95,22 @@ int main(int argc, char *argv[]) {
     Object cube("Cube"); 
     cube.addComponent(&transform); 
     cube.addComponent(&cubeEntityInstance);
+    
+
+    Shader uiShader = createShader(rendererContent, "shaders/uiShader.vert.spv", "shaders/uiShader.frag.spv");
+
+    std::vector<Vertex> triangleVertices = {
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+    
+    };
+    std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
+    VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
+    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, &cubeTexture, &uiShader, cubeBindings);
+    UIInstance uiInstance(rendererContent, &uiTriangle);
+    Object ui("UI"); 
+    ui.addComponent(&uiInstance);
 
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();

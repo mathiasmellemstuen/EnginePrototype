@@ -23,7 +23,7 @@ class Object {
         
         template<class T> T* getComponent() {
             for(Component* component : components) {
-                if(dynamic_cast<T*>(component) != 0) {
+            if(dynamic_cast<T*>(component) != 0) {
                     return (T*)component;
                 }
             }
