@@ -1,10 +1,10 @@
-mkdir build
-cd build/
+mkdir build2
+cd build2/
 
 {
   cmake ..
   make
 } && {
   cd ..
-  ./build/ENGINEPROTOTYPE
+  ./build2/ENGINEPROTOTYPE
 }

@@ -46,14 +46,16 @@
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
-    Debug::log(INFO, "Starting application."); 
+    Debug::log(INFO, "Starting application2."); 
 
     // Loading properties file
     std::string filePath = "properties.yaml"; 
     properties = new YamlParser(filePath);
 
+    #ifndef NO_DEBUG_WINDOW
     // Starting debugging
     Debug::setupDebugWindow();
+    #endif
 
     // Creating a window and attaching a renderer
     Window window;
@@ -80,7 +82,7 @@ int main(int argc, char *argv[]) {
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
 
     // Creating bindings
-    std::vector<LayoutBinding> cubeBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBuffer)}, {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}};
+    std::vector<LayoutBinding> cubeBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}, {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}};
 
     // Creating a graphics entity
     GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader, cubeBindings);
@@ -96,25 +98,26 @@ int main(int argc, char *argv[]) {
     cube.addComponent(&transform); 
     cube.addComponent(&cubeEntityInstance);
     
-
     Shader uiShader = createShader(rendererContent, "shaders/uiShader.vert.spv", "shaders/uiShader.frag.spv");
 
     std::vector<Vertex> triangleVertices = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
         {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
         {{0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-    
     };
     std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
+    std::vector<LayoutBinding> triangleBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}};
     VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
-    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, &cubeTexture, &uiShader, cubeBindings);
+    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, nullptr, &uiShader, triangleBindings);
     UIInstance uiInstance(rendererContent, &uiTriangle);
     Object ui("UI"); 
     ui.addComponent(&uiInstance);
 
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();
-
+    
+    Debug::log("Starting rendering loop!");
+    
     // Running rendering loop, this is blocking
     loop(rendererContent, window, eventManager);
 

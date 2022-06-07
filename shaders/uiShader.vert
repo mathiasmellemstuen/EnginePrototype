@@ -7,16 +7,20 @@ layout(binding = 0) uniform UIInstanceUniformBufferObject {
     bool hover;
 } ubo;
 
+
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec2 inTexCoord;
 
-layout(location = 0) out vec3 fragColor;
+out gl_PerVertex {
+	vec4 gl_Position;   
+};
+
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec4 outColor;
 
 void main() {
-    vec2 pos[3] = vec2[3]( vec2(-0.7, 0.7),
-                           vec2(0.7, 0.7),
-                           vec2(0.0, -0.7) );
-    gl_Position = vec4( pos[gl_VertexIndex], 0.0, 1.0 );
-    fragColor = inColor;
+    outUV = inTexCoord; 
+    outColor = vec4(inColor, 1.0); 
+    gl_Position = vec4(inPosition.x, inPosition.y, 0.0, 1.0);
 }

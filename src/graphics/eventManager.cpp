@@ -15,14 +15,16 @@ void EventManager::update(Window& window) {
 
     while(SDL_PollEvent(&event)) {
 
+            #ifndef NO_DEBUG_WINDOW
             //This line is causing problems where the game screen is black?
             if(Debug::updateDebugWindowEvents(event)) {
                 return;
             }
+            #endif
 
             Mouse::update(event);
             KeyboardInput::update(event);
-            
+
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
 
                 window.running = false;

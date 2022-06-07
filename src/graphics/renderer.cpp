@@ -40,7 +40,7 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {135.0f / 255.0f, 206.0f / 255.0f, 235.0f / 255.0f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0}; 
+        clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
@@ -62,7 +62,7 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
                 if(currentUIInstance != nullptr) {
                     UIInstanceUniformBufferObject bo = {currentUIInstance->position, currentUIInstance->size, currentUIInstance->color, currentUIInstance->hover()};
                     currentUIInstance->render(rendererContent, bo, i);
-                    continue; 
+                    continue;
                 }
 
                 // TODO: Rendering all custom graphics entities
@@ -429,6 +429,7 @@ void loop(RendererContent& rendererContent, Window& window, EventManager& eventM
     last = 0; 
 
     createCommandBuffers(rendererContent, 0); 
+
     while(window.running) {
         
         // Calculating delta time
@@ -436,9 +437,11 @@ void loop(RendererContent& rendererContent, Window& window, EventManager& eventM
         now = SDL_GetPerformanceCounter(); 
         float deltaTime = (float)((now - last) * 1000 / (float)SDL_GetPerformanceFrequency()) / 1000.0f;
 
+        #ifndef NO_DEBUG_WINDOW
         // For debug window
         Debug::calculateFps(); 
         Debug::drawDebugWindow();
+        #endif
 
         eventManager.update(window);
 
