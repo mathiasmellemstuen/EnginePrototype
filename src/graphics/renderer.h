@@ -6,6 +6,7 @@
 #include "QueueFamilyIndices.h"
 #include "window.h"
 #include "eventManager.h"
+#include <stdexcept>
 
 struct RendererContent {
     VkInstance instance;

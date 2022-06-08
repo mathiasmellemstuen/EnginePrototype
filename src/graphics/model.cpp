@@ -1,3 +1,5 @@
+
+#include <iterator>
 #include "model.h"
 #include "../utility/debug.h"
 #include <tinyobjloader/tiny_obj_loader.h>

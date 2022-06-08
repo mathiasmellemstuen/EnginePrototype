@@ -22,5 +22,5 @@ layout (location = 1) out vec4 outColor;
 void main() {
     outUV = inTexCoord; 
     outColor = vec4(inColor, 1.0); 
-    gl_Position = vec4(inPosition.x, inPosition.y, 0.0, 1.0);
+    gl_Position = vec4(ubo.position.x + inPosition.x, ubo.position.y + inPosition.y, 0.0, 1.0);
 }

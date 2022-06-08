@@ -6,6 +6,7 @@
 #include "texture.h"
 #include "shader.h"
 #include "layoutBinding.h"
+#include <stdexcept>
 
 struct GraphicsEntity {
     VertexBuffer* vertexBuffer;

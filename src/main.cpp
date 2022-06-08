@@ -1,3 +1,4 @@
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -54,6 +55,7 @@ int main(int argc, char *argv[]) {
 
     #ifndef NO_DEBUG_WINDOW
     // Starting debugging
+    Debug::log(INFO, "Starting debugging!");
     Debug::setupDebugWindow();
     #endif
 
@@ -94,9 +96,9 @@ int main(int argc, char *argv[]) {
     Transform transform({0.0f, 0.0f, 0.0f});
 
     // Creating a cube object
-    Object cube("Cube"); 
-    cube.addComponent(&transform); 
-    cube.addComponent(&cubeEntityInstance);
+    //Object cube("Cube");
+    //cube.addComponent(&transform);
+    //cube.addComponent(&cubeEntityInstance);
     
     Shader uiShader = createShader(rendererContent, "shaders/uiShader.vert.spv", "shaders/uiShader.frag.spv");
 

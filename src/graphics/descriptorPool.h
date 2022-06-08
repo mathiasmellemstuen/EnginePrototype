@@ -5,6 +5,7 @@
 #include <vector>
 #include "renderer.h"
 #include "../core/component.h"
+#include <stdexcept>
 
 template<typename U> class GraphicsEntityInstance;
 

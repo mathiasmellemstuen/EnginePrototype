@@ -5,7 +5,6 @@
 #include "../core/object.h"
 #include "../input/keyboardInput.h"
 #include "../input/mouse.h"
-#include "../mathematics/easingFunctions.h"
 
 void Camera::updateMatrices() {
     view = glm::lookAt(position, position + front, up);
