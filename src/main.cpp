@@ -1,4 +1,3 @@
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -78,7 +77,7 @@ int main(int argc, char *argv[]) {
     Texture cubeTexture = createTexture(rendererContent, "textures/gold.png");
 
     // Loading a shader
-    Shader cubeShader = createShader(rendererContent, "shaders/vert.spv", "shaders/frag.spv");
+    Shader cubeShader = createShader(rendererContent, "shaders/compiled/default.vert.spv", "shaders/compiled/default.frag.spv");
 
     // Creating vertex buffer
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
@@ -96,11 +95,11 @@ int main(int argc, char *argv[]) {
     Transform transform({0.0f, 0.0f, 0.0f});
 
     // Creating a cube object
-    //Object cube("Cube");
-    //cube.addComponent(&transform);
-    //cube.addComponent(&cubeEntityInstance);
+    Object cube("Cube");
+    cube.addComponent(&transform);
+    cube.addComponent(&cubeEntityInstance);
     
-    Shader uiShader = createShader(rendererContent, "shaders/uiShader.vert.spv", "shaders/uiShader.frag.spv");
+    Shader uiShader = createShader(rendererContent, "shaders/compiled/uiShader.vert.spv", "shaders/compiled/uiShader.frag.spv");
 
     std::vector<Vertex> triangleVertices = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},

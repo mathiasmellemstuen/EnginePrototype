@@ -6,6 +6,7 @@ engine
 src/utility/.DS_Store
 imgui.ini
 build/
+build2/
 *.lib
 *.dll
 .DS_Store
