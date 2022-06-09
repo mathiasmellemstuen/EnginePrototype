@@ -66,18 +66,18 @@ int main(int argc, char *argv[]) {
     EventManager eventManager;
 
     // Creating a camera inside a object
-    Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
+    Camera camera(glm::vec3(-10.0f, 0.0f, 2.0f), 45.0f, 1920.0f / 1080.0f, 0.1f, 100.0f);
     Object main("Main"); 
     main.addComponent(&camera); 
     
     // Loading a cube model
-    Model cubeModel("models/cube.obj");
+    Model cubeModel("assets/models/cube.obj");
     
     // Loading a texture 
-    Texture cubeTexture = createTexture(rendererContent, "textures/gold.png");
+    Texture cubeTexture = createTexture(rendererContent, "assets/textures/gold.png");
 
     // Loading a shader
-    Shader cubeShader = createShader(rendererContent, "shaders/compiled/default.vert.spv", "shaders/compiled/default.frag.spv");
+    Shader cubeShader = createShader(rendererContent, "assets/shaders/compiled/default.vert.spv", "assets/shaders/compiled/default.frag.spv");
 
     // Creating vertex buffer
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
@@ -99,18 +99,22 @@ int main(int argc, char *argv[]) {
     cube.addComponent(&transform);
     cube.addComponent(&cubeEntityInstance);
     
-    Shader uiShader = createShader(rendererContent, "shaders/compiled/uiShader.vert.spv", "shaders/compiled/uiShader.frag.spv");
+    Shader uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
 
     std::vector<Vertex> triangleVertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-        {{0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
     };
     std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
     std::vector<LayoutBinding> triangleBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}};
     VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
     GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, nullptr, &uiShader, triangleBindings);
     UIInstance uiInstance(rendererContent, &uiTriangle);
+    uiInstance.position = {-0.5, 0.0};
+    uiInstance.color = {1.0, 1.0, 1.0};
+    uiInstance.size = {1.0, 1.0};
+
     Object ui("UI"); 
     ui.addComponent(&uiInstance);
 

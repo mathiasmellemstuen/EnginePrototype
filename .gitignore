@@ -14,3 +14,4 @@ include/
 .idea/
 /cmake-build-debug
 thirdparty/
+build-xcode

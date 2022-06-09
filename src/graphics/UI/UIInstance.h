@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include "../graphicsEntityInstance.h"
+#include "../uniformBufferObject.h"
 
 struct UIInstanceUniformBufferObject {
     glm::vec2 position; 

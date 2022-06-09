@@ -17,11 +17,11 @@ target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdpart
 
 find_package(Vulkan REQUIRED)
 
-set(SDL2_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.20/x86_64-w64-mingw32/lib")
+set(SDL2_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.20-windows/x86_64-w64-mingw32/lib")
 
+# Linking SDL
 if (${WIN32})
-    #set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.lib;${CMAKE_SOURCE_DIR}/SDL2main.lib")
-    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY_DIR}/libSDL2main.a ${SDL2_LIBRARY_DIR}/libSDL2.dll.a)
+    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY_DIR_WINDOWS}/libSDL2main.a ${SDL2_LIBRARY_DIR_WINDOWS}/libSDL2.dll.a)
 endif()
 if (${APPLE})
     set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.a")
@@ -31,4 +31,5 @@ endif()
 #     # TODO: Set SDL2_LIBRARIES for linux
 # endif()
 
+# Linking Vulkan
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
