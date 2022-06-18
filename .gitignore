@@ -15,3 +15,4 @@ include/
 /cmake-build-debug
 thirdparty/
 build-xcode
+sdl2-config
