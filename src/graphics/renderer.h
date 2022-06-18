@@ -22,7 +22,8 @@ struct RendererContent {
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
-    VkRenderPass renderPass; 
+    VkRenderPass renderPass;
+    VkRenderPass uiRenderPass; 
     VkCommandPool commandPool; 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;

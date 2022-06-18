@@ -23,7 +23,6 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    
 
         if (vkBeginCommandBuffer(rendererContent.commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
             Debug::log(ERROR, "Failed to begin recording command buffers!"); 
@@ -34,7 +33,6 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = rendererContent.renderPass;
         renderPassInfo.framebuffer = rendererContent.swapChainFramebuffers[i];
-
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = rendererContent.swapChainExtent;
 
@@ -56,7 +54,35 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
                     currentGraphicsEntityInstance->render(rendererContent, bo, i);
                     continue; 
                 }
-                // Rendering user interface objects
+                // Making sure we are not rendering user interface objects
+                UIInstance* currentUIInstance = object->getComponent<UIInstance>();
+
+                if(currentUIInstance != nullptr) {
+                    continue;
+                }
+
+                // TODO: Rendering all custom graphics entities
+
+            }
+        
+        vkCmdEndRenderPass(rendererContent.commandBuffers[i]);
+        
+        // Setting up UI render pass
+        VkRenderPassBeginInfo uiRenderPassInfo{};
+        uiRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        uiRenderPassInfo.renderPass = rendererContent.uiRenderPass;
+        uiRenderPassInfo.framebuffer = rendererContent.swapChainFramebuffers[i];
+        uiRenderPassInfo.renderArea.offset = {0, 0};
+        uiRenderPassInfo.renderArea.extent = rendererContent.swapChainExtent;
+        uiRenderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        uiRenderPassInfo.pClearValues = clearValues.data();
+
+        // Starting UI render pass
+        vkCmdBeginRenderPass(rendererContent.commandBuffers[i], &uiRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            for(Object* object : Object::objects) {
+                
+                // Rendering all user interface objects!
                 UIInstance* currentUIInstance = object->getComponent<UIInstance>();
 
                 if(currentUIInstance != nullptr) {
@@ -65,10 +91,8 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
                     continue;
                 }
 
-                // TODO: Rendering all custom graphics entities
-
             }
-        
+
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);
 
         if (vkEndCommandBuffer(rendererContent.commandBuffers[i]) != VK_SUCCESS) {
@@ -564,7 +588,7 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this to go to the next render pass instead of present src khr
 
         VkAttachmentReference colorAttachmentResolveRef{};
         colorAttachmentResolveRef.attachment = 2;
@@ -577,7 +601,6 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
         subpass.pResolveAttachments = &colorAttachmentResolveRef;
         
-
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
@@ -603,6 +626,84 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         }
 
         Debug::log(SUCCESS, "Successfully created render pass!"); 
+
+    }
+    {
+        Debug::log(INFO, "Creating UI render pass!");
+
+        VkAttachmentDescription colorAttachment{};
+        colorAttachment.format = rendererContent.swapChainImageFormat; 
+        colorAttachment.samples = rendererContent.msaaSamples;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // Changing this to not have clear color
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this because we have a previous render pass
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
+
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0; 
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentDescription depthAttachment{};
+        depthAttachment.format = findDepthFormat(rendererContent);
+        depthAttachment.samples = rendererContent.msaaSamples;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthAttachmentRef{};
+        depthAttachmentRef.attachment = 1;
+        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentDescription colorAttachmentResolve{};
+        colorAttachmentResolve.format = rendererContent.swapChainImageFormat;
+        colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // Changing this to not have clear color
+        colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this because we have a previous render pass
+        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        
+        VkAttachmentReference colorAttachmentResolveRef{};
+        colorAttachmentResolveRef.attachment = 2;
+        colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        std::array<VkAttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
+        
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorAttachmentRef;
+        subpass.pDepthStencilAttachment = &depthAttachmentRef;
+        subpass.pResolveAttachments = &colorAttachmentResolveRef;
+
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderPassInfo.pAttachments = attachments.data();
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        if (vkCreateRenderPass(rendererContent.device, &renderPassInfo, nullptr, &rendererContent.uiRenderPass) != VK_SUCCESS) {
+            Debug::log(ERROR, "Failed to create UI render pass!"); 
+            throw std::runtime_error("failed to create UI render pass!");
+        }
+        Debug::log(SUCCESS, "Created UI render pass!");
     }
     {
         Debug::log(INFO, "Creating color resources!");
@@ -619,7 +720,6 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         Debug::log(SUCCESS, "Created depth resources!"); 
     }
     {
-
         Debug::log(INFO, "Creating framebuffers"); 
 
         rendererContent.swapChainFramebuffers.resize(rendererContent.swapChainImageViews.size());

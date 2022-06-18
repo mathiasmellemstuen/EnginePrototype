@@ -1,7 +1,6 @@
 #include "camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "../utility/debug.h"
-
 #include "../core/object.h"
 #include "../input/keyboardInput.h"
 #include "../input/mouse.h"
