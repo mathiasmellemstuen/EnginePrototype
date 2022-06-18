@@ -82,11 +82,8 @@ int main(int argc, char *argv[]) {
     // Creating vertex buffer
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
 
-    // Creating bindings
-    std::vector<LayoutBinding> cubeBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}, {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}};
-
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader, cubeBindings);
+    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader);
     
     // Creating a cube instance
     GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(rendererContent, &cubeEntity);
@@ -106,10 +103,10 @@ int main(int argc, char *argv[]) {
         {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
         {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
     };
+
     std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
-    std::vector<LayoutBinding> triangleBindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}};
     VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
-    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, nullptr, &uiShader, triangleBindings);
+    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, nullptr, &uiShader);
     UIInstance uiInstance(rendererContent, &uiTriangle);
     uiInstance.position = {-0.5, 0.0};
     uiInstance.color = {1.0, 1.0, 1.0};

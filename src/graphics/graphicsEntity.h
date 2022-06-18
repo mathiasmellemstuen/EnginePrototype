@@ -17,7 +17,7 @@ struct GraphicsEntity {
     VkPipelineLayout pipelineLayout;
 };
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader, const std::vector<LayoutBinding>& bindings);
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader);
 void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
 
 #endif

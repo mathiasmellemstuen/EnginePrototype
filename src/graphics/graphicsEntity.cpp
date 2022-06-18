@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include "../utility/debug.h"
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader, const std::vector<LayoutBinding>& bindings) {
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader) {
     GraphicsEntity graphicsEntity; 
     graphicsEntity.vertexBuffer = vertexBuffer;
     graphicsEntity.texture = texture;
@@ -11,10 +11,18 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuff
 
     Debug::log(INFO, "Starting setup of Descriptor set layout");
 
+    // Uniform bindings that every shader has by standard. Maybe make this optional in the future.
+    std::vector<LayoutBinding> bindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}};
+
+    // Adding texture bindings if a texture is bound
+    if(texture != nullptr) {
+        bindings.push_back({VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT});
+    }
+    
     std::vector<VkDescriptorSetLayoutBinding> lBindings;
 
+    // Adding it to lBindings
     int bindingIndex = 0;
-
     for(const LayoutBinding& binding : bindings) {
         VkDescriptorSetLayoutBinding b;
         b.binding = bindingIndex;
