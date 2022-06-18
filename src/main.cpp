@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
 
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeTexture, &cubeShader);
+    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeShader, &cubeTexture);
     
     // Creating a cube instance
     GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(rendererContent, &cubeEntity);
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
     VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
-    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, nullptr, &uiShader);
+    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, &uiShader);
     UIInstance uiInstance(rendererContent, &uiTriangle);
     uiInstance.position = {-0.5, 0.0};
     uiInstance.color = {1.0, 1.0, 1.0};

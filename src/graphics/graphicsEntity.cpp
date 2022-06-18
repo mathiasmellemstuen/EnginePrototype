@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include "../utility/debug.h"
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Texture* texture, Shader* shader) {
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Shader* shader, Texture* texture) {
     GraphicsEntity graphicsEntity; 
     graphicsEntity.vertexBuffer = vertexBuffer;
     graphicsEntity.texture = texture;
