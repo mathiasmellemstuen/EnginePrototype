@@ -11,6 +11,14 @@ void Mouse::update(SDL_Event& event) {
 
         Mouse::mousePosition.x = x;
         Mouse::mousePosition.y = y;
+
+        // Calculating the normalized mouse position
+        SDL_DisplayMode DM;
+        SDL_GetCurrentDisplayMode(0, &DM);
+        auto width = DM.w;
+        auto height = DM.h;
+        Mouse::normalizedMousePosition.x = Mouse::mousePosition.x / (float)width; 
+        Mouse::normalizedMousePosition.y = Mouse::mousePosition.y / (float)height;
     }
 
     // Registering left clicks

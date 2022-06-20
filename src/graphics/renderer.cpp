@@ -80,17 +80,28 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         // Starting UI render pass
         vkCmdBeginRenderPass(rendererContent.commandBuffers[i], &uiRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+            std::vector<UIInstance*> instances; 
+
             for(Object* object : Object::objects) {
                 
                 // Rendering all user interface objects!
                 UIInstance* currentUIInstance = object->getComponent<UIInstance>();
 
                 if(currentUIInstance != nullptr) {
-                    UIInstanceUniformBufferObject bo = {currentUIInstance->position, currentUIInstance->size, currentUIInstance->color, currentUIInstance->hover()};
-                    currentUIInstance->render(rendererContent, bo, i);
+                    instances.push_back(currentUIInstance);
                     continue;
                 }
+            }
 
+            struct {
+                bool operator()(UIInstance* a, UIInstance* b) const {return a->layer < b->layer; }
+            } custom;
+
+            std::sort(instances.begin(), instances.end(), custom); 
+
+            for(UIInstance* instance : instances) {
+                UIInstanceUniformBufferObject bo = {instance->position, instance->size, instance->color, instance->hover() ? 1.0f : 0.0f};
+                instance->render(rendererContent, bo, i);
             }
 
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);
@@ -864,6 +875,7 @@ RendererContent createRenderer(Window& window) {
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         deviceFeatures.samplerAnisotropy = VK_TRUE; 
+        deviceFeatures.geometryShader = VK_TRUE;
         
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

@@ -4,20 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-#include "utility/debug.h"
-#include "graphics/vertex.h"
-#include "graphics/window.h"
-#include "graphics/renderer.h"
-#include "graphics/model.h"
-#include "graphics/shader.h"
-#include "graphics/texture.h"
-#include "graphics/vertexBuffer.h"
-#include "graphics/graphicsEntity.h"
-#include "graphics/graphicsEntityInstance.h"
-#include "graphics/layoutBinding.h"
-#include "graphics/eventManager.h"
-
-#include "graphics/UI/UIInstance.h"
+#include "rapidxml/rapidxml.hpp"
 
 #include "cpp-data-parsing/yaml/yamlParser.h"
 #include "cpp-data-parsing/json/jsonParser.h"
@@ -31,16 +18,33 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "utility/properties.h"
+#include "graphics/vertex.h"
+#include "graphics/window.h"
+#include "graphics/renderer.h"
+#include "graphics/model.h"
+#include "graphics/shader.h"
+#include "graphics/texture.h"
+#include "graphics/vertexBuffer.h"
+#include "graphics/graphicsEntity.h"
+#include "graphics/graphicsEntityInstance.h"
+#include "graphics/layoutBinding.h"
+#include "graphics/eventManager.h"
+#include "graphics/camera.h"
+
+#include "graphics/UI/UIInstance.h"
+#include "graphics/UI/UIRectangleInstance.h"
+#include "graphics/UI/UITriangleInstance.h"
+
 #include "input/mouse.h"
 #include "input/keyboardInput.h"
 
 #include "core/object.h"
 #include "core/transform.h"
-#include "graphics/camera.h"
+#include "core/predefined.h"
 
-#include "rapidxml/rapidxml.hpp"
 #include "utility/xml.h"
+#include "utility/properties.h"
+#include "utility/debug.h"
 
 
 YamlParser* properties = nullptr;
@@ -58,9 +62,13 @@ int main(int argc, char *argv[]) {
     Debug::setupDebugWindow();
     #endif
 
+
     // Creating a window and attaching a renderer
     Window window;
     RendererContent rendererContent = createRenderer(window);
+
+    // Loading engine spesific predefined content
+    loadPredefined(rendererContent);
 
     // Creating a event manager
     EventManager eventManager;
@@ -83,7 +91,7 @@ int main(int argc, char *argv[]) {
     VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
 
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeVertexBuffer, &cubeShader, &cubeTexture);
+    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeShader, &cubeVertexBuffer, &cubeTexture);
     
     // Creating a cube instance
     GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(rendererContent, &cubeEntity);
@@ -98,22 +106,23 @@ int main(int argc, char *argv[]) {
     
     Shader uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
 
-    std::vector<Vertex> triangleVertices = {
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    };
+    // Creating a UI triangle
+    UITriangleInstance triangle1(rendererContent); 
+    triangle1.position = {0.0, 0.0};
+    triangle1.color = {1.0, 1.0, 1.0, 1.0};
+    triangle1.size = {1.0, 1.0};
+    triangle1.layer = 0;
+    Object uiTriangle("Triangle Object"); 
+    uiTriangle.addComponent(&triangle1);
 
-    std::vector<uint32_t> triangleIndices = {0, 1, 2}; 
-    VertexBuffer uiVertexBuffer = createVertexBuffer(rendererContent, triangleVertices, triangleIndices);
-    GraphicsEntity uiTriangle = createGraphicsEntity(rendererContent, &uiVertexBuffer, &uiShader);
-    UIInstance uiInstance(rendererContent, &uiTriangle);
-    uiInstance.position = {-0.5, 0.0};
-    uiInstance.color = {1.0, 1.0, 1.0};
-    uiInstance.size = {1.0, 1.0};
-
-    Object ui("UI"); 
-    ui.addComponent(&uiInstance);
+    // Creating a UI rectangle
+    UIRectangleInstance uiRectangleInstance(rendererContent); 
+    uiRectangleInstance.position = {0.0, 0.0};
+    uiRectangleInstance.color = {1.0, 1.0, 1.0, 1.0};
+    uiRectangleInstance.size = {1.0, 1.0};
+    uiRectangleInstance.layer = 2; 
+    Object uiRectangle("UI Rectangle Object"); 
+    uiRectangle.addComponent(&uiRectangleInstance); 
 
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();

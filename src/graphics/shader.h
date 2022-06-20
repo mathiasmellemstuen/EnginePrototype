@@ -10,12 +10,14 @@
 struct Shader {
     VkShaderModule vertexShaderModule; 
     VkShaderModule fragmentShaderModule;
-    VkPipelineShaderStageCreateInfo shaderStages[2]; 
+    VkShaderModule geometryShaderModule;
+    VkPipelineShaderStageCreateInfo shaderStages[3];
+    uint16_t shaderCount; 
 };
 
 std::vector<char> readFile(const std::string& fileName);
 VkShaderModule createShaderModule(RendererContent& rendererContent, const std::vector<char>& code);
-Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath);
+Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
 void freeShader(RendererContent& rendererContent, Shader& shader);
 
 #endif

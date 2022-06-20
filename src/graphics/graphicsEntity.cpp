@@ -2,12 +2,15 @@
 #include "renderer.h"
 #include <vulkan/vulkan.h>
 #include "../utility/debug.h"
+#include "../core/predefined.h"
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Shader* shader, Texture* texture) {
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest) {
     GraphicsEntity graphicsEntity; 
     graphicsEntity.vertexBuffer = vertexBuffer;
     graphicsEntity.texture = texture;
     graphicsEntity.shader = shader; 
+    
+    //TODO: Handle when vertexbuffer is a nullptr
 
     Debug::log(INFO, "Starting setup of Descriptor set layout");
 
@@ -106,7 +109,7 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuff
     multisampling.minSampleShading = 1.0f; // Optional 
     multisampling.pSampleMask = nullptr; // Optional 
     multisampling.alphaToCoverageEnable = VK_FALSE; // Optional 
-    multisampling.alphaToOneEnable = VK_FALSE; // Optional¨
+    multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -158,8 +161,8 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuff
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthTestEnable = enableDepthTest ? VK_TRUE : VK_FALSE;
+    depthStencil.depthWriteEnable = enableDepthTest ? VK_TRUE : VK_FALSE;
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.minDepthBounds = 0.0f; // Optional
@@ -168,7 +171,7 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuff
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
+    pipelineInfo.stageCount = shader->shaderCount;
     pipelineInfo.pStages = shader->shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;

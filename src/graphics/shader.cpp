@@ -8,17 +8,18 @@
 #include <iostream>
 #include "renderer.h"
 
-Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath) {
+Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
     Shader shader; 
-    
+    shader.shaderCount = 2; 
+
     Debug::log(INFO, "Creating shader"); 
 
     auto vertShaderCode = readFile(vertexShaderPath);
     auto fragShaderCode = readFile(fragmentShaderPath);
-
+    
     shader.vertexShaderModule = createShaderModule(rendererContent, vertShaderCode); 
     shader.fragmentShaderModule = createShaderModule(rendererContent, fragShaderCode);
-
+    
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -31,6 +32,24 @@ Shader createShader(RendererContent& rendererContent, std::string vertexShaderPa
     fragShaderStageInfo.module = shader.fragmentShaderModule;
     fragShaderStageInfo.pName = "main";
 
+    // Geometry shader is optional. Checking if we should add it.
+    if(geometryShaderPath != "") {
+
+        auto geometryShaderCode = readFile(geometryShaderPath);
+        shader.geometryShaderModule = createShaderModule(rendererContent, geometryShaderCode);
+
+        VkPipelineShaderStageCreateInfo geometryShaderStageInfo{};
+        geometryShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        geometryShaderStageInfo.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+        geometryShaderStageInfo.module = shader.geometryShaderModule;
+        geometryShaderStageInfo.pName = "main";
+
+        shader.shaderStages[2] = geometryShaderStageInfo;
+
+        shader.shaderCount = 3; 
+    }
+
+    // Assigning vertex and fragment shaders
     shader.shaderStages[0] = vertShaderStageInfo;
     shader.shaderStages[1] = fragShaderStageInfo; 
 

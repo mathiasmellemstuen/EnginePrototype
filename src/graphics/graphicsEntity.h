@@ -17,7 +17,7 @@ struct GraphicsEntity {
     VkPipelineLayout pipelineLayout;
 };
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, VertexBuffer* vertexBuffer, Shader* shader, Texture* texture = nullptr);
+GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true);
 void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
 
 #endif

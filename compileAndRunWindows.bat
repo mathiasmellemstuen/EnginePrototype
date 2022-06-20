@@ -1,8 +1,8 @@
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+@echo off
+del engine.exe
 cd build/
 cmake ..
-cmake --build . --target ENGINEPROTOTYPE --config Release
-cd Release/
-copy /B "ENGINEPROTOTYPE.exe" "../../engine.exe"
-cd ../../
-engine.exe
+make
+copy /B "ENGINEPROTOTYPE.exe" "../engine.exe"
+cd ../
+start /B engine.exe

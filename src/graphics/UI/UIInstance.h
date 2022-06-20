@@ -9,15 +9,17 @@
 struct UIInstanceUniformBufferObject {
     glm::vec2 position; 
     glm::vec2 size; 
-    glm::vec3 color;
-    bool hover; 
+    glm::vec4 color;
+    float hover; 
 };
 class UIInstance : public GraphicsEntityInstance<UIInstanceUniformBufferObject> {
     public:
         glm::vec2 position; 
         glm::vec2 size; 
-        glm::vec3 color;
-        bool hover();
+        glm::vec4 color;
+        int layer; 
+        virtual bool hover();
+        virtual void debug();
         UIInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity);
 };
 #endif

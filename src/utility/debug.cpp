@@ -387,6 +387,11 @@ void Debug::drawDebugWindow() {
         ImGui::Text("Mouse Position:");
         ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
+        ImGui::Text("Normalized Mouse Position:");
+        std::string normalizedXText = "X: " + std::to_string(Mouse::normalizedMousePosition.x); 
+        std::string normalizedYText = "Y: " + std::to_string(Mouse::normalizedMousePosition.y);
+        ImGui::Text(normalizedXText.c_str());
+        ImGui::Text(normalizedYText.c_str());
         ImGui::Text("Mouse acceleration:");
         xText = "X: " + std::to_string(Mouse::mouseAcceleration.x);
         yText = "Y: " + std::to_string(Mouse::mouseAcceleration.y);

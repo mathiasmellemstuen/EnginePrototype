@@ -17,7 +17,7 @@ target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdpart
 
 find_package(Vulkan REQUIRED)
 
-set(SDL2_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.20-windows/x86_64-w64-mingw32/lib")
+set(SDL2_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.22-windows/x86_64-w64-mingw32/lib")
 
 # Linking SDL
 if (${WIN32})
