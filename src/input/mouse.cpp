@@ -13,12 +13,14 @@ void Mouse::update(SDL_Event& event) {
         Mouse::mousePosition.y = y;
 
         // Calculating the normalized mouse position
-        SDL_DisplayMode DM;
-        SDL_GetCurrentDisplayMode(0, &DM);
-        auto width = DM.w;
-        auto height = DM.h;
+        int width; 
+        int height; 
+        SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height); 
         Mouse::normalizedMousePosition.x = Mouse::mousePosition.x / (float)width; 
         Mouse::normalizedMousePosition.y = Mouse::mousePosition.y / (float)height;
+
+        Mouse::mouseVulkanScreenPosition.x = Mouse::normalizedMousePosition.x < 0.5 ? ((Mouse::normalizedMousePosition.x - 0.5f) / 0.5f) : ((Mouse::normalizedMousePosition.x - 0.5f) / 0.5f);
+        Mouse::mouseVulkanScreenPosition.y = Mouse::normalizedMousePosition.y < 0.5 ? ((Mouse::normalizedMousePosition.y - 0.5f) / 0.5f) : ((Mouse::normalizedMousePosition.y - 0.5f) / 0.5f);
     }
 
     // Registering left clicks

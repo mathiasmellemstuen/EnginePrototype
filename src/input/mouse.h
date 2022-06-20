@@ -10,6 +10,7 @@ class Mouse {
         inline static glm::vec2 mouseAcceleration;
         inline static glm::vec2 mousePosition;
         inline static glm::vec2 normalizedMousePosition;
+        inline static glm::vec2 mouseVulkanScreenPosition; 
         inline static bool mouseLeftIsPressed;
         inline static bool mouseLeftOnDown; 
         inline static bool mouseLeftOnUp;

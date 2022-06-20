@@ -7,8 +7,8 @@ UIRectangleInstance::UIRectangleInstance(RendererContent& rendererContent) : UII
 };
 
 bool UIRectangleInstance::hover() {
-    bool hoveringX = Mouse::mousePosition.x > position.x && Mouse::mousePosition.y < position.x + size.x;
-    bool hoveringY = Mouse::mousePosition.y > position.y && Mouse::mousePosition.y < position.y + size.y; 
+    bool hoveringX = Mouse::mouseVulkanScreenPosition.x > position.x - size.x && Mouse::mouseVulkanScreenPosition.x < position.x + size.x;
+    bool hoveringY = Mouse::mouseVulkanScreenPosition.y > position.y - size.y && Mouse::mouseVulkanScreenPosition.y < position.y + size.y; 
 
-    return hoveringX && hoveringY;
+    return !Mouse::isMouseRelative() && hoveringX && hoveringY;
 }

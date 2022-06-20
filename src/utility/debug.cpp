@@ -392,6 +392,11 @@ void Debug::drawDebugWindow() {
         std::string normalizedYText = "Y: " + std::to_string(Mouse::normalizedMousePosition.y);
         ImGui::Text(normalizedXText.c_str());
         ImGui::Text(normalizedYText.c_str());
+        ImGui::Text("Mouse Vulkan Coordinate System Screen Position:");
+        std::string vulkanScreenXText = "X: " + std::to_string(Mouse::mouseVulkanScreenPosition.x); 
+        std::string vulkanScreenYText = "Y: " + std::to_string(Mouse::mouseVulkanScreenPosition.y);
+        ImGui::Text(vulkanScreenXText.c_str());
+        ImGui::Text(vulkanScreenYText.c_str());
         ImGui::Text("Mouse acceleration:");
         xText = "X: " + std::to_string(Mouse::mouseAcceleration.x);
         yText = "Y: " + std::to_string(Mouse::mouseAcceleration.y);
