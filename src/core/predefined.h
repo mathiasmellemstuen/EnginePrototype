@@ -8,11 +8,13 @@
 
 struct PredefinedShaders {
     Shader uiShader; 
+    Shader uiCircle;
 };
 
 struct PredefinedGraphicsEntities {
     GraphicsEntity uiTriangle;
     GraphicsEntity uiRectangle;
+    GraphicsEntity uiCircle; 
 };
 
 struct PredefinedVertexBuffers {

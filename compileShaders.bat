@@ -5,4 +5,6 @@ C:/VulkanSDK/1.3.211.0/Bin/glslc.exe colorShader.vert -o compiled/colorShader.ve
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe colorShader.frag -o compiled/colorShader.frag.spv
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiShader.vert -o compiled/uiShader.vert.spv
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiShader.frag -o compiled/uiShader.frag.spv
+C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiCircle.vert -o compiled/uiCircle.vert.spv
+C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiCircle.frag -o compiled/uiCircle.frag.spv
 cd ../../

@@ -34,6 +34,7 @@
 #include "graphics/UI/UIInstance.h"
 #include "graphics/UI/UIRectangleInstance.h"
 #include "graphics/UI/UITriangleInstance.h"
+#include "graphics/UI/UICircleInstance.h"
 
 #include "input/mouse.h"
 #include "input/keyboardInput.h"
@@ -117,12 +118,20 @@ int main(int argc, char *argv[]) {
 
     // Creating a UI rectangle
     UIRectangleInstance uiRectangleInstance(rendererContent); 
-    uiRectangleInstance.position = {-1.0, 0.0};
+    uiRectangleInstance.position = {-0.7, 0.0};
     uiRectangleInstance.color = {0.0, 1.0, 0.0, 0.7};
     uiRectangleInstance.size = {0.1, 0.1};
     uiRectangleInstance.layer = 1; 
     Object uiRectangle("UI Rectangle Object"); 
     uiRectangle.addComponent(&uiRectangleInstance); 
+
+    // Creating a UI circle
+    UICircleInstance uiCircleInstance(rendererContent);
+    uiCircleInstance.position = {0.0, 0.0};
+    uiCircleInstance.color = {0.0, 0.0, 1.0, 0.6};
+    uiCircleInstance.setRadius(0.4f); 
+    Object uiCirlce("UI Cirlce Object"); 
+    uiCirlce.addComponent(&uiCircleInstance);
 
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();

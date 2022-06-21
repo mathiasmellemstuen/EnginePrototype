@@ -11,7 +11,7 @@ void loadPredefined(RendererContent& rendererContent) {
 
     // Loading predefined shaders
     predefinedShaders.uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
-    
+    predefinedShaders.uiCircle = createShader(rendererContent, "assets/shaders/compiled/uiCircle.vert.spv", "assets/shaders/compiled/uiCircle.frag.spv");
 
     // Creating vertex buffers 
     {
@@ -40,4 +40,5 @@ void loadPredefined(RendererContent& rendererContent) {
     // Loading predefined graphics entities
     predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
     predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
+    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(rendererContent, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
 }
