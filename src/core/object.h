@@ -21,14 +21,9 @@ class Object {
         std::vector<Component*> components;
         Object(const std::string& name);
         
-        template<class T> T* getComponent() {
-            for(Component* component : components) {
-            if(dynamic_cast<T*>(component) != 0) {
-                    return (T*)component;
-                }
-            }
-            return nullptr;
-        }
+        template<class T> T* getComponent();
 };
+
+#include "object.tpp"
 
 #endif
