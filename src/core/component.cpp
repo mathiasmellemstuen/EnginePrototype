@@ -8,10 +8,12 @@ Component::Component() {
 
     id = NEXT_COMPONENT;
     NEXT_COMPONENT += 1;
+    name = "Empty Component";
 
-    name = "Component";
-
-    debug = [&](){
-        ImGui::Text(std::string(name + " #" + std::to_string(id)).c_str());
-    };
 };
+void Component::debug() {
+        ImGui::Text(std::string(name + " #" + std::to_string(id)).c_str());
+}
+void Component::update(float& deltaTime) {
+
+}

@@ -5,20 +5,16 @@
 #include <vulkan/vulkan.h>
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "renderer.h"
 
-class RenderInstance;
-
-class UniformBuffer {
-    public:
-        std::vector<VkBuffer> uniformBuffers;
-        std::vector<VkDeviceMemory> uniformBuffersMemory;
-        void update(uint32_t currentImage, glm::mat4& view, glm::mat4& projection, glm::mat4& model);
-        void create();
-        UniformBuffer(RenderInstance& renderInstance);
-        void clean(); 
-    private:
-        size_t allocatedSwapChainSize;
-        RenderInstance& renderInstance;
+struct UniformBuffer {
+    std::vector<VkBuffer> uniformBuffers;
+    std::vector<VkDeviceMemory> uniformBuffersMemory;
 };
 
+template<typename T> UniformBuffer createUniformBuffer(RendererContent& rendererContent);
+template<typename T> void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, T& bufferContent, int currentCommandBufferIndex);
+void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer);
+
+#include "uniformBuffer.tpp"
 #endif

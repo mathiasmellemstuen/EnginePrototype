@@ -2,6 +2,7 @@
 #define ENGINEPROTOTYPE_MODEL
 
 
+#include <iterator>
 #include <vector>
 #include "vertex.h"
 #include <string>

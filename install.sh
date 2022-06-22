@@ -1,5 +1,4 @@
 #!/bin/sh
-
 echo "Downloading submodules." 
 git submodule update --init --recursive
 git pull --recurse-submodules
@@ -26,7 +25,6 @@ cd ../cpp-data-parsing/src
 rm main.cpp
 
 cd ../../
-# (cd src && find . -name '*.h' -print | tar --create --files-from -) | (cd dst && tar xvfp -)
 mkdir ../include
 mkdir ../include/SDL2
 mkdir ../include/stb

@@ -1,5 +1,4 @@
 #include "swapChainSupport.h"
-#include "physicalDevice.h"
 #include "../utility/debug.h"
 #include <vulkan/vulkan.h>
 

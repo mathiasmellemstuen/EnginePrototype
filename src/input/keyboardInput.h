@@ -7,7 +7,7 @@
 #include "keyData.h"
 
 
-// Potential bug with CTRL+J because of using \n for blank entries.
+// TODO: Potential bug with CTRL+J because of using \n for blank entries.
 class KeyboardInput {
     public:
         inline static std::vector<KeyData> keys;

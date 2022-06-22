@@ -1,69 +1,55 @@
 #include "vertexBuffer.h"
-#include <stdexcept>
-#include <cstring>
-#include "../utility/debug.h"
-#include <iostream>
-#include "commandPool.h"
 #include "renderer.h"
+#include "../utility/debug.h"
 
-VertexBuffer::VertexBuffer(Renderer& renderer, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) : renderer(renderer) {
+VertexBuffer createVertexBuffer(RendererContent& rendererContent, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
+    VertexBuffer vertexBuffer; 
+    vertexBuffer.vertices = vertices; 
+    vertexBuffer.indices = indices; 
+    {
+        VkDeviceSize bufferSize = sizeof(vertexBuffer.vertices[0]) * vertexBuffer.vertices.size();
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        
+        void* data;
+        vkMapMemory(rendererContent.device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        memcpy(data, vertexBuffer.vertices.data(), (size_t) bufferSize);
+        vkUnmapMemory(rendererContent.device, stagingBufferMemory);
 
-    this->vertices = vertices;
-    this->indices = indices;
-
-    createVertexBuffer(vertices);
-    createIndexBuffer(indices);
-};
-
-void VertexBuffer::createVertexBuffer(std::vector<Vertex>& vertices) {
-    Debug::log(INFO, "Creating vertex buffer.");
-    
-    VkDeviceSize bufferSize = sizeof(this->vertices[0]) * this->vertices.size();
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-    
-    void* data;
-    vkMapMemory(renderer.logicalDevice.device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, this->vertices.data(), (size_t) bufferSize);
-    vkUnmapMemory(renderer.logicalDevice.device, stagingBufferMemory);
-
-    renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer.vertexBuffer, vertexBuffer.vertexBufferMemory);
 
 
-    renderer.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        copyBuffer(rendererContent, stagingBuffer, vertexBuffer.vertexBuffer, bufferSize);
 
-    vkDestroyBuffer(renderer.logicalDevice.device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.logicalDevice.device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(rendererContent.device, stagingBuffer, nullptr);
+        vkFreeMemory(rendererContent.device, stagingBufferMemory, nullptr);
+    }
+    {
+        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-    Debug::log(SUCCESS, "Vertex buffer created!"); 
-};
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-void VertexBuffer::createIndexBuffer(std::vector<uint32_t>& indices) {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+        void* data;
+        vkMapMemory(rendererContent.device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        memcpy(data, indices.data(), (size_t) bufferSize);
+        vkUnmapMemory(rendererContent.device, stagingBufferMemory);
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer.indexBuffer, vertexBuffer.indexBufferMemory);
 
-    void* data;
-    vkMapMemory(renderer.logicalDevice.device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t) bufferSize);
-    vkUnmapMemory(renderer.logicalDevice.device, stagingBufferMemory);
+        copyBuffer(rendererContent, stagingBuffer, vertexBuffer.indexBuffer, bufferSize);
+        vkDestroyBuffer(rendererContent.device, stagingBuffer, nullptr);
+        vkFreeMemory(rendererContent.device, stagingBufferMemory, nullptr);
+    }
+    return vertexBuffer; 
 
-    renderer.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
-
-    renderer.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
-    vkDestroyBuffer(renderer.logicalDevice.device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.logicalDevice.device, stagingBufferMemory, nullptr);
 }
+void freeVertexBuffer(RendererContent& rendererContent, VertexBuffer& vertexBuffer) {
+    vkDestroyBuffer(rendererContent.device, vertexBuffer.indexBuffer, nullptr);
+    vkFreeMemory(rendererContent.device, vertexBuffer.indexBufferMemory, nullptr);
 
-void VertexBuffer::clean() {
-    
-    vkDestroyBuffer(renderer.logicalDevice.device, indexBuffer, nullptr);
-    vkFreeMemory(renderer.logicalDevice.device, indexBufferMemory, nullptr);
-
-    vkDestroyBuffer(renderer.logicalDevice.device, vertexBuffer, nullptr);
-    vkFreeMemory(renderer.logicalDevice.device, vertexBufferMemory, nullptr);
-
+    vkDestroyBuffer(rendererContent.device, vertexBuffer.vertexBuffer, nullptr);
+    vkFreeMemory(rendererContent.device, vertexBuffer.vertexBufferMemory, nullptr);
 }

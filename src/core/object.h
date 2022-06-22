@@ -1,15 +1,12 @@
 #ifndef ENGINEPROTOTYPE_OBJECT 
 #define ENGINEPROTOTYPE_OBJECT
 
-#include "../graphics/renderObject.h"
 #include "transform.h"
-
 #include <glm/glm.hpp>
 #include <string>
 #include <functional>
 #include <vector>
 #include "component.h"
-#include "../graphics/renderInstance.h"
 
 class Object {
     public:
@@ -18,13 +15,15 @@ class Object {
 
         int id;
         std::string name;
-        RenderObject* renderObject;
-        RenderInstance renderInstance;
-        std::function<void(float& deltaTime)> update;
-        std::function<void()> debug;
-        std::vector<Component*> components;
-        Object(const std::string& name, RenderObject* renderObject);
+        virtual void update(float& deltaTime);
+        virtual void debug();
         virtual void addComponent(Component* component);
+        std::vector<Component*> components;
+        Object(const std::string& name);
+        
+        template<class T> T* getComponent();
 };
+
+#include "object.tpp"
 
 #endif

@@ -39,3 +39,16 @@ glm::mat4& Transform::getModel() {
 
     return model;
 };
+
+void Transform::debug() {
+
+    float  arr[3] = {position.x, position.y, position.z};
+    ImGui::InputFloat3("Position", arr);
+    position = {arr[0], arr[1], arr[2]};
+
+    ImGui::SliderFloat("Angle", &angle, -360, 360);
+
+    float arr2[3] = {rotationDirection.x, rotationDirection.y, rotationDirection.z};
+    ImGui::InputFloat3("Rotation direction", arr2);
+    rotationDirection = {arr2[0], arr2[1], arr2[2]};
+}

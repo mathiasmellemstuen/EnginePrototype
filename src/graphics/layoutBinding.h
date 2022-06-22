@@ -10,6 +10,5 @@
 struct LayoutBinding {
     VkDescriptorType type;
     VkShaderStageFlags stage;
-    int bufferRange;
 };
 #endif //ENGINEPROTOTYPE_LAYOUTBINDING_H

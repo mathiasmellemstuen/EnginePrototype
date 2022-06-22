@@ -166,7 +166,8 @@ void Debug::setupDebugWindow() {
     SDL_Vulkan_GetInstanceExtensions(debugSdlWindow, &extensionsCount, NULL);
     const char** extensions = new const char*[extensionsCount];
     SDL_Vulkan_GetInstanceExtensions(debugSdlWindow, &extensionsCount, extensions);
-    
+
+
     //Creating Vulkan instance
     {
         VkInstanceCreateInfo createInfo = {};
@@ -296,7 +297,7 @@ void Debug::setupDebugWindow() {
     IM_ASSERT(minImageCount >= 2);
     ImGui_ImplVulkanH_CreateOrResizeWindow(instance, physicalDevice, device, wd, queueFamily, vulkanAllocator, w, h, minImageCount);
 
-    
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -318,9 +319,10 @@ void Debug::setupDebugWindow() {
     initInfo.MinImageCount = minImageCount;
     initInfo.ImageCount = wd->ImageCount;
     //initInfo.CheckVkResultFn = check_vk_result;
+    Debug::log("Reaching this 22");
     ImGui_ImplVulkan_Init(&initInfo, wd->RenderPass);
 
-    
+
     //Uploading font
     
     {
@@ -385,6 +387,16 @@ void Debug::drawDebugWindow() {
         ImGui::Text("Mouse Position:");
         ImGui::Text(xText.c_str());
         ImGui::Text(yText.c_str());
+        ImGui::Text("Normalized Mouse Position:");
+        std::string normalizedXText = "X: " + std::to_string(Mouse::normalizedMousePosition.x); 
+        std::string normalizedYText = "Y: " + std::to_string(Mouse::normalizedMousePosition.y);
+        ImGui::Text(normalizedXText.c_str());
+        ImGui::Text(normalizedYText.c_str());
+        ImGui::Text("Mouse Vulkan Coordinate System Screen Position:");
+        std::string vulkanScreenXText = "X: " + std::to_string(Mouse::mouseVulkanScreenPosition.x); 
+        std::string vulkanScreenYText = "Y: " + std::to_string(Mouse::mouseVulkanScreenPosition.y);
+        ImGui::Text(vulkanScreenXText.c_str());
+        ImGui::Text(vulkanScreenYText.c_str());
         ImGui::Text("Mouse acceleration:");
         xText = "X: " + std::to_string(Mouse::mouseAcceleration.x);
         yText = "Y: " + std::to_string(Mouse::mouseAcceleration.y);
