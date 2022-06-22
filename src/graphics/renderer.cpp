@@ -50,8 +50,8 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
                 Transform* currentTransform = object->getComponent<Transform>(); 
 
                 if(currentGraphicsEntityInstance != nullptr && currentTransform != nullptr) {
-                    UniformBufferObject bo = {Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel()};
-                    currentGraphicsEntityInstance->render(rendererContent, bo, i);
+                    currentGraphicsEntityInstance->uniformBufferObject = {Camera::mainCamera->view, Camera::mainCamera->projection, currentTransform->getModel()};
+                    currentGraphicsEntityInstance->render(rendererContent, i);
                     continue; 
                 }
                 // Making sure we are not rendering user interface objects
@@ -100,8 +100,7 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
             std::sort(instances.begin(), instances.end(), custom); 
 
             for(UIInstance* instance : instances) {
-                UIInstanceUniformBufferObject bo = {instance->position, instance->size, instance->color, instance->hover() ? 1.0f : 0.0f};
-                instance->render(rendererContent, bo, i);
+                instance->render(rendererContent, i);
             }
 
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);

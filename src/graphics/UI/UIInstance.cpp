@@ -36,3 +36,21 @@ void UIInstance::debug() {
         layer = l;
 
 }
+void UIInstance::render(RendererContent& rendererContent, int currentCommandBufferIndex) {
+    VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
+
+    uniformBufferObject = {position, size, color, hover() ? 1.0f : 0.0f};
+    updateUniformBuffer(rendererContent, this->uniformBuffer, uniformBufferObject, currentCommandBufferIndex);
+    
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->graphicsPipeline);
+    
+    VkBuffer vertexBuffers[] = {graphicsEntity->vertexBuffer->vertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    
+    vkCmdBindIndexBuffer(commandBuffer, graphicsEntity->vertexBuffer->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->pipelineLayout, 0, 1, &this->descriptorPool.descriptorSets[currentCommandBufferIndex], 0, nullptr);
+    
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(graphicsEntity->vertexBuffer->indices.size()), 1, 0, 0, 0);
+
+};
