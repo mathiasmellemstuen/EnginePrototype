@@ -20,34 +20,8 @@
 
 class Renderer;
 
-enum LogLevel {
-    INFO = 1,
-    SUCCESS = 2,
-    WARNING = 3,
-    ERROR = 4
-};
-
 class Debug {
     public:
-        static void log(LogLevel logLevel, std::string message);
-
-        static void log(LogLevel logLevel, glm::vec2 vec2);
-        static void log(LogLevel logLevel, glm::vec3 vec3);
-        static void log(LogLevel logLevel, glm::vec4 vec4);
-
-        static void log(LogLevel logLevel, int value);
-        static void log(LogLevel logLevel, float value);
-        static void log(LogLevel logLevel, double value); 
-
-        static void log(int value); 
-        static void log(float value);
-        static void log(double value);
-
-        static void log(std::string message); 
-        static void log(glm::vec2 vec2); 
-        static void log(glm::vec3 vec3); 
-        static void log(glm::vec4 vec4); 
-        
         static void setupDebugWindow(); 
         static void drawDebugWindow();
         static bool updateDebugWindowEvents(SDL_Event& event);
@@ -76,4 +50,5 @@ class Debug {
         static Uint32 amountOfFrames;  
         static Object* selectedObject;
 };
+
 #endif

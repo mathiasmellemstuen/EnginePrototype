@@ -18,5 +18,4 @@ class KeyboardInput {
         static bool keyPressed(const std::string& key);
         static bool keyHold(const std::string& key, const float& seconds);
 };
-
 #endif

@@ -2,13 +2,13 @@
 #define ENGINEPROTOTYPE_UNIFORMBUFFER_TPP
 
 #include "uniformBuffer.h"
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include "renderer.h"
 
 template<typename T> UniformBuffer createUniformBuffer(RendererContent& rendererContent) {
     UniformBuffer uniformBuffer; 
     
-    Debug::log(INFO, "Starting creation of uniform buffers.");
+    logger(INFO, "Starting creation of uniform buffers.");
     VkDeviceSize bufferSize = sizeof(T);
     uniformBuffer.uniformBuffers.resize(rendererContent.swapChainImages.size());
     uniformBuffer.uniformBuffersMemory.resize(rendererContent.swapChainImages.size());
@@ -17,7 +17,7 @@ template<typename T> UniformBuffer createUniformBuffer(RendererContent& renderer
         createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffer.uniformBuffers[i], uniformBuffer.uniformBuffersMemory[i]);
     }
 
-    Debug::log(SUCCESS, "Successfully created all buffers!"); 
+    logger(SUCCESS, "Successfully created all buffers!"); 
 
     return uniformBuffer;
 }

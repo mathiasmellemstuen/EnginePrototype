@@ -1,14 +1,15 @@
 #include "texture.h"
 #include <stb/stb_image.h>
 #include <stdexcept>
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include "renderer.h"
+#include <math.h>
 
 Texture createTexture(RendererContent& rendererContent, const std::string& texturePath) {
     Texture texture; 
     texture.texturePath = texturePath; 
-
-    Debug::log(INFO, "Starting loading texture image"); 
+    
+    logger(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -16,12 +17,12 @@ Texture createTexture(RendererContent& rendererContent, const std::string& textu
     texture.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 
     if (!pixels) {
-        Debug::log(ERROR, "Failed to load texture image!"); 
+        logger(ERROR, "Failed to load texture image!"); 
         throw std::runtime_error("failed to load texture image!");
     }
 
-    Debug::log(SUCCESS, "Successfully loaded texture image!");
-    Debug::log(INFO, "Creating buffer that stores the image/texture"); 
+    logger(SUCCESS, "Successfully loaded texture image!");
+    logger(INFO, "Creating buffer that stores the image/texture"); 
 
     createBuffer(rendererContent, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, texture.stagingBuffer, texture.stagingBufferMemory);
 
@@ -31,7 +32,7 @@ Texture createTexture(RendererContent& rendererContent, const std::string& textu
     vkUnmapMemory(rendererContent.device, texture.stagingBufferMemory);
     stbi_image_free(pixels);
 
-    Debug::log(SUCCESS, "Successfully created buffer"); 
+    logger(SUCCESS, "Successfully created buffer"); 
 
     createImage(rendererContent, texWidth, texHeight, texture.mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture.textureImage, texture.textureImageMemory);
 
@@ -47,7 +48,7 @@ Texture createTexture(RendererContent& rendererContent, const std::string& textu
     createTextureImageView(rendererContent, texture);
     createTextureSampler(rendererContent, texture);
 
-    Debug::log(SUCCESS, "Created all texture resources!");
+    logger(SUCCESS, "Created all texture resources!");
     return texture;
 }
 void freeTexture(RendererContent& rendererContent, Texture& texture) {
@@ -90,7 +91,7 @@ void createTextureSampler(RendererContent& rendererContent, Texture& texture) {
 
 void transitionImageLayout(RendererContent& rendererContent, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
 
-    Debug::log(INFO, "Starting transitioning image layout"); 
+    logger(INFO, "Starting transitioning image layout"); 
 
     VkCommandBuffer commandBuffer = beginSingleTimeCommands(rendererContent);
     VkImageMemoryBarrier barrier{};
@@ -126,7 +127,7 @@ void transitionImageLayout(RendererContent& rendererContent, VkImage image, VkFo
 
     endSingleTimeCommands(rendererContent, commandBuffer);
 
-    Debug::log(SUCCESS, "Transitioning image layout is done!"); 
+    logger(SUCCESS, "Transitioning image layout is done!"); 
 }
 
 void copyBufferToImage(RendererContent& rendererContent, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {

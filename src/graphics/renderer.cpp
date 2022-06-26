@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include "window.h"
 #include <vulkan/vulkan.h>
+#include "../utility/logging.h"
 #include "../utility/debug.h"
 #include "validationLayers.h"
 #include "QueueFamilyIndices.h"
@@ -25,7 +26,7 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
         if (vkBeginCommandBuffer(rendererContent.commandBuffers[i], &beginInfo) != VK_SUCCESS) { 
-            Debug::log(ERROR, "Failed to begin recording command buffers!"); 
+            logger(ERROR, "Failed to begin recording command buffers!"); 
             throw std::runtime_error("failed to begin recording command buffer!");
         } 
         
@@ -106,7 +107,7 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         vkCmdEndRenderPass(rendererContent.commandBuffers[i]);
 
         if (vkEndCommandBuffer(rendererContent.commandBuffers[i]) != VK_SUCCESS) {
-            Debug::log(ERROR, "Failed to record command buffer!"); 
+            logger(ERROR, "Failed to record command buffer!"); 
             throw std::runtime_error("failed to record command buffer!"); 
         }
     } 
@@ -128,7 +129,7 @@ uint32_t findMemoryType(RendererContent& rendererContent, uint32_t typeFilter, V
 
 void createImage(RendererContent& rendererContent, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
 
-    Debug::log(INFO, "Creating vulkan image");
+    logger(INFO, "Creating vulkan image");
 
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -146,10 +147,10 @@ void createImage(RendererContent& rendererContent, uint32_t width, uint32_t heig
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateImage(rendererContent.device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-        Debug::log(ERROR, "Failed to create image!"); 
+        logger(ERROR, "Failed to create image!"); 
         throw std::runtime_error("failed to create image!");
     }
-    Debug::log(SUCCESS, "Succesfully created image!"); 
+    logger(SUCCESS, "Succesfully created image!"); 
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(rendererContent.device, image, &memRequirements);
@@ -164,7 +165,7 @@ void createImage(RendererContent& rendererContent, uint32_t width, uint32_t heig
     }
     vkBindImageMemory(rendererContent.device, image, imageMemory, 0);
 
-    Debug::log(SUCCESS, "Succesfsfully created vulkan image!"); 
+    logger(SUCCESS, "Succesfsfully created vulkan image!"); 
 }
 VkFormat findSupportedFormat(RendererContent& rendererContent, const std::vector<VkFormat>&candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
     
@@ -180,7 +181,7 @@ VkFormat findSupportedFormat(RendererContent& rendererContent, const std::vector
         }
     }
 
-    Debug::log("Failed to find supported format!"); 
+    logger(ERROR, "Failed to find supported format!"); 
     throw std::runtime_error("failed to find supported format!"); 
 }
 VkFormat findDepthFormat(RendererContent& rendererContent) {
@@ -276,7 +277,7 @@ QueueFamilyIndices findQueueFamilies(RendererContent& rendererContent) {
 
 bool isDeviceSuitable(RendererContent& rendererContent, const VkPhysicalDevice& device) {
     
-    Debug::log(INFO, "Checking if device is suitable."); 
+    logger(INFO, "Checking if device is suitable."); 
     rendererContent.physicalDevice = device;
 
     QueueFamilyIndices indices = findQueueFamilies(rendererContent); 
@@ -362,7 +363,7 @@ void reCreateSwapChain(RendererContent& rendererContent, Window& window) {
     if(!window.running)
         return;
 
-    Debug::log(INFO, "Recreating the swapchain!"); 
+    logger(INFO, "Recreating the swapchain!"); 
 
     int width = 0, height = 0;
     SDL_GetWindowSize(window.sdlWindow, &width, &height);
@@ -385,7 +386,7 @@ void reCreateSwapChain(RendererContent& rendererContent, Window& window) {
     createCommandBuffers(rendererContent, 0);
     // TODO: Re dreate / Allocate command buffers here!
 
-    Debug::log(SUCCESS, "Done recreating swapchain!"); 
+    logger(SUCCESS, "Done recreating swapchain!"); 
 }
 void drawFrame(RendererContent& rendererContent, Window& window) {
 
@@ -465,7 +466,6 @@ void loop(RendererContent& rendererContent, Window& window, EventManager& eventM
     createCommandBuffers(rendererContent, 0); 
 
     while(window.running) {
-        
         // Calculating delta time
         last = now; 
         now = SDL_GetPerformanceCounter(); 
@@ -489,7 +489,7 @@ void loop(RendererContent& rendererContent, Window& window, EventManager& eventM
 };
 void allocateSwapchainDependentRendererContent(RendererContent& rendererContent, Window& window) {
     {
-        Debug::log(INFO, "Setting up swap chain"); 
+        logger(INFO, "Setting up swap chain"); 
 
         SwapChainSupportDetails swapChainSupport =  querySwapChainSupport(rendererContent.physicalDevice, rendererContent.surface); 
 
@@ -534,7 +534,7 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
         if (vkCreateSwapchainKHR(rendererContent.device, &createInfo, nullptr, &rendererContent.swapChain)  != VK_SUCCESS) { 
-            Debug::log(ERROR, "Failed to create swap chain!"); 
+            logger(ERROR, "Failed to create swap chain!"); 
             throw std::runtime_error("failed to create swap chain!");
         }
 
@@ -545,10 +545,10 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         rendererContent.swapChainImageFormat = surfaceFormat.format;
         rendererContent.swapChainExtent = extent;
 
-        Debug::log(SUCCESS, "Created swap chain"); 
+        logger(SUCCESS, "Created swap chain"); 
     }
     {
-        Debug::log(INFO, "Create image views");
+        logger(INFO, "Create image views");
 
         rendererContent.swapChainImageViews.resize(rendererContent.swapChainImages.size());
 
@@ -556,11 +556,11 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
             rendererContent.swapChainImageViews[i] = createImageView(rendererContent, rendererContent.swapChainImages[i], rendererContent.swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
         }
 
-        Debug::log(SUCCESS, "Image views created!"); 
+        logger(SUCCESS, "Image views created!"); 
     }
     {
 
-        Debug::log(INFO, "Creating render pass"); 
+        logger(INFO, "Creating render pass"); 
         
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat(rendererContent);
@@ -631,15 +631,15 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         renderPassInfo.pDependencies = &dependency;
 
         if (vkCreateRenderPass(rendererContent.device, &renderPassInfo, nullptr, &rendererContent.renderPass) != VK_SUCCESS) {
-            Debug::log(ERROR, "Failed to create render pass!"); 
+            logger(ERROR, "Failed to create render pass!"); 
             throw std::runtime_error("failed to create render pass!");
         }
 
-        Debug::log(SUCCESS, "Successfully created render pass!"); 
+        logger(SUCCESS, "Successfully created render pass!"); 
 
     }
     {
-        Debug::log(INFO, "Creating UI render pass!");
+        logger(INFO, "Creating UI render pass!");
 
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = rendererContent.swapChainImageFormat; 
@@ -710,27 +710,27 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         renderPassInfo.pDependencies = &dependency;
 
         if (vkCreateRenderPass(rendererContent.device, &renderPassInfo, nullptr, &rendererContent.uiRenderPass) != VK_SUCCESS) {
-            Debug::log(ERROR, "Failed to create UI render pass!"); 
+            logger(ERROR, "Failed to create UI render pass!"); 
             throw std::runtime_error("failed to create UI render pass!");
         }
-        Debug::log(SUCCESS, "Created UI render pass!");
+        logger(SUCCESS, "Created UI render pass!");
     }
     {
-        Debug::log(INFO, "Creating color resources!");
+        logger(INFO, "Creating color resources!");
         VkFormat colorFormat = rendererContent.swapChainImageFormat;
         createImage(rendererContent, rendererContent.swapChainExtent.width, rendererContent.swapChainExtent.height, 1, rendererContent.msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, rendererContent.colorImage, rendererContent.colorImageMemory);
         rendererContent.colorImageView = createImageView(rendererContent, rendererContent.colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-        Debug::log(SUCCESS, "Color resources created!");
+        logger(SUCCESS, "Color resources created!");
     }
     {
-        Debug::log(INFO, "Creating depth resources.");
+        logger(INFO, "Creating depth resources.");
         VkFormat depthFormat = findDepthFormat(rendererContent);
         createImage(rendererContent, rendererContent.swapChainExtent.width, rendererContent.swapChainExtent.height, 1, rendererContent.msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, rendererContent.depthImage, rendererContent.depthImageMemory);
         rendererContent.depthImageView = createImageView(rendererContent, rendererContent.depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-        Debug::log(SUCCESS, "Created depth resources!"); 
+        logger(SUCCESS, "Created depth resources!"); 
     }
     {
-        Debug::log(INFO, "Creating framebuffers"); 
+        logger(INFO, "Creating framebuffers"); 
 
         rendererContent.swapChainFramebuffers.resize(rendererContent.swapChainImageViews.size());
 
@@ -752,18 +752,18 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
             framebufferInfo.layers = 1;
             
             if (vkCreateFramebuffer(rendererContent.device, &framebufferInfo, nullptr, &rendererContent.swapChainFramebuffers[i]) != VK_SUCCESS) {
-                Debug::log(ERROR, "Failed to create framebuffer!"); 
+                logger(ERROR, "Failed to create framebuffer!"); 
                 throw std::runtime_error("failed to create framebuffer!");
             }
         }
-        Debug::log(SUCCESS, "Successfully created all framebuffers.");
+        logger(SUCCESS, "Successfully created all framebuffers.");
     }
 }
 RendererContent createRenderer(Window& window) {
     RendererContent rendererContent;
 
     {
-        Debug::log(INFO, "Starting creation of a vulkan instance"); 
+        logger(INFO, "Starting creation of a vulkan instance"); 
 
         VkApplicationInfo appInfo{}; 
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
@@ -787,7 +787,7 @@ RendererContent createRenderer(Window& window) {
         createInfo.ppEnabledExtensionNames = extensionNames.data();
 
         if (enableValidationLayers && !checkValidationLayerSupport()) {
-            Debug::log(ERROR, "Validation layers requested, but not avaiable!"); 
+            logger(ERROR, "Validation layers requested, but not avaiable!"); 
             throw std::runtime_error("Validation layers requested, but not available!"); 
         }
 
@@ -798,31 +798,31 @@ RendererContent createRenderer(Window& window) {
             createInfo.enabledLayerCount = 0; 
         }
         
-        Debug::log(INFO, "Creating a vulkan instance and VkResult"); 
+        logger(INFO, "Creating a vulkan instance and VkResult"); 
 
         VkResult result = vkCreateInstance(&createInfo, nullptr, &rendererContent.instance);
         
         if (result != VK_SUCCESS)  { 
             throw std::runtime_error("Failed to create instance!");
-            Debug::log(ERROR, "Failed to create instance!"); 
+            logger(ERROR, "Failed to create instance!"); 
         }
 
         if (SDL_Vulkan_CreateSurface(window.sdlWindow, rendererContent.instance, &rendererContent.surface) == SDL_FALSE) { 
-            Debug::log(ERROR, "Failed to create window surface!"); 
+            logger(ERROR, "Failed to create window surface!"); 
             throw std::runtime_error("Failed to create window surface!"); 
         }
 
-        Debug::log(SUCCESS, "Successfully created a vulkan instance"); 
-        Debug::log(SUCCESS, "Successfully created a window surface"); 
+        logger(SUCCESS, "Successfully created a vulkan instance"); 
+        logger(SUCCESS, "Successfully created a window surface"); 
     }
     {
-        Debug::log(INFO, "Checking and creating physical device context"); 
+        logger(INFO, "Checking and creating physical device context"); 
 
         uint32_t deviceCount = 0; 
         vkEnumeratePhysicalDevices(rendererContent.instance, &deviceCount, nullptr);
 
         if (deviceCount == 0) { 
-            Debug::log(ERROR, "Failed to find GPUs with Vulkan support!"); 
+            logger(ERROR, "Failed to find GPUs with Vulkan support!"); 
             throw std::runtime_error("Failed to find GPUs with Vulkan support!"); 
         }
 
@@ -839,17 +839,17 @@ RendererContent createRenderer(Window& window) {
 
         if (rendererContent.physicalDevice == VK_NULL_HANDLE) { 
             
-            Debug::log(ERROR, "Failed to find a suitable GPU!"); 
+            logger(ERROR, "Failed to find a suitable GPU!"); 
             throw std::runtime_error("Failed to find a suitable GPU!");
     
         } else {
         
             vkGetPhysicalDeviceProperties(rendererContent.physicalDevice,&rendererContent.physicalDeviceProperties);
-            Debug::log(SUCCESS, "Selected GPU: " + std::string(rendererContent.physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
+            logger(SUCCESS, "Selected GPU: " + std::string(rendererContent.physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
         }
     }
     {
-        Debug::log(INFO, "Setting up a logical device"); 
+        logger(INFO, "Setting up a logical device"); 
 
         QueueFamilyIndices indices = findQueueFamilies(rendererContent);
 
@@ -896,18 +896,18 @@ RendererContent createRenderer(Window& window) {
 
         if (vkCreateDevice(rendererContent.physicalDevice, &createInfo, nullptr, &rendererContent.device) !=  VK_SUCCESS) { 
             
-            Debug::log(ERROR, "Failed to create logical device!"); 
+            logger(ERROR, "Failed to create logical device!"); 
             throw std::runtime_error("Failed to create logical device!"); 
         }
 
         vkGetDeviceQueue(rendererContent.device, indices.graphicsFamily.value(), 0, &rendererContent.graphicsQueue);
         vkGetDeviceQueue(rendererContent.device, indices.presentFamily.value(), 0, &rendererContent.presentQueue);
 
-        Debug::log(SUCCESS, "Created logical device!"); 
+        logger(SUCCESS, "Created logical device!"); 
     }
     allocateSwapchainDependentRendererContent(rendererContent, window);
     {
-        Debug::log(INFO, "Creating command pool."); 
+        logger(INFO, "Creating command pool."); 
 
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(rendererContent);
 
@@ -917,14 +917,14 @@ RendererContent createRenderer(Window& window) {
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
         if (vkCreateCommandPool(rendererContent.device, &poolInfo, nullptr, &rendererContent.commandPool) != VK_SUCCESS) {
-            Debug::log(ERROR, "Failed to create command pool!"); 
+            logger(ERROR, "Failed to create command pool!"); 
             throw std::runtime_error("failed to create command pool!");
         }
-        Debug::log(SUCCESS, "Command pool created!"); 
+        logger(SUCCESS, "Command pool created!"); 
     }
     {
 
-        Debug::log(INFO, "Allocating command buffers");
+        logger(INFO, "Allocating command buffers");
 
         rendererContent.commandBuffers.resize(rendererContent.swapChainFramebuffers.size());
         
@@ -935,15 +935,15 @@ RendererContent createRenderer(Window& window) {
         allocInfo.commandBufferCount = (uint32_t) rendererContent.commandBuffers.size();
 
         if (vkAllocateCommandBuffers(rendererContent.device, &allocInfo, rendererContent.commandBuffers.data()) != VK_SUCCESS) {
-            Debug::log(ERROR, "Failed to allocate command buffers!"); 
+            logger(ERROR, "Failed to allocate command buffers!"); 
             throw std::runtime_error("failed to allocate command buffers!"); 
         }
 
-        Debug::log(SUCCESS, "Command buffers successfully allocated!");
+        logger(SUCCESS, "Command buffers successfully allocated!");
     }
     {
 
-        Debug::log(INFO, "Creating sync objects"); 
+        logger(INFO, "Creating sync objects"); 
 
         //TODO: Change 2 with max frames in flight variable from properties. 
         rendererContent.imageAvailableSemaphores.resize(2);
@@ -964,12 +964,12 @@ RendererContent createRenderer(Window& window) {
             
             if (vkCreateSemaphore(rendererContent.device, &semaphoreInfo, nullptr, &rendererContent.imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(rendererContent.device, &semaphoreInfo, nullptr, &rendererContent.renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(rendererContent.device, &fenceInfo, nullptr, &rendererContent.inFlightFences[i]) != VK_SUCCESS) {
                 
-                Debug::log(ERROR, "Failed to create synchronization objects for a frame!"); 
+                logger(ERROR, "Failed to create synchronization objects for a frame!"); 
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
             }
         }
 
-        Debug::log(SUCCESS, "Successfully created sync objects!");
+        logger(SUCCESS, "Successfully created sync objects!");
     }
     return rendererContent;
 }
@@ -1035,8 +1035,6 @@ void createBuffer(RendererContent& rendererContent, VkDeviceSize size, VkBufferU
 
 VkCommandBuffer beginSingleTimeCommands(RendererContent& rendererContent) {
     
-    Debug::log(INFO, "Beginning single-time command");
-
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1051,7 +1049,6 @@ VkCommandBuffer beginSingleTimeCommands(RendererContent& rendererContent) {
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
     
-    Debug::log(SUCCESS, "Beginning of single-time command is done!"); 
     return commandBuffer;
 }
 void endSingleTimeCommands(RendererContent& rendererContent, VkCommandBuffer commandBuffer) {

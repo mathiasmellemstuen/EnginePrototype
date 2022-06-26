@@ -3,13 +3,13 @@
 
 #include "descriptorPool.h"
 #include <vulkan/vulkan.h>
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include <array>
 
 template<typename T> DescriptorPool createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance) {
     DescriptorPool descriptorPool;
     
-    Debug::log(INFO, "Creating descriptor pool");
+    logger(INFO, "Creating descriptor pool");
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(rendererContent.swapChainImages.size());
@@ -27,8 +27,8 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
         throw std::runtime_error("failed to create descriptor pool!");
     }
 
-    Debug::log(SUCCESS, "Successfully created descriptor pool!"); 
-    Debug::log(INFO, "Creating descriptor sets"); 
+    logger(SUCCESS, "Successfully created descriptor pool!"); 
+    logger(INFO, "Creating descriptor sets"); 
 
     std::vector<VkDescriptorSetLayout> layouts(rendererContent.swapChainImages.size(), graphicsEntityInstance.graphicsEntity->descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -82,7 +82,7 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
 
             vkUpdateDescriptorSets(rendererContent.device, static_cast<uint32_t>(descriptorAmount), descriptorWrites.data(), 0, nullptr);;
     }
-    Debug::log(SUCCESS, "Created descriptor sets!");
+    logger(SUCCESS, "Created descriptor sets!");
 
 
     return descriptorPool;

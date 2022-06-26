@@ -1,5 +1,6 @@
 #include "eventManager.h"
 #include "../utility/debug.h"
+#include "../utility/logging.h"
 #include "../input/mouse.h"
 #include "../input/keyboardInput.h"
 #include "window.h"
@@ -29,7 +30,7 @@ void EventManager::update(Window& window) {
 
                 window.running = false;
                 
-                Debug::log("SDL_Quit event is happening.");
+                logger(INFO, "SDL_Quit event is happening.");
                 if(Debug::debugWindowRunning) {
                     Debug::cleanupDebugWindow();
                     Debug::debugWindowRunning = false;

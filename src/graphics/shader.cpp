@@ -4,7 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include <iostream>
 #include "renderer.h"
 
@@ -12,7 +12,7 @@ Shader createShader(RendererContent& rendererContent, std::string vertexShaderPa
     Shader shader; 
     shader.shaderCount = 2; 
 
-    Debug::log(INFO, "Creating shader"); 
+    logger(INFO, "Creating shader"); 
 
     auto vertShaderCode = readFile(vertexShaderPath);
     auto fragShaderCode = readFile(fragmentShaderPath);
@@ -53,7 +53,7 @@ Shader createShader(RendererContent& rendererContent, std::string vertexShaderPa
     shader.shaderStages[0] = vertShaderStageInfo;
     shader.shaderStages[1] = fragShaderStageInfo; 
 
-    Debug::log(SUCCESS, "Successfully created shader!"); 
+    logger(SUCCESS, "Successfully created shader!"); 
 
     return shader; 
 }
@@ -69,7 +69,7 @@ std::vector<char> readFile(const std::string& fileName) {
     std::ifstream file(fileName, std::ios::ate | std::ios::binary); 
 
     if (!file.is_open()) { 
-        Debug::log(ERROR, "Failed to open file!"); 
+        logger(ERROR, "Failed to open file!"); 
         throw std::runtime_error("failed to open file!"); 
     }
 
@@ -94,7 +94,7 @@ VkShaderModule createShaderModule(RendererContent& rendererContent, const std::v
     VkShaderModule shaderModule;
 
     if (vkCreateShaderModule(rendererContent.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        Debug::log(ERROR, "Failed to create shader module");
+        logger(ERROR, "Failed to create shader module");
         throw std::runtime_error("failed to create shader module!"); 
     }
     return shaderModule;

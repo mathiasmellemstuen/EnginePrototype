@@ -4,6 +4,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "cpp-data-parsing/yaml/yamlParser.h"
@@ -35,6 +38,7 @@
 #include "graphics/UI/UIRectangleInstance.h"
 #include "graphics/UI/UITriangleInstance.h"
 #include "graphics/UI/UICircleInstance.h"
+#include "graphics/UI/UITextInstance.h"
 
 #include "input/mouse.h"
 #include "input/keyboardInput.h"
@@ -46,20 +50,23 @@
 #include "utility/xml.h"
 #include "utility/properties.h"
 #include "utility/debug.h"
+#include "utility/logging.h"
 
+#include "graphics/text/text.h"
 
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
-    Debug::log(INFO, "Starting application2."); 
+    logger(INFO, "Starting application2."); 
 
     // Loading properties file
     std::string filePath = "properties.yaml"; 
     properties = new YamlParser(filePath);
+    
 
     #ifndef NO_DEBUG_WINDOW
     // Starting debugging
-    Debug::log(INFO, "Starting debugging!");
+    logger(INFO, "Starting debugging!");
     Debug::setupDebugWindow();
     #endif
 
@@ -67,6 +74,8 @@ int main(int argc, char *argv[]) {
     // Creating a window and attaching a renderer
     Window window;
     RendererContent rendererContent = createRenderer(window);
+
+    createCharacterMapFromFont(rendererContent, "assets/fonts/Roboto-Black.ttf");
 
     // Loading engine spesific predefined content
     loadPredefined(rendererContent);
@@ -133,15 +142,23 @@ int main(int argc, char *argv[]) {
     Object uiCirlce("UI Cirlce Object"); 
     uiCirlce.addComponent(&uiCircleInstance);
 
+    // Creating a text
+    UITextInstance uiTextInstance(rendererContent);
+    uiTextInstance.position = {0.5, 0.0};
+    uiTextInstance.color = {0.0, 0.0, 1.0, 1.0};
+    uiTextInstance.size = {0.8, 0.8};
+    Object uiTextObj("UI text object");
+    uiTextObj.addComponent(&uiTextInstance);
+
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();
     
-    Debug::log("Starting rendering loop!");
+    logger(INFO, "Starting rendering loop!");
     
     // Running rendering loop, this is blocking
     loop(rendererContent, window, eventManager);
 
-    Debug::log("Exiting application!"); 
+    logger(INFO, "Exiting application!"); 
     SDL_Quit();
     return 0;
 }

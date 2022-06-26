@@ -1,25 +1,25 @@
 #include "window.h"
 
 #include <SDL2/SDL.h>
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include "SDL2/SDL_video.h"
 #include <string>
 #include "../utility/properties.h"
 
 Window::Window() {
 
-    Debug::log(INFO, "Intializing SDL2"); 
+    logger(INFO, "Intializing SDL2"); 
     
     int code = SDL_Init(SDL_INIT_EVERYTHING);
     if(code < 0) {
 
-        Debug::log(ERROR, "Error while initializing SDL2!"); 
-        Debug::log(ERROR, "Error code " + std::to_string(code)); 
+        logger(ERROR, "Error while initializing SDL2!"); 
+        logger(ERROR, "Error code " + std::to_string(code)); 
         std::string message = SDL_GetError();
-        Debug::log(ERROR, "Error message: " + message);
+        logger(ERROR, "Error message: " + message);
     }
-    Debug::log(SUCCESS, "SDL2 initiated!");
-    Debug::log(INFO, "Creating SDL2 window context"); 
+    logger(SUCCESS, "SDL2 initiated!");
+    logger(INFO, "Creating SDL2 window context"); 
 
     std::string title = (*properties)["windows"]["game"]["title"];
 
@@ -31,13 +31,13 @@ Window::Window() {
     int yPos = (*properties)["windows"]["game"]["position"]["y"]; 
     SDL_SetWindowPosition(sdlWindow, xPos, yPos);
 
-    Debug::log(SUCCESS, "Successfully created SDL window context!"); 
+    logger(SUCCESS, "Successfully created SDL window context!"); 
 
 };
 
 void Window::clean() {
-    Debug::log(INFO, "Destroying SDL window");
+    logger(INFO, "Destroying SDL window");
     SDL_DestroyWindow(sdlWindow);
     sdlWindow = nullptr; 
-    Debug::log(SUCCESS, "Successfully destroyed SDL window!"); 
+    logger(SUCCESS, "Successfully destroyed SDL window!"); 
 };

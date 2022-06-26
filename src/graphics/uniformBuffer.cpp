@@ -1,6 +1,6 @@
 #include "uniformBuffer.h"
 #include "uniformBufferObject.h"
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>

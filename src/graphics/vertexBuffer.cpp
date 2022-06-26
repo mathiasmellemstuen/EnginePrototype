@@ -1,6 +1,6 @@
 #include "vertexBuffer.h"
 #include "renderer.h"
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 
 VertexBuffer createVertexBuffer(RendererContent& rendererContent, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
     VertexBuffer vertexBuffer; 

@@ -34,3 +34,6 @@
 [submodule "thirdparty/rapidxml"]
 	path = thirdparty/rapidxml
 	url = https://github.com/Tobhal/rapidxml-fork
+[submodule "thirdparty/freetype-windows-binaries"]
+	path = thirdparty/freetype-windows-binaries
+	url = https://github.com/ubawurinna/freetype-windows-binaries.git

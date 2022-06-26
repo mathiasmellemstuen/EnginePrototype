@@ -1,5 +1,5 @@
 #include "keyboardInput.h"
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include <string>
 #include <ctype.h>
 

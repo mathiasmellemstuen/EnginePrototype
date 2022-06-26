@@ -1,7 +1,7 @@
 
 #include <iterator>
 #include "model.h"
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include <tinyobjloader/tiny_obj_loader.h>
 
 #include <rapidxml/rapidxml.hpp>
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <iostream>
 #include <functional>
+#include <string.h>
 
 namespace std {
     template<> struct hash<Vertex> {
@@ -48,8 +49,8 @@ void Model::loadOBJ(const std::string& modelPath) {
     std::string error;
 
     if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warning, &error, modelPath.c_str())) {
-        Debug::log(WARNING, warning);
-        Debug::log(ERROR, error);
+        logger(WARNING, warning.c_str());
+        logger(ERROR, error.c_str());
         throw std::runtime_error(warning + error);
     }
 

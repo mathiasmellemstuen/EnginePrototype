@@ -1,6 +1,5 @@
 #include <SDL2/SDL.h>
 #include "mouse.h"
-#include "../utility/debug.h"
 
 void Mouse::update(SDL_Event& event) {
 

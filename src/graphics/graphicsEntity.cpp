@@ -1,7 +1,7 @@
 #include "graphicsEntity.h"
 #include "renderer.h"
 #include <vulkan/vulkan.h>
-#include "../utility/debug.h"
+#include "../utility/logging.h"
 #include "../core/predefined.h"
 
 GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest) {
@@ -12,7 +12,7 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
     
     //TODO: Handle when vertexbuffer is a nullptr
 
-    Debug::log(INFO, "Starting setup of Descriptor set layout");
+    logger(INFO, "Starting setup of Descriptor set layout");
 
     // Uniform bindings that every shader has by standard. Maybe make this optional in the future.
     std::vector<LayoutBinding> bindings = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}};
@@ -46,8 +46,8 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 
-    Debug::log(SUCCESS, "Descriptor set layout setup successfull!"); 
-    Debug::log(INFO, "Starting to create graphics pipeline"); 
+    logger(SUCCESS, "Descriptor set layout setup successfull!"); 
+    logger(INFO, "Starting to create graphics pipeline"); 
 
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions(); 
@@ -155,7 +155,7 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
     pipelineLayoutInfo.pSetLayouts = &graphicsEntity.descriptorSetLayout;
 
     if (vkCreatePipelineLayout(rendererContent.device, &pipelineLayoutInfo, nullptr, &graphicsEntity.pipelineLayout) != VK_SUCCESS) { 
-        Debug::log(ERROR, "Failed to create pipeline layout!"); 
+        logger(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
 
@@ -187,10 +187,10 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
 
     if (vkCreateGraphicsPipelines(rendererContent.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity.graphicsPipeline) != VK_SUCCESS) {
         
-        Debug::log(ERROR, "Failed to create graphics pipeline!"); 
+        logger(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
     }
-    Debug::log(SUCCESS, "Created graphics pipeline!"); 
+    logger(SUCCESS, "Created graphics pipeline!"); 
     return graphicsEntity; 
 }
 

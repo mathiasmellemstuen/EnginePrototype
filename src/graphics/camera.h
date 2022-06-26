@@ -25,8 +25,8 @@ public:
     glm::vec3 front;
     glm::vec2 freeLookOrientation;
 
-    float near;
-    float far;
+    float nearValue;
+    float farValue;
     float fov;
     float aspectRatio;
 
@@ -41,7 +41,7 @@ public:
 
     glm::vec3 left() const;
 
-    Camera(const glm::vec3& position,const float& fov, const float& aspectRatio, const float& near, const float& far);
+    Camera(const glm::vec3& position,const float& fov, const float& aspectRatio, const float& nearValue, const float& farValue);
 };
 
 

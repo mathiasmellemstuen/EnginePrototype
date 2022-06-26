@@ -7,19 +7,19 @@
 
 void Camera::updateMatrices() {
     view = glm::lookAt(position, position + front, up);
-    projection = glm::perspective(glm::radians(fov), aspectRatio, near, far);
+    projection = glm::perspective(glm::radians(fov), aspectRatio, nearValue, farValue);
     projection[1][1] *= -1;
 }
 
- Camera::Camera(const glm::vec3 &position, const float &fov, const float &aspectRatio, const float &near, const float &far) {
+ Camera::Camera(const glm::vec3 &position, const float &fov, const float &aspectRatio, const float &nearValue, const float &farValue) {
 
     mainCamera = this;
 
     this->position = position;
     this->up = glm::vec3(0.0f, 0.0f, 1.0f);
     this->front = glm::vec3(1.0f, 0.0f, 0.0f);
-    this->near = near;
-    this->far = far;
+    this->nearValue = nearValue;
+    this->farValue = farValue;
     this->fov = fov;
     this->aspectRatio = aspectRatio;
     this->freeFlightSpeed = 10.0f;
