@@ -33,6 +33,7 @@ Shader createShader(RendererContent& rendererContent, std::string vertexShaderPa
     fragShaderStageInfo.pName = "main";
 
     // Geometry shader is optional. Checking if we should add it.
+    //TODO: This feature is for now not supported since geometry shaders don't work on mac. Will be supported once a crossplatform solution is created
     if(geometryShaderPath != "") {
 
         auto geometryShaderCode = readFile(geometryShaderPath);

@@ -20,6 +20,7 @@ find_package(Vulkan REQUIRED)
 set(SDL2_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.22-windows/x86_64-w64-mingw32/lib")
 set(FREETYPE_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/freetype-windows-binaries/release dll/win64")
 set(FREETYPE_INCLUDES_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/freetype-windows-binaries/include")
+
 # Linking OS spesifics
 if (${WIN32})
     target_include_directories(ENGINEPROTOTYPE PUBLIC ${FREETYPE_INCLUDES_DIR_WINDOWS})
@@ -29,6 +30,8 @@ endif()
 if (${APPLE})
     set(SDL2_LIBRARIES "/usr/local/lib/libSDL2.dylib;/usr/local/lib/libSDL2main.a")
     target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+    find_package(Freetype REQUIRED)
+    target_link_libraries(${PROJECT_NAME} Freetype::Freetype)
 endif()
 # if (${UNIX} AND NOT ${APPLE})
 #     # TODO: Set SDL2_LIBRARIES for linux

@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include "../utility/logging.h"
 #include "renderer.h"
-#include <math.h>
+#include <cmath>
 
 Texture createTexture(RendererContent& rendererContent, const std::string& texturePath) {
     Texture texture; 

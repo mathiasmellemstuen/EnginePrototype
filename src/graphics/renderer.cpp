@@ -874,8 +874,9 @@ RendererContent createRenderer(Window& window) {
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         deviceFeatures.samplerAnisotropy = VK_TRUE; 
-        deviceFeatures.geometryShader = VK_TRUE;
-        
+        //TODO: Find a way to check for geometry shader support since it's not supported on macs? 
+        //deviceFeatures.geometryShader = VK_TRUE;
+
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         createInfo.pQueueCreateInfos = &queueCreateInfo;

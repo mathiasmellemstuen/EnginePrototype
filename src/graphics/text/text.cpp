@@ -48,7 +48,7 @@ std::map<char, Texture> createCharacterMapFromFont(RendererContent& rendererCont
 
         void* data;
         vkMapMemory(rendererContent.device, character.stagingBufferMemory, 0, size, 0, &data);
-        mempcpy(data, face->glyph->bitmap.buffer, size);
+        memcpy(data, face->glyph->bitmap.buffer, size);
         vkUnmapMemory(rendererContent.device, character.stagingBufferMemory);
     
         createImage(rendererContent, face->glyph->bitmap.width, face->glyph->bitmap.rows, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, character.textureImage, character.textureImageMemory);
