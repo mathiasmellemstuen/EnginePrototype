@@ -57,7 +57,7 @@ void loop(RendererContent& rendererContent, Window& window, EventManager& eventM
 void drawFrame(RendererContent& rendererContent, Window& window);
 void cleanupSwapChain(RendererContent& rendererContent);
 void reCreateSwapChain(RendererContent& rendererContent, Window& window);
-RendererContent createRenderer(Window& window);
+const RendererContent& createRenderer(Window& window);
 void destroyRenderer(RendererContent& rendererContent);
 void allocateSwapchainDependentRendererContent(RendererContent& rendererContent, Window& window);
 void createBuffer(RendererContent& rendererContent, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);

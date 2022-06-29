@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "layoutBinding.h"
 #include <stdexcept>
+#include <vector>
 
 struct GraphicsEntity {
     VertexBuffer* vertexBuffer;
@@ -15,9 +16,12 @@ struct GraphicsEntity {
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
+    bool depthTestEnabled; 
 };
+extern std::vector<GraphicsEntity*> allGraphicsEntities;
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true);
+const GraphicsEntity& createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true);
 void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
+void reCreateGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
 
 #endif

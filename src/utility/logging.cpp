@@ -1,6 +1,6 @@
 #include "logging.h"
 
-void logToTerminal(const char* fileName, int lineNumber, int logLevel, std::string message) {
+void logToTerminal(const char* fileName, const char* functionName, int lineNumber, int logLevel, std::string message) {
 
     std::string formattedFileName = fileName;
     
@@ -14,7 +14,7 @@ void logToTerminal(const char* fileName, int lineNumber, int logLevel, std::stri
         }
     }
 
-    std::cout << "[" << rang::fg::cyan << formattedFileName << rang::fg::reset << "][" << rang::fg::magenta << lineNumber << rang::fg::reset << "]";
+    std::cout << "[" << rang::fg::cyan << formattedFileName << rang::fg::reset << "][" << rang::fg::green << functionName << rang::fg::reset << "][" <<  rang::fg::magenta << lineNumber << rang::fg::reset << "]";
     std::cout << "["; 
     switch (logLevel) {
         case 1:

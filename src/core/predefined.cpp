@@ -18,7 +18,8 @@ void loadPredefined(RendererContent& rendererContent) {
     predefinedShaders.uiText = createShader(rendererContent, "assets/shaders/compiled/uiText.vert.spv", "assets/shaders/compiled/uiText.frag.spv");
 
     // Loading predefined fonts
-    predefinedFonts.roboto = createCharacterMapFromFont(rendererContent, "assets/fonts/Roboto-Black.ttf");
+    predefinedFonts.roboto = createGlyphAtlasFromFont(rendererContent, "assets/fonts/Roboto-Black.ttf");
+
     // Creating vertex buffers 
     {
         std::vector<Vertex> vertices = {
@@ -34,9 +35,9 @@ void loadPredefined(RendererContent& rendererContent) {
     {
         std::vector<Vertex> vertices = {
             {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-            {{-1.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-            {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-            {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+            {{-1.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+            {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+            {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
         };
 
         std::vector<uint32_t> indices = {0, 1, 2, 2, 1, 3};
@@ -47,5 +48,5 @@ void loadPredefined(RendererContent& rendererContent) {
     predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
     predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
     predefinedGraphicsEntities.uiCircle = createGraphicsEntity(rendererContent, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
-    predefinedGraphicsEntities.uiText = createGraphicsEntity(rendererContent, &predefinedShaders.uiText, &predefinedVertexBuffers.rectangle, &predefinedFonts.roboto['f'], false);
+    predefinedGraphicsEntities.uiText = createGraphicsEntity(rendererContent, &predefinedShaders.uiText, &predefinedVertexBuffers.rectangle, &predefinedFonts.roboto.texture, false);
 }

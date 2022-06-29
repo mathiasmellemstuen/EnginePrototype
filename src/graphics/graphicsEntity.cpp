@@ -3,12 +3,16 @@
 #include <vulkan/vulkan.h>
 #include "../utility/logging.h"
 #include "../core/predefined.h"
+#include <memory>
 
-GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest) {
-    GraphicsEntity graphicsEntity; 
-    graphicsEntity.vertexBuffer = vertexBuffer;
-    graphicsEntity.texture = texture;
-    graphicsEntity.shader = shader; 
+std::vector<GraphicsEntity*> allGraphicsEntities;
+
+const GraphicsEntity& createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest) {
+    GraphicsEntity* graphicsEntity = new GraphicsEntity; 
+    graphicsEntity->vertexBuffer = vertexBuffer;
+    graphicsEntity->texture = texture;
+    graphicsEntity->shader = shader; 
+    graphicsEntity->depthTestEnabled = enableDepthTest; 
     
     //TODO: Handle when vertexbuffer is a nullptr
 
@@ -42,7 +46,7 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
     layoutInfo.bindingCount = static_cast<uint32_t>(lBindings.size());
     layoutInfo.pBindings = lBindings.data();
 
-    if (vkCreateDescriptorSetLayout(rendererContent.device, &layoutInfo, nullptr, &graphicsEntity.descriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(rendererContent.device, &layoutInfo, nullptr, &graphicsEntity->descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 
@@ -152,9 +156,9 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &graphicsEntity.descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &graphicsEntity->descriptorSetLayout;
 
-    if (vkCreatePipelineLayout(rendererContent.device, &pipelineLayoutInfo, nullptr, &graphicsEntity.pipelineLayout) != VK_SUCCESS) { 
+    if (vkCreatePipelineLayout(rendererContent.device, &pipelineLayoutInfo, nullptr, &graphicsEntity->pipelineLayout) != VK_SUCCESS) { 
         logger(ERROR, "Failed to create pipeline layout!"); 
         throw std::runtime_error("failed to create pipeline layout!"); 
     }
@@ -179,23 +183,34 @@ GraphicsEntity createGraphicsEntity(RendererContent& rendererContent, Shader* sh
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = graphicsEntity.pipelineLayout;
+    pipelineInfo.layout = graphicsEntity->pipelineLayout;
     pipelineInfo.renderPass = rendererContent.renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(rendererContent.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity.graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(rendererContent.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity->graphicsPipeline) != VK_SUCCESS) {
         
         logger(ERROR, "Failed to create graphics pipeline!"); 
         throw std::runtime_error("failed to create graphics pipeline!"); 
     }
     logger(SUCCESS, "Created graphics pipeline!"); 
-    return graphicsEntity; 
+    
+    allGraphicsEntities.push_back(graphicsEntity);
+
+    return *graphicsEntity; 
 }
 
 void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity) {
     vkDestroyPipeline(rendererContent.device, graphicsEntity.graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(rendererContent.device, graphicsEntity.pipelineLayout, nullptr);
     vkDestroyDescriptorSetLayout(rendererContent.device, graphicsEntity.descriptorSetLayout, nullptr);
+
+    std::remove(allGraphicsEntities.begin(), allGraphicsEntities.end(), &graphicsEntity);
+
+    delete &graphicsEntity;
+}
+
+void reCreateGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity) {
+    graphicsEntity = createGraphicsEntity(rendererContent, graphicsEntity.shader, graphicsEntity.vertexBuffer, graphicsEntity.texture, graphicsEntity.depthTestEnabled);
 }

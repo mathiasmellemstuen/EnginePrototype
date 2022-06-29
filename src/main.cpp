@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
     Window window;
     RendererContent rendererContent = createRenderer(window);
 
-    createCharacterMapFromFont(rendererContent, "assets/fonts/Roboto-Black.ttf");
 
     // Loading engine spesific predefined content
     loadPredefined(rendererContent);
@@ -114,8 +113,6 @@ int main(int argc, char *argv[]) {
     cube.addComponent(&transform);
     cube.addComponent(&cubeEntityInstance);
     
-    Shader uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
-
     // Creating a UI triangle
     UITriangleInstance triangle1(rendererContent); 
     triangle1.position = {0.8, 0.0};
@@ -144,9 +141,9 @@ int main(int argc, char *argv[]) {
 
     // Creating a text
     UITextInstance uiTextInstance(rendererContent);
-    uiTextInstance.position = {0.5, 0.0};
+    uiTextInstance.position = {-0.5, -0.5};
     uiTextInstance.color = {0.0, 0.0, 1.0, 1.0};
-    uiTextInstance.size = {0.8, 0.8};
+    uiTextInstance.size = {1.0, 1.0};
     Object uiTextObj("UI text object");
     uiTextObj.addComponent(&uiTextInstance);
 

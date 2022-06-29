@@ -5,21 +5,21 @@
 #include "../utility/logging.h"
 #include "renderer.h"
 
-template<typename T> UniformBuffer createUniformBuffer(RendererContent& rendererContent) {
-    UniformBuffer uniformBuffer; 
+template<typename T> const UniformBuffer& createUniformBuffer(RendererContent& rendererContent) {
+    UniformBuffer* uniformBuffer = new UniformBuffer; 
     
     logger(INFO, "Starting creation of uniform buffers.");
     VkDeviceSize bufferSize = sizeof(T);
-    uniformBuffer.uniformBuffers.resize(rendererContent.swapChainImages.size());
-    uniformBuffer.uniformBuffersMemory.resize(rendererContent.swapChainImages.size());
+    uniformBuffer->uniformBuffers.resize(rendererContent.swapChainImages.size());
+    uniformBuffer->uniformBuffersMemory.resize(rendererContent.swapChainImages.size());
 
     for (size_t i = 0; i < rendererContent.swapChainImages.size(); i++) {
-        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffer.uniformBuffers[i], uniformBuffer.uniformBuffersMemory[i]);
+        createBuffer(rendererContent, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffer->uniformBuffers[i], uniformBuffer->uniformBuffersMemory[i]);
     }
 
     logger(SUCCESS, "Successfully created all buffers!"); 
 
-    return uniformBuffer;
+    return *uniformBuffer;
 }
 template<typename T> void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, T& bufferContent, int currentCommandBufferIndex) {
     void* data;

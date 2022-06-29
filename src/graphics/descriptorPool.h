@@ -14,7 +14,7 @@ struct DescriptorPool {
     std::vector<VkDescriptorSet> descriptorSets;
 };
 
-template<typename T> DescriptorPool createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance);
+template<typename T> const DescriptorPool& createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance);
 void freeDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool);
 
 #include "descriptorPool.tpp"

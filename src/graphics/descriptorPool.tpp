@@ -6,8 +6,8 @@
 #include "../utility/logging.h"
 #include <array>
 
-template<typename T> DescriptorPool createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance) {
-    DescriptorPool descriptorPool;
+template<typename T> const DescriptorPool& createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance) {
+    DescriptorPool* descriptorPool = new DescriptorPool;
     
     logger(INFO, "Creating descriptor pool");
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
@@ -22,7 +22,7 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(rendererContent.swapChainImages.size());
 
-    if (vkCreateDescriptorPool(rendererContent.device, &poolInfo, nullptr, &descriptorPool.descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(rendererContent.device, &poolInfo, nullptr, &descriptorPool->descriptorPool) != VK_SUCCESS) {
 
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -33,13 +33,13 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
     std::vector<VkDescriptorSetLayout> layouts(rendererContent.swapChainImages.size(), graphicsEntityInstance.graphicsEntity->descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool.descriptorPool;
+    allocInfo.descriptorPool = descriptorPool->descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(rendererContent.swapChainImages.size());
     allocInfo.pSetLayouts = layouts.data();
 
-    descriptorPool.descriptorSets.resize(rendererContent.swapChainImages.size());
+    descriptorPool->descriptorSets.resize(rendererContent.swapChainImages.size());
     
-    if (vkAllocateDescriptorSets(rendererContent.device, &allocInfo, descriptorPool.descriptorSets.data()) != VK_SUCCESS) {
+    if (vkAllocateDescriptorSets(rendererContent.device, &allocInfo, descriptorPool->descriptorSets.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
@@ -58,7 +58,7 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(T);
             descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = descriptorPool.descriptorSets[i];
+            descriptorWrites[0].dstSet = descriptorPool->descriptorSets[i];
             descriptorWrites[0].dstBinding = 0;
             descriptorWrites[0].dstArrayElement = 0;
             descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -72,7 +72,7 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
                 imageInfo.imageView = graphicsEntityInstance.graphicsEntity->texture->textureImageView;//TODO: Support more than one texture here...
                 imageInfo.sampler = graphicsEntityInstance.graphicsEntity->texture->textureSampler; // Here too...
                 descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrites[1].dstSet = descriptorPool.descriptorSets[i];
+                descriptorWrites[1].dstSet = descriptorPool->descriptorSets[i];
                 descriptorWrites[1].dstBinding = 1;
                 descriptorWrites[1].dstArrayElement = 0;
                 descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -85,6 +85,6 @@ template<typename T> DescriptorPool createDescriptorPool(RendererContent& render
     logger(SUCCESS, "Created descriptor sets!");
 
 
-    return descriptorPool;
+    return *descriptorPool;
 }
 #endif

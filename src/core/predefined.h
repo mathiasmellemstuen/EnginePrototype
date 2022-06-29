@@ -29,7 +29,7 @@ struct PredefinedVertexBuffers {
 };
 
 struct PredefinedFonts {
-    std::map<char, Texture> roboto;
+    GlyphAtlas roboto;
 };
 
 extern PredefinedShaders predefinedShaders; 

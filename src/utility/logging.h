@@ -13,7 +13,7 @@ enum LogLevel {
 #define _WIN32_WINNT 0x0A000007
 #include <rang/rang.hpp>
 
-void logToTerminal(const char* fileName, int lineNumber, int logLevel, std::string message);
-#define logger(l, m) logToTerminal(__FILE__, __LINE__, l, m)
+void logToTerminal(const char* fileName, const char* functionName, int lineNumber, int logLevel, std::string message);
+#define logger(l, m) logToTerminal(__FILE__, __func__, __LINE__, l, m)
 
 #endif

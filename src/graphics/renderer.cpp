@@ -12,8 +12,10 @@
 #include "eventManager.h"
 #include "../core/object.h"
 #include "graphicsEntityInstance.h"
+#include "genericGraphicsEntityInstance.h"
 #include <string>
 #include "UI/UIInstance.h"
+
 uint64_t last = 0; 
 uint64_t now = 0; 
 
@@ -337,18 +339,17 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, Window
 
 void cleanupSwapChain(RendererContent& rendererContent) {
 
+    logger(INFO, "Starting cleanup of swap chain");
+
     for (size_t i = 0; i < rendererContent.swapChainFramebuffers.size(); i++) {
         vkDestroyFramebuffer(rendererContent.device, rendererContent.swapChainFramebuffers[i], nullptr);
     }
 
-    vkFreeCommandBuffers(rendererContent.device, rendererContent.commandPool, static_cast<uint32_t>(rendererContent.commandBuffers.size()), rendererContent.commandBuffers.data());
-    
-
-    //TODO: Fix this
-    for(Object* object : Object::objects) {
-        //vkDestroyPipeline(rendererContent.device, object->renderObject->graphicsPipeline.graphicsPipeline, nullptr);
-        //vkDestroyPipelineLayout(rendererContent.device, object->renderObject->graphicsPipeline.pipelineLayout, nullptr);
+    for(int i = allGraphicsEntities.size() - 1; i < 0; i++) {
+        freeGraphicsEntity(rendererContent, *allGraphicsEntities[i]);
     }
+
+    vkDestroyRenderPass(rendererContent.device, rendererContent.uiRenderPass, nullptr);
     vkDestroyRenderPass(rendererContent.device, rendererContent.renderPass, nullptr);
 
     for (size_t i = 0; i < rendererContent.swapChainImageViews.size(); i++) {
@@ -357,6 +358,7 @@ void cleanupSwapChain(RendererContent& rendererContent) {
 
     vkDestroySwapchainKHR(rendererContent.device, rendererContent.swapChain, nullptr);
 
+    logger(SUCCESS, "Successfully cleaned up swapchain"); 
 };
 void reCreateSwapChain(RendererContent& rendererContent, Window& window) {
 
@@ -378,12 +380,17 @@ void reCreateSwapChain(RendererContent& rendererContent, Window& window) {
     cleanupSwapChain(rendererContent); 
     allocateSwapchainDependentRendererContent(rendererContent, window); 
 
-    //TODO: Fix this
-    for(Object* object : Object::objects) {
-        //object->getComponent<GraphicsEntityInstance>().descriptorPool.create();
+    for(GraphicsEntity* graphicsEntity : allGraphicsEntities) {
+        reCreateGraphicsEntity(rendererContent, *graphicsEntity);
     }
 
-    createCommandBuffers(rendererContent, 0);
+    for(Object* object : Object::objects) {
+        GenericGraphicsEntityInstance* instance = object->getComponent<GenericGraphicsEntityInstance>(); 
+
+        if(instance != nullptr) {
+            instance->reCreateGraphics(rendererContent);
+        }
+    }
     // TODO: Re dreate / Allocate command buffers here!
 
     logger(SUCCESS, "Done recreating swapchain!"); 
@@ -396,7 +403,7 @@ void drawFrame(RendererContent& rendererContent, Window& window) {
     VkResult result = vkAcquireNextImageKHR(rendererContent.device, rendererContent.swapChain, UINT64_MAX, rendererContent.imageAvailableSemaphores[rendererContent.currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        reCreateSwapChain(rendererContent, window); 
+        reCreateSwapChain(rendererContent, window);
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
@@ -759,8 +766,8 @@ void allocateSwapchainDependentRendererContent(RendererContent& rendererContent,
         logger(SUCCESS, "Successfully created all framebuffers.");
     }
 }
-RendererContent createRenderer(Window& window) {
-    RendererContent rendererContent;
+const RendererContent& createRenderer(Window& window) {
+    RendererContent* rendererContent = new RendererContent;
 
     {
         logger(INFO, "Starting creation of a vulkan instance"); 
@@ -800,14 +807,14 @@ RendererContent createRenderer(Window& window) {
         
         logger(INFO, "Creating a vulkan instance and VkResult"); 
 
-        VkResult result = vkCreateInstance(&createInfo, nullptr, &rendererContent.instance);
+        VkResult result = vkCreateInstance(&createInfo, nullptr, &rendererContent->instance);
         
         if (result != VK_SUCCESS)  { 
             throw std::runtime_error("Failed to create instance!");
             logger(ERROR, "Failed to create instance!"); 
         }
 
-        if (SDL_Vulkan_CreateSurface(window.sdlWindow, rendererContent.instance, &rendererContent.surface) == SDL_FALSE) { 
+        if (SDL_Vulkan_CreateSurface(window.sdlWindow, rendererContent->instance, &rendererContent->surface) == SDL_FALSE) { 
             logger(ERROR, "Failed to create window surface!"); 
             throw std::runtime_error("Failed to create window surface!"); 
         }
@@ -819,7 +826,7 @@ RendererContent createRenderer(Window& window) {
         logger(INFO, "Checking and creating physical device context"); 
 
         uint32_t deviceCount = 0; 
-        vkEnumeratePhysicalDevices(rendererContent.instance, &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(rendererContent->instance, &deviceCount, nullptr);
 
         if (deviceCount == 0) { 
             logger(ERROR, "Failed to find GPUs with Vulkan support!"); 
@@ -827,31 +834,31 @@ RendererContent createRenderer(Window& window) {
         }
 
         std::vector<VkPhysicalDevice> devices(deviceCount); 
-        vkEnumeratePhysicalDevices(rendererContent.instance, &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(rendererContent->instance, &deviceCount, devices.data());
 
         for (const auto& device : devices) {
-            if (isDeviceSuitable(rendererContent, device)) { 
-                rendererContent.physicalDevice = device;
-                rendererContent.msaaSamples = getMaxUsableSampleCount(rendererContent);
+            if (isDeviceSuitable(*rendererContent, device)) { 
+                rendererContent->physicalDevice = device;
+                rendererContent->msaaSamples = getMaxUsableSampleCount(*rendererContent);
                 break; 
             }
         } 
 
-        if (rendererContent.physicalDevice == VK_NULL_HANDLE) { 
+        if (rendererContent->physicalDevice == VK_NULL_HANDLE) { 
             
             logger(ERROR, "Failed to find a suitable GPU!"); 
             throw std::runtime_error("Failed to find a suitable GPU!");
     
         } else {
         
-            vkGetPhysicalDeviceProperties(rendererContent.physicalDevice,&rendererContent.physicalDeviceProperties);
-            logger(SUCCESS, "Selected GPU: " + std::string(rendererContent.physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
+            vkGetPhysicalDeviceProperties(rendererContent->physicalDevice,&rendererContent->physicalDeviceProperties);
+            logger(SUCCESS, "Selected GPU: " + std::string(rendererContent->physicalDeviceProperties.deviceName) + ". Successfully created PhysicalDevice context.");
         }
     }
     {
         logger(INFO, "Setting up a logical device"); 
 
-        QueueFamilyIndices indices = findQueueFamilies(rendererContent);
+        QueueFamilyIndices indices = findQueueFamilies(*rendererContent);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -895,29 +902,29 @@ RendererContent createRenderer(Window& window) {
             createInfo.enabledLayerCount = 0; 
         }
 
-        if (vkCreateDevice(rendererContent.physicalDevice, &createInfo, nullptr, &rendererContent.device) !=  VK_SUCCESS) { 
+        if (vkCreateDevice(rendererContent->physicalDevice, &createInfo, nullptr, &rendererContent->device) !=  VK_SUCCESS) { 
             
             logger(ERROR, "Failed to create logical device!"); 
             throw std::runtime_error("Failed to create logical device!"); 
         }
 
-        vkGetDeviceQueue(rendererContent.device, indices.graphicsFamily.value(), 0, &rendererContent.graphicsQueue);
-        vkGetDeviceQueue(rendererContent.device, indices.presentFamily.value(), 0, &rendererContent.presentQueue);
+        vkGetDeviceQueue(rendererContent->device, indices.graphicsFamily.value(), 0, &rendererContent->graphicsQueue);
+        vkGetDeviceQueue(rendererContent->device, indices.presentFamily.value(), 0, &rendererContent->presentQueue);
 
         logger(SUCCESS, "Created logical device!"); 
     }
-    allocateSwapchainDependentRendererContent(rendererContent, window);
+    allocateSwapchainDependentRendererContent(*rendererContent, window);
     {
         logger(INFO, "Creating command pool."); 
 
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(rendererContent);
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(*rendererContent);
 
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(); 
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        if (vkCreateCommandPool(rendererContent.device, &poolInfo, nullptr, &rendererContent.commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(rendererContent->device, &poolInfo, nullptr, &rendererContent->commandPool) != VK_SUCCESS) {
             logger(ERROR, "Failed to create command pool!"); 
             throw std::runtime_error("failed to create command pool!");
         }
@@ -927,15 +934,15 @@ RendererContent createRenderer(Window& window) {
 
         logger(INFO, "Allocating command buffers");
 
-        rendererContent.commandBuffers.resize(rendererContent.swapChainFramebuffers.size());
+        rendererContent->commandBuffers.resize(rendererContent->swapChainFramebuffers.size());
         
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = rendererContent.commandPool;
+        allocInfo.commandPool = rendererContent->commandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t) rendererContent.commandBuffers.size();
+        allocInfo.commandBufferCount = (uint32_t) rendererContent->commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(rendererContent.device, &allocInfo, rendererContent.commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(rendererContent->device, &allocInfo, rendererContent->commandBuffers.data()) != VK_SUCCESS) {
             logger(ERROR, "Failed to allocate command buffers!"); 
             throw std::runtime_error("failed to allocate command buffers!"); 
         }
@@ -947,10 +954,10 @@ RendererContent createRenderer(Window& window) {
         logger(INFO, "Creating sync objects"); 
 
         //TODO: Change 2 with max frames in flight variable from properties. 
-        rendererContent.imageAvailableSemaphores.resize(2);
-        rendererContent.renderFinishedSemaphores.resize(2);
-        rendererContent.imagesInFlight.resize(rendererContent.swapChainImages.size(), VK_NULL_HANDLE);
-        rendererContent.inFlightFences.resize(2);
+        rendererContent->imageAvailableSemaphores.resize(2);
+        rendererContent->renderFinishedSemaphores.resize(2);
+        rendererContent->imagesInFlight.resize(rendererContent->swapChainImages.size(), VK_NULL_HANDLE);
+        rendererContent->inFlightFences.resize(2);
 
 
         VkSemaphoreCreateInfo semaphoreInfo{};
@@ -963,7 +970,7 @@ RendererContent createRenderer(Window& window) {
         //TODO: Change 2 with max frames in flight variable from properties. 
         for (size_t i = 0; i < 2; i++) {
             
-            if (vkCreateSemaphore(rendererContent.device, &semaphoreInfo, nullptr, &rendererContent.imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(rendererContent.device, &semaphoreInfo, nullptr, &rendererContent.renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(rendererContent.device, &fenceInfo, nullptr, &rendererContent.inFlightFences[i]) != VK_SUCCESS) {
+            if (vkCreateSemaphore(rendererContent->device, &semaphoreInfo, nullptr, &rendererContent->imageAvailableSemaphores[i]) != VK_SUCCESS || vkCreateSemaphore(rendererContent->device, &semaphoreInfo, nullptr, &rendererContent->renderFinishedSemaphores[i]) != VK_SUCCESS || vkCreateFence(rendererContent->device, &fenceInfo, nullptr, &rendererContent->inFlightFences[i]) != VK_SUCCESS) {
                 
                 logger(ERROR, "Failed to create synchronization objects for a frame!"); 
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
@@ -972,7 +979,7 @@ RendererContent createRenderer(Window& window) {
 
         logger(SUCCESS, "Successfully created sync objects!");
     }
-    return rendererContent;
+    return *rendererContent;
 }
 
 void destroyRenderer(RendererContent& rendererContent) {
@@ -1005,6 +1012,8 @@ void destroyRenderer(RendererContent& rendererContent) {
     vkDestroyDevice(rendererContent.device, nullptr);
     vkDestroySurfaceKHR(rendererContent.instance, rendererContent.surface, nullptr);
     vkDestroyInstance(rendererContent.instance, nullptr);
+
+    delete &rendererContent; 
 }
 
 

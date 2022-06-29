@@ -5,16 +5,16 @@
 #include "renderer.h"
 #include <cmath>
 
-Texture createTexture(RendererContent& rendererContent, const std::string& texturePath) {
-    Texture texture; 
-    texture.texturePath = texturePath; 
+const Texture& createTexture(RendererContent& rendererContent, const std::string& texturePath) {
+    Texture* texture = new Texture; 
+    texture->texturePath = texturePath; 
     
     logger(INFO, "Starting loading texture image"); 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-    texture.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+    texture->mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 
     if (!pixels) {
         logger(ERROR, "Failed to load texture image!"); 
@@ -24,37 +24,38 @@ Texture createTexture(RendererContent& rendererContent, const std::string& textu
     logger(SUCCESS, "Successfully loaded texture image!");
     logger(INFO, "Creating buffer that stores the image/texture"); 
 
-    createBuffer(rendererContent, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, texture.stagingBuffer, texture.stagingBufferMemory);
+    createBuffer(rendererContent, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, texture->stagingBuffer, texture->stagingBufferMemory);
 
     void* data;
-    vkMapMemory(rendererContent.device, texture.stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(rendererContent.device, texture->stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(rendererContent.device, texture.stagingBufferMemory);
+    vkUnmapMemory(rendererContent.device, texture->stagingBufferMemory);
     stbi_image_free(pixels);
 
     logger(SUCCESS, "Successfully created buffer"); 
 
-    createImage(rendererContent, texWidth, texHeight, texture.mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture.textureImage, texture.textureImageMemory);
+    createImage(rendererContent, texWidth, texHeight, texture->mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture->textureImage, texture->textureImageMemory);
 
-    transitionImageLayout(rendererContent, texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture.mipLevels);
-    copyBufferToImage(rendererContent, texture.stagingBuffer, texture.textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    transitionImageLayout(rendererContent, texture->textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->mipLevels);
+    copyBufferToImage(rendererContent, texture->stagingBuffer, texture->textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
 
-    vkDestroyBuffer(rendererContent.device, texture.stagingBuffer, nullptr);
-    vkFreeMemory(rendererContent.device, texture.stagingBufferMemory, nullptr);
+    vkDestroyBuffer(rendererContent.device, texture->stagingBuffer, nullptr);
+    vkFreeMemory(rendererContent.device, texture->stagingBufferMemory, nullptr);
 
-    generateMipmaps(rendererContent, texture.textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, texture.mipLevels);
+    generateMipmaps(rendererContent, texture->textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, texture->mipLevels);
 
-    createTextureImageView(rendererContent, texture);
-    createTextureSampler(rendererContent, texture);
+    createTextureImageView(rendererContent, *texture);
+    createTextureSampler(rendererContent, *texture);
 
     logger(SUCCESS, "Created all texture resources!");
-    return texture;
+    return *texture;
 }
 void freeTexture(RendererContent& rendererContent, Texture& texture) {
     vkDestroySampler(rendererContent.device, texture.textureSampler, nullptr);
     vkDestroyImageView(rendererContent.device, texture.textureImageView, nullptr); 
-
+    
+    delete &texture; 
 }
 
 void createTextureImageView(RendererContent& rendererContent, Texture& texture) {

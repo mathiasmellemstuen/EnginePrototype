@@ -8,28 +8,28 @@
 #include <iostream>
 #include "renderer.h"
 
-Shader createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
-    Shader shader; 
-    shader.shaderCount = 2; 
+const Shader& createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
+    Shader* shader = new Shader; 
+    shader->shaderCount = 2; 
 
     logger(INFO, "Creating shader"); 
 
     auto vertShaderCode = readFile(vertexShaderPath);
     auto fragShaderCode = readFile(fragmentShaderPath);
     
-    shader.vertexShaderModule = createShaderModule(rendererContent, vertShaderCode); 
-    shader.fragmentShaderModule = createShaderModule(rendererContent, fragShaderCode);
+    shader->vertexShaderModule = createShaderModule(rendererContent, vertShaderCode); 
+    shader->fragmentShaderModule = createShaderModule(rendererContent, fragShaderCode);
     
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = shader.vertexShaderModule;
+    vertShaderStageInfo.module = shader->vertexShaderModule;
     vertShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = shader.fragmentShaderModule;
+    fragShaderStageInfo.module = shader->fragmentShaderModule;
     fragShaderStageInfo.pName = "main";
 
     // Geometry shader is optional. Checking if we should add it.
@@ -37,31 +37,33 @@ Shader createShader(RendererContent& rendererContent, std::string vertexShaderPa
     if(geometryShaderPath != "") {
 
         auto geometryShaderCode = readFile(geometryShaderPath);
-        shader.geometryShaderModule = createShaderModule(rendererContent, geometryShaderCode);
+        shader->geometryShaderModule = createShaderModule(rendererContent, geometryShaderCode);
 
         VkPipelineShaderStageCreateInfo geometryShaderStageInfo{};
         geometryShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         geometryShaderStageInfo.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
-        geometryShaderStageInfo.module = shader.geometryShaderModule;
+        geometryShaderStageInfo.module = shader->geometryShaderModule;
         geometryShaderStageInfo.pName = "main";
 
-        shader.shaderStages[2] = geometryShaderStageInfo;
+        shader->shaderStages[2] = geometryShaderStageInfo;
 
-        shader.shaderCount = 3; 
+        shader->shaderCount = 3; 
     }
 
     // Assigning vertex and fragment shaders
-    shader.shaderStages[0] = vertShaderStageInfo;
-    shader.shaderStages[1] = fragShaderStageInfo; 
+    shader->shaderStages[0] = vertShaderStageInfo;
+    shader->shaderStages[1] = fragShaderStageInfo; 
 
     logger(SUCCESS, "Successfully created shader!"); 
 
-    return shader; 
+    return *shader; 
 }
 
 void freeShader(RendererContent& rendererContent, Shader& shader) {
     vkDestroyShaderModule(rendererContent.device, shader.vertexShaderModule, nullptr);
     vkDestroyShaderModule(rendererContent.device, shader.fragmentShaderModule, nullptr);
+
+    delete &shader;
 }
 
 //TODO: Move this to a read / write source file instead of this helper function? 

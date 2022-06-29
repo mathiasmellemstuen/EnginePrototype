@@ -16,7 +16,7 @@ struct Texture {
     VkSampler textureSampler;
 };
 
-Texture createTexture(RendererContent& rendererContent, const std::string& texturePath);
+const Texture& createTexture(RendererContent& rendererContent, const std::string& texturePath);
 void freeTexture(RendererContent& rendererContent, Texture& texture);
 void createTextureImageView(RendererContent& rendererContent, Texture& texture);
 void createTextureSampler(RendererContent& rendererContent, Texture& texture);
