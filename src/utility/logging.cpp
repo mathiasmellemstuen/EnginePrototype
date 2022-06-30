@@ -1,6 +1,7 @@
 #include "logging.h"
-
-void logToTerminal(const char* fileName, const char* functionName, int lineNumber, int logLevel, std::string message) {
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const std::string& message) {
 
     std::string formattedFileName = fileName;
     
@@ -34,3 +35,32 @@ void logToTerminal(const char* fileName, const char* functionName, int lineNumbe
     }
     std::cout << "] " << message << std::endl;
 };
+
+
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+};
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const float& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+};
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const double& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+};
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec2& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+};
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec3& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+};
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec4& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+}
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat2& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+}
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat3& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+}
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat4& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+}
