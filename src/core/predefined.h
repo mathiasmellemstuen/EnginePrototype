@@ -5,9 +5,9 @@
 #include "../graphics/shader.h"
 #include "../graphics/renderer.h"
 #include "../graphics/vertexBuffer.h"
-#include "../graphics/text/text.h"
+#include "../graphics/font.h"
 #include "../graphics/texture.h"
-
+#include "../graphics/UI/UITextEntity.h"
 #include <map>
 
 struct PredefinedShaders {
@@ -20,7 +20,6 @@ struct PredefinedGraphicsEntities {
     GraphicsEntity uiTriangle;
     GraphicsEntity uiRectangle;
     GraphicsEntity uiCircle; 
-    GraphicsEntity uiText;
 };
 
 struct PredefinedVertexBuffers {
@@ -28,14 +27,14 @@ struct PredefinedVertexBuffers {
     VertexBuffer rectangle;
 };
 
-struct PredefinedFonts {
-    GlyphAtlas roboto;
+struct PredefinedTextEntities {
+    UITextEntity roboto;
 };
 
 extern PredefinedShaders predefinedShaders; 
 extern PredefinedGraphicsEntities predefinedGraphicsEntities; 
 extern PredefinedVertexBuffers predefinedVertexBuffers;
-extern PredefinedFonts predefinedFonts;
+extern PredefinedTextEntities predefinedTextEntities;
 
 void loadPredefined(RendererContent& rendereContent);
 

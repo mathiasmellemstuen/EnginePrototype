@@ -1,6 +1,6 @@
 #version 450
 
-layout(binding = 0) uniform UniformBufferObject {
+layout( push_constant ) uniform UniformBufferObject {
     vec2 position; 
     vec2 size; 
     vec4 color;

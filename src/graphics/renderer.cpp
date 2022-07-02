@@ -15,6 +15,7 @@
 #include "genericGraphicsEntityInstance.h"
 #include <string>
 #include "UI/UIInstance.h"
+#include "camera.h"
 
 uint64_t last = 0; 
 uint64_t now = 0; 
@@ -44,6 +45,9 @@ void createCommandBuffers(RendererContent& rendererContent, uint32_t currentImag
         clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
+
+
+        //TODO: Change rendering of instances to its own rendering virtual function in GenericGraphicsEntityInstance
 
         vkCmdBeginRenderPass(rendererContent.commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             
@@ -374,6 +378,8 @@ void reCreateSwapChain(RendererContent& rendererContent, Window& window) {
         SDL_GetWindowSize(window.sdlWindow, &width, &height);
         SDL_Delay(1); 
     }
+    // Changing the aspect ratio of the main camera
+    Camera::mainCamera->aspectRatio = (float)width / (float) height; 
 
     vkDeviceWaitIdle(rendererContent.device);
 

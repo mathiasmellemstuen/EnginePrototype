@@ -36,7 +36,6 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
     std::cout << "] " << message << std::endl;
 };
 
-
 void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& message) {
     logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
 };

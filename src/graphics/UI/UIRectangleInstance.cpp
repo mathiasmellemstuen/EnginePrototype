@@ -3,7 +3,6 @@
 #include "../../input/mouse.h"
 
 UIRectangleInstance::UIRectangleInstance(RendererContent& rendererContent) : UIInstance(rendererContent, &predefinedGraphicsEntities.uiRectangle) {
-
 };
 
 bool UIRectangleInstance::hover() {

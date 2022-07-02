@@ -87,4 +87,10 @@ template<typename T> const DescriptorPool& createDescriptorPool(RendererContent&
 
     return *descriptorPool;
 }
+
+
+template<typename T> void reCreateDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool, GraphicsEntityInstance<T>& graphicsEntityInstance) {
+    freeDescriptorPool(rendererContent, descriptorPool); 
+    descriptorPool = createDescriptorPool(rendererContent, graphicsEntityInstance); 
+}
 #endif

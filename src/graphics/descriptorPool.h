@@ -15,8 +15,8 @@ struct DescriptorPool {
 };
 
 template<typename T> const DescriptorPool& createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance);
+template<typename T> void reCreateDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool, GraphicsEntityInstance<T>& graphicsEntityInstance);
 void freeDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool);
-
 #include "descriptorPool.tpp"
 
 #endif

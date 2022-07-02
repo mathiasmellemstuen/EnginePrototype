@@ -21,14 +21,14 @@ Window::Window() {
     logger(SUCCESS, "SDL2 initiated!");
     logger(INFO, "Creating SDL2 window context"); 
 
-    std::string title = (*properties)["windows"]["game"]["title"];
+    std::string title = PROPERTIES["windows"]["game"]["title"];
 
-    int width = (*properties)["windows"]["game"]["resolution"]["width"];
-    int height = (*properties)["windows"]["game"]["resolution"]["height"];
+    int width = PROPERTIES["windows"]["game"]["resolution"]["width"];
+    int height = PROPERTIES["windows"]["game"]["resolution"]["height"];
     sdlWindow = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_INPUT_FOCUS);
 
-    int xPos = (*properties)["windows"]["game"]["position"]["x"]; 
-    int yPos = (*properties)["windows"]["game"]["position"]["y"]; 
+    int xPos = PROPERTIES["windows"]["game"]["position"]["x"]; 
+    int yPos = PROPERTIES["windows"]["game"]["position"]["y"]; 
     SDL_SetWindowPosition(sdlWindow, xPos, yPos);
 
     logger(SUCCESS, "Successfully created SDL window context!"); 

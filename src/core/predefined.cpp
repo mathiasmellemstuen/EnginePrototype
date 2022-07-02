@@ -4,11 +4,12 @@
 #include "../graphics/renderer.h"
 #include <map>
 #include "../utility/debug.h"
+#include "../graphics/UI/UITextEntity.h"
 
 PredefinedShaders predefinedShaders = {}; 
 PredefinedGraphicsEntities predefinedGraphicsEntities = {}; 
 PredefinedVertexBuffers predefinedVertexBuffers = {};
-PredefinedFonts predefinedFonts = {};
+PredefinedTextEntities predefinedTextEntities = {};
 
 void loadPredefined(RendererContent& rendererContent) {
 
@@ -16,9 +17,6 @@ void loadPredefined(RendererContent& rendererContent) {
     predefinedShaders.uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
     predefinedShaders.uiCircle = createShader(rendererContent, "assets/shaders/compiled/uiCircle.vert.spv", "assets/shaders/compiled/uiCircle.frag.spv");
     predefinedShaders.uiText = createShader(rendererContent, "assets/shaders/compiled/uiText.vert.spv", "assets/shaders/compiled/uiText.frag.spv");
-
-    // Loading predefined fonts
-    predefinedFonts.roboto = createGlyphAtlasFromFont(rendererContent, "assets/fonts/Roboto-Black.ttf");
 
     // Creating vertex buffers 
     {
@@ -48,5 +46,7 @@ void loadPredefined(RendererContent& rendererContent) {
     predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
     predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
     predefinedGraphicsEntities.uiCircle = createGraphicsEntity(rendererContent, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
-    predefinedGraphicsEntities.uiText = createGraphicsEntity(rendererContent, &predefinedShaders.uiText, &predefinedVertexBuffers.rectangle, &predefinedFonts.roboto.texture, false);
+
+    // Loading predefined font entities
+    predefinedTextEntities.roboto = createUITextEntity(rendererContent, &predefinedShaders.uiText, &createFont(rendererContent, "assets/fonts/Roboto.ttf", 300));
 }

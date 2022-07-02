@@ -33,6 +33,7 @@
 #include "graphics/layoutBinding.h"
 #include "graphics/eventManager.h"
 #include "graphics/camera.h"
+#include "graphics/font.h"
 
 #include "graphics/UI/UIInstance.h"
 #include "graphics/UI/UIRectangleInstance.h"
@@ -51,8 +52,6 @@
 #include "utility/properties.h"
 #include "utility/debug.h"
 #include "utility/logging.h"
-
-#include "graphics/text/text.h"
 
 YamlParser* properties = nullptr;
 
@@ -113,37 +112,12 @@ int main(int argc, char *argv[]) {
     cube.addComponent(&transform);
     cube.addComponent(&cubeEntityInstance);
     
-    // Creating a UI triangle
-    UITriangleInstance triangle1(rendererContent); 
-    triangle1.position = {0.8, 0.0};
-    triangle1.color = {1.0, 0, 0, 0.5};
-    triangle1.size = {0.2, 0.2};
-    triangle1.layer = 0;
-    Object uiTriangle("Triangle Object"); 
-    uiTriangle.addComponent(&triangle1);
-
-    // Creating a UI rectangle
-    UIRectangleInstance uiRectangleInstance(rendererContent); 
-    uiRectangleInstance.position = {-0.7, 0.0};
-    uiRectangleInstance.color = {0.0, 1.0, 0.0, 0.7};
-    uiRectangleInstance.size = {0.1, 0.1};
-    uiRectangleInstance.layer = 1; 
-    Object uiRectangle("UI Rectangle Object"); 
-    uiRectangle.addComponent(&uiRectangleInstance); 
-
-    // Creating a UI circle
-    UICircleInstance uiCircleInstance(rendererContent);
-    uiCircleInstance.position = {0.0, 0.0};
-    uiCircleInstance.color = {0.0, 0.0, 1.0, 0.6};
-    uiCircleInstance.setRadius(0.4f); 
-    Object uiCirlce("UI Cirlce Object"); 
-    uiCirlce.addComponent(&uiCircleInstance);
-
     // Creating a text
-    UITextInstance uiTextInstance(rendererContent);
-    uiTextInstance.position = {-0.5, -0.5};
-    uiTextInstance.color = {0.0, 0.0, 1.0, 1.0};
-    uiTextInstance.size = {1.0, 1.0};
+    UITextInstance uiTextInstance(rendererContent, &predefinedTextEntities.roboto);
+    uiTextInstance.text = "Hallo. Dette er en testp.";
+    uiTextInstance.position = {-0.9, 0.0};
+    uiTextInstance.color = {0.0, 0.0, 0.0, 0.6};
+    uiTextInstance.size = {0.5, 0.5};
     Object uiTextObj("UI text object");
     uiTextObj.addComponent(&uiTextInstance);
 

@@ -44,5 +44,4 @@ public:
     Camera(const glm::vec3& position,const float& fov, const float& aspectRatio, const float& nearValue, const float& farValue);
 };
 
-
 #endif //ENGINEPROTOTYPE_CAMERA_H

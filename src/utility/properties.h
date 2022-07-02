@@ -4,5 +4,6 @@
 #include <cpp-data-parsing/yaml/yamlParser.h>
 
 extern YamlParser* properties;
+#define PROPERTIES (*properties)
 
 #endif
