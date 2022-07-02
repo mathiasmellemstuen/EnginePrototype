@@ -28,16 +28,13 @@ void UITextInstance::render(RendererContent& rendererContent, int currentCommand
         const Font& font = *(((UITextEntity*)graphicsEntity)->font); 
         const GlyphMetrics& metrics = font.allCharacterMetrics.at(character); 
 
-        float sizeMultiplier = size.y * ((float)height / (float)font.pixelSize);
-        sizeMultiplier = sizeMultiplier * 1.4f; 
+        float sizeMultiplier = (size.y * ((float)height / (float)font.pixelSize)) * 1.4f;
         float descent = static_cast<float>(metrics.height - metrics.top);
-        
         float x = currentAdvance + (metrics.width / 2.0f) + metrics.left; 
         float y = -descent + (metrics.height / 2.0f); 
 
         x = x / (float)width * sizeMultiplier; 
         y = y / (float)height * sizeMultiplier;
-
         x = (x - 0.5f) / 0.5f;
         y = (y - 0.5f) / 0.5f;
         x = x + 1; 
