@@ -75,12 +75,14 @@ Font& createFont(RendererContent& rendererContent, const std::string& fontPath, 
         font->allCharacterVertexBuffers.insert(std::pair<char, VertexBuffer>(c, createVertexBuffer(rendererContent, vertices, indices)));
 
         GlyphMetrics metrics; 
-        metrics.width = face->glyph->bitmap.width; 
-        metrics.height = face->glyph->bitmap.rows; 
-        metrics.advanceX = face->glyph->advance.x;
-        metrics.advanceY = face->glyph->advance.y; 
-        metrics.bearingX = face->glyph->bitmap_left; 
-        metrics.bearingY = face->glyph->bitmap_top;
+        metrics.width = static_cast<int>(face->glyph->metrics.width / 64); 
+        metrics.height = static_cast<int>(face->glyph->metrics.height / 64); 
+        metrics.advance = static_cast<int>(face->glyph->advance.x / 64); 
+        metrics.bearingX = static_cast<int>(face->glyph->metrics.horiBearingX / 64); 
+        metrics.bearingY = static_cast<int>(face->glyph->metrics.horiBearingY / 64); 
+
+        metrics.left = face->glyph->bitmap_left; 
+        metrics.top = face->glyph->bitmap_top; 
 
         font->allCharacterMetrics.insert(std::pair<char, GlyphMetrics>(c, metrics));
     }

@@ -48,5 +48,5 @@ void loadPredefined(RendererContent& rendererContent) {
     predefinedGraphicsEntities.uiCircle = createGraphicsEntity(rendererContent, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
 
     // Loading predefined font entities
-    predefinedTextEntities.roboto = createUITextEntity(rendererContent, &predefinedShaders.uiText, &createFont(rendererContent, "assets/fonts/Roboto.ttf", 300));
+    predefinedTextEntities.roboto = createUITextEntity(rendererContent, &predefinedShaders.uiText, &createFont(rendererContent, "assets/fonts/Roboto.ttf", 150));
 }

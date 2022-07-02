@@ -114,12 +114,16 @@ int main(int argc, char *argv[]) {
     
     // Creating a text
     UITextInstance uiTextInstance(rendererContent, &predefinedTextEntities.roboto);
-    uiTextInstance.text = "Hallo. Dette er en testp.";
-    uiTextInstance.position = {-0.9, 0.0};
+    uiTextInstance.text = "Text rendering!";
+    uiTextInstance.position = {-0.9, -0.9};
     uiTextInstance.color = {0.0, 0.0, 0.0, 0.6};
-    uiTextInstance.size = {0.5, 0.5};
+    uiTextInstance.setCharacterSize(0.05f); 
     Object uiTextObj("UI text object");
     uiTextObj.addComponent(&uiTextInstance);
+
+    UIRectangleInstance uiRect(rendererContent); 
+    Object uiRectObj("UI Rect Obj"); 
+    uiRectObj.addComponent(&uiRect); 
 
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();

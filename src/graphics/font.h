@@ -12,10 +12,11 @@
 struct GlyphMetrics {
     int width; 
     int height; 
+    int advance; 
+    int left; 
+    int top; 
     int bearingX; 
     int bearingY; 
-    int advanceX; 
-    int advanceY; 
 };
 
 struct Font {

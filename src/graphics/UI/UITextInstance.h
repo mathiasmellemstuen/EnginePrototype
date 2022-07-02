@@ -8,6 +8,7 @@
 class UITextInstance : public UIInstance {
     public:
         std::string text;
+        void setCharacterSize(float newSize); 
         virtual void render(RendererContent& rendererContent, int currentCommandBufferIndex);
         UITextInstance(RendererContent& RendererContent, UITextEntity* entity);
 };
