@@ -28,7 +28,8 @@ void UITextInstance::render(RendererContent& rendererContent, int currentCommand
         const Font& font = *(((UITextEntity*)graphicsEntity)->font); 
         const GlyphMetrics& metrics = font.allCharacterMetrics.at(character); 
 
-        float sizeMultiplier = size.y * ((float)height / (float)font.pixelSize) * 2.0f;
+        float sizeMultiplier = size.y * ((float)height / (float)font.pixelSize);
+        sizeMultiplier = sizeMultiplier * 1.4f; 
         float descent = static_cast<float>(metrics.height - metrics.top);
         
         float x = currentAdvance + (metrics.width / 2.0f) + metrics.left; 
@@ -58,4 +59,27 @@ void UITextInstance::render(RendererContent& rendererContent, int currentCommand
         
         currentAdvance += (float)metrics.advance;
     }
+}
+void UITextInstance::debug() {
+        ImGui::Text("UITextInstance"); 
+
+        float arr[2] = {position.x, position.y};
+        ImGui::InputFloat2("Position", arr);
+        position = {arr[0], arr[1]};
+
+        float sizeValue = size.y; 
+        ImGui::InputFloat("Size", &sizeValue);
+        size.y = sizeValue; 
+
+        float colorArr[4] = {color.x, color.y, color.z, color.w};
+        ImGui::ColorEdit4("Color", colorArr); 
+        color = {colorArr[0], colorArr[1], colorArr[2], colorArr[3]};
+
+        bool checks = hover();
+        ImGui::Checkbox("Mouse hovering", &checks);
+
+        int l = layer;
+        ImGui::InputInt("Layer", &l);
+        layer = l;
+
 }

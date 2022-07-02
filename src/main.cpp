@@ -121,10 +121,6 @@ int main(int argc, char *argv[]) {
     Object uiTextObj("UI text object");
     uiTextObj.addComponent(&uiTextInstance);
 
-    UIRectangleInstance uiRect(rendererContent); 
-    Object uiRectObj("UI Rect Obj"); 
-    uiRectObj.addComponent(&uiRect); 
-
     // Setting the mosue in relative mode (mouse dissapears)
     Mouse::enableRelativeMouse();
     
