@@ -1,5 +1,6 @@
 cmake-build-debug/
 .vscode/settings.json
+.vscode/
 .VSCodeCounter
 engine
 *.exe
@@ -16,3 +17,4 @@ include/
 thirdparty/
 build-xcode
 sdl2-config
+.vscode/launch.json
