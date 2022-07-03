@@ -72,11 +72,11 @@ int main(int argc, char *argv[]) {
 
     // Creating a window and attaching a renderer
     Window window;
-    RendererContent rendererContent = createRenderer(window);
+    Renderer renderer = createRenderer(window);
 
 
     // Loading engine spesific predefined content
-    loadPredefined(rendererContent);
+    loadPredefined(renderer);
 
     // Creating a event manager
     EventManager eventManager;
@@ -90,19 +90,19 @@ int main(int argc, char *argv[]) {
     Model cubeModel("assets/models/cube.obj");
     
     // Loading a texture 
-    Texture cubeTexture = createTexture(rendererContent, "assets/textures/gold.png");
+    Texture cubeTexture = createTexture(renderer, "assets/textures/gold.png");
 
     // Loading a shader
-    Shader cubeShader = createShader(rendererContent, "assets/shaders/compiled/default.vert.spv", "assets/shaders/compiled/default.frag.spv");
+    Shader cubeShader = createShader(renderer, "assets/shaders/compiled/default.vert.spv", "assets/shaders/compiled/default.frag.spv");
 
     // Creating vertex buffer
-    VertexBuffer cubeVertexBuffer = createVertexBuffer(rendererContent, cubeModel.vertices, cubeModel.indices);
+    VertexBuffer cubeVertexBuffer = createVertexBuffer(renderer, cubeModel.vertices, cubeModel.indices);
 
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(rendererContent, &cubeShader, &cubeVertexBuffer, &cubeTexture);
+    GraphicsEntity cubeEntity = createGraphicsEntity(renderer, &cubeShader, &cubeVertexBuffer, &cubeTexture);
     
     // Creating a cube instance
-    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(rendererContent, &cubeEntity);
+    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(renderer, &cubeEntity);
 
     // Creating a transform
     Transform transform({0.0f, 0.0f, 0.0f});
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
     cube.addComponent(&cubeEntityInstance);
     
     // Creating a text
-    UITextInstance uiTextInstance(rendererContent, &predefinedTextEntities.roboto);
+    UITextInstance uiTextInstance(renderer, &predefinedTextEntities.roboto);
     uiTextInstance.text = "Text rendering!";
     uiTextInstance.position = {-0.9, -0.9};
     uiTextInstance.color = {0.0, 0.0, 0.0, 0.6};
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
     logger(INFO, "Starting rendering loop!");
     
     // Running rendering loop, this is blocking
-    loop(rendererContent, window, eventManager);
+    loop(renderer, window, eventManager);
 
     logger(INFO, "Exiting application!"); 
     SDL_Quit();

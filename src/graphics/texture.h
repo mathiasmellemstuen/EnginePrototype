@@ -16,10 +16,10 @@ struct Texture {
     VkSampler textureSampler;
 };
 
-const Texture& createTexture(RendererContent& rendererContent, const std::string& texturePath);
-void freeTexture(RendererContent& rendererContent, Texture& texture);
-void createTextureImageView(RendererContent& rendererContent, Texture& texture);
-void createTextureSampler(RendererContent& rendererContent, Texture& texture);
-void transitionImageLayout(RendererContent& rendererContent, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
-void copyBufferToImage(RendererContent& rendererContent, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+const Texture& createTexture(Renderer& renderer, const std::string& texturePath);
+void freeTexture(Renderer& renderer, Texture& texture);
+void createTextureImageView(Renderer& renderer, Texture& texture);
+void createTextureSampler(Renderer& renderer, Texture& texture);
+void transitionImageLayout(Renderer& renderer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+void copyBufferToImage(Renderer& renderer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 #endif

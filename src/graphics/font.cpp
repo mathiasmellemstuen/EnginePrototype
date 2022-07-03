@@ -9,7 +9,7 @@
 #include "vertex.h"
 #include <map>
 
-Font& createFont(RendererContent& rendererContent, const std::string& fontPath, int pixelSize) {
+Font& createFont(Renderer& renderer, const std::string& fontPath, int pixelSize) {
     logger(INFO, "Creating character map from font"); 
 
     Font* font = new Font;
@@ -72,7 +72,7 @@ Font& createFont(RendererContent& rendererContent, const std::string& fontPath, 
         };
 
         std::vector<uint32_t> indices = {0, 1, 2, 2, 1, 3};
-        font->allCharacterVertexBuffers.insert(std::pair<char, VertexBuffer>(c, createVertexBuffer(rendererContent, vertices, indices)));
+        font->allCharacterVertexBuffers.insert(std::pair<char, VertexBuffer>(c, createVertexBuffer(renderer, vertices, indices)));
 
         GlyphMetrics metrics; 
         metrics.width = static_cast<int>(face->glyph->metrics.width / 64); 
@@ -87,25 +87,25 @@ Font& createFont(RendererContent& rendererContent, const std::string& fontPath, 
         font->allCharacterMetrics.insert(std::pair<char, GlyphMetrics>(c, metrics));
     }
 
-    createBuffer(rendererContent, deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, font->texture.stagingBuffer, font->texture.stagingBufferMemory);
+    createBuffer(renderer, deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, font->texture.stagingBuffer, font->texture.stagingBufferMemory);
     void* data;
-    vkMapMemory(rendererContent.device, font->texture.stagingBufferMemory, 0, deviceSize, 0, &data);
+    vkMapMemory(renderer.device, font->texture.stagingBufferMemory, 0, deviceSize, 0, &data);
     memcpy(data, buffer, deviceSize);
-    vkUnmapMemory(rendererContent.device, font->texture.stagingBufferMemory);
+    vkUnmapMemory(renderer.device, font->texture.stagingBufferMemory);
 
     uint32_t mipLevels = 1; 
-    createImage(rendererContent, imageWidth, imageHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, font->texture.textureImage, font->texture.textureImageMemory);
+    createImage(renderer, imageWidth, imageHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, font->texture.textureImage, font->texture.textureImageMemory);
 
-    transitionImageLayout(rendererContent, font->texture.textureImage, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
-    copyBufferToImage(rendererContent, font->texture.stagingBuffer, font->texture.textureImage, imageWidth, imageHeight);
+    transitionImageLayout(renderer, font->texture.textureImage, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+    copyBufferToImage(renderer, font->texture.stagingBuffer, font->texture.textureImage, imageWidth, imageHeight);
 
-    vkDestroyBuffer(rendererContent.device, font->texture.stagingBuffer, nullptr); 
-    vkFreeMemory(rendererContent.device, font->texture.stagingBufferMemory, nullptr); 
+    vkDestroyBuffer(renderer.device, font->texture.stagingBuffer, nullptr); 
+    vkFreeMemory(renderer.device, font->texture.stagingBufferMemory, nullptr); 
 
-    font->texture.textureImageView = createImageView(rendererContent, font->texture.textureImage, VK_FORMAT_R8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels); 
+    font->texture.textureImageView = createImageView(renderer, font->texture.textureImage, VK_FORMAT_R8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels); 
     
     VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(rendererContent.physicalDevice, &properties);
+    vkGetPhysicalDeviceProperties(renderer.physicalDevice, &properties);
 
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -125,7 +125,7 @@ Font& createFont(RendererContent& rendererContent, const std::string& fontPath, 
     samplerInfo.maxLod = static_cast<float>(mipLevels);
     samplerInfo.mipLodBias = 0.0f;
 
-    if (vkCreateSampler(rendererContent.device, &samplerInfo, nullptr, &font->texture.textureSampler) != VK_SUCCESS) {
+    if (vkCreateSampler(renderer.device, &samplerInfo, nullptr, &font->texture.textureSampler) != VK_SUCCESS) {
         logger(ERROR, "Failed to create character image sampler!"); 
         throw std::runtime_error("failed to create character image sampler!");
     }

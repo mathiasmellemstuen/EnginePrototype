@@ -9,6 +9,6 @@
 #include <vulkan/vulkan.h>
 #include "graphicsEntityInstance.h"
 
-void freeDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool) {
-    vkDestroyDescriptorPool(rendererContent.device, descriptorPool.descriptorPool, nullptr);
+void freeDescriptorPool(Renderer& renderer, DescriptorPool& descriptorPool) {
+    vkDestroyDescriptorPool(renderer.device, descriptorPool.descriptorPool, nullptr);
 }

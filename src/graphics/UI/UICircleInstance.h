@@ -6,7 +6,7 @@
 
 class UICircleInstance : public UIInstance {
     public:
-        UICircleInstance(RendererContent& rendererContent);
+        UICircleInstance(Renderer& renderer);
         virtual bool hover();
         virtual void setRadius(float radius); 
 };

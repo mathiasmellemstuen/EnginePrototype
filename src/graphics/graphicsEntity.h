@@ -20,8 +20,8 @@ struct GraphicsEntity {
 };
 extern std::vector<GraphicsEntity*> allGraphicsEntities;
 
-const GraphicsEntity& createGraphicsEntity(RendererContent& rendererContent, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
-void freeGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
-void reCreateGraphicsEntity(RendererContent& rendererContent, GraphicsEntity& graphicsEntity);
+const GraphicsEntity& createGraphicsEntity(Renderer& renderer, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
+void freeGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
+void reCreateGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
 
 #endif

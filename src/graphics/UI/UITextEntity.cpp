@@ -6,9 +6,9 @@
 #include <string>
 #include "UIInstance.h"
 
-const UITextEntity& createUITextEntity(RendererContent& rendererContent, Shader* shader, Font* font) {
+const UITextEntity& createUITextEntity(Renderer& renderer, Shader* shader, Font* font) {
 
-    const GraphicsEntity& graphicsEntity = createGraphicsEntity(rendererContent, shader, nullptr, &font->texture, false, sizeof(UIInstanceUniformBufferObject));
+    const GraphicsEntity& graphicsEntity = createGraphicsEntity(renderer, shader, nullptr, &font->texture, false, sizeof(UIInstanceUniformBufferObject));
     UITextEntity* entity = new UITextEntity; 
     entity->font = font; 
     entity->vertexBuffer = graphicsEntity.vertexBuffer; 

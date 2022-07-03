@@ -26,6 +26,6 @@ struct Font {
     int pixelSize; 
 };
 
-Font& createFont(RendererContent& rendererContent, const std::string& fontPath, int pixelSize = 150);
+Font& createFont(Renderer& renderer, const std::string& fontPath, int pixelSize = 150);
 
 #endif

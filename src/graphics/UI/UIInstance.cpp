@@ -3,7 +3,7 @@
 #include "../../input/mouse.h"
 #include <imgui/imgui.h>
 
-UIInstance::UIInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity) : GraphicsEntityInstance<UIInstanceUniformBufferObject>(rendererContent, graphicsEntity){
+UIInstance::UIInstance(Renderer& renderer, GraphicsEntity* graphicsEntity) : GraphicsEntityInstance<UIInstanceUniformBufferObject>(renderer, graphicsEntity){
 
 }
 
@@ -36,11 +36,11 @@ void UIInstance::debug() {
         layer = l;
 
 }
-void UIInstance::render(RendererContent& rendererContent, int currentCommandBufferIndex) {
-    VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
+void UIInstance::render(Renderer& renderer, int currentCommandBufferIndex) {
+    VkCommandBuffer& commandBuffer = renderer.commandBuffers[currentCommandBufferIndex];
 
     uniformBufferObject = {position, size, color, hover() ? 1.0f : 0.0f};
-    updateUniformBuffer(rendererContent, this->uniformBuffer, uniformBufferObject, currentCommandBufferIndex);
+    updateUniformBuffer(renderer, this->uniformBuffer, uniformBufferObject, currentCommandBufferIndex);
     
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->graphicsPipeline);
     

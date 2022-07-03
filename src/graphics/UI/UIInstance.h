@@ -20,7 +20,7 @@ class UIInstance : public GraphicsEntityInstance<UIInstanceUniformBufferObject> 
         int layer; 
         virtual bool hover();
         virtual void debug();
-        virtual void render(RendererContent& rendererContent, int currentCommandBufferIndex);
-        UIInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity);
+        virtual void render(Renderer& renderer, int currentCommandBufferIndex);
+        UIInstance(Renderer& renderer, GraphicsEntity* graphicsEntity);
 };
 #endif

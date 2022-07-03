@@ -6,7 +6,7 @@
 
 class UIRectangleInstance : public UIInstance {
     public:
-        UIRectangleInstance(RendererContent& rendererContent);
+        UIRectangleInstance(Renderer& renderer);
         virtual bool hover();
 };
 

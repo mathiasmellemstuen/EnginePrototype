@@ -12,9 +12,9 @@ struct UniformBuffer {
     std::vector<VkDeviceMemory> uniformBuffersMemory;
 };
 
-template<typename T> const UniformBuffer& createUniformBuffer(RendererContent& rendererContent);
-template<typename T> void updateUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer, T& bufferContent, int currentCommandBufferIndex);
-void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer);
+template<typename T> const UniformBuffer& createUniformBuffer(Renderer& renderer);
+template<typename T> void updateUniformBuffer(Renderer& renderer, UniformBuffer& uniformBuffer, T& bufferContent, int currentCommandBufferIndex);
+void freeUniformBuffer(Renderer& renderer, UniformBuffer& uniformBuffer);
 
 #include "uniformBuffer.tpp"
 #endif

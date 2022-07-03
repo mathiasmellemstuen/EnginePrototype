@@ -14,7 +14,7 @@ struct VertexBuffer {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 };
-const VertexBuffer& createVertexBuffer(RendererContent& rendererContent, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
-void freeVertexBuffer(RendererContent& rendererContent, VertexBuffer& vertexBuffer);
+const VertexBuffer& createVertexBuffer(Renderer& renderer, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+void freeVertexBuffer(Renderer& renderer, VertexBuffer& vertexBuffer);
 
 #endif

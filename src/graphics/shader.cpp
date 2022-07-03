@@ -8,7 +8,7 @@
 #include <iostream>
 #include "renderer.h"
 
-const Shader& createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
+const Shader& createShader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
     Shader* shader = new Shader; 
     shader->shaderCount = 2; 
 
@@ -17,8 +17,8 @@ const Shader& createShader(RendererContent& rendererContent, std::string vertexS
     auto vertShaderCode = readFile(vertexShaderPath);
     auto fragShaderCode = readFile(fragmentShaderPath);
     
-    shader->vertexShaderModule = createShaderModule(rendererContent, vertShaderCode); 
-    shader->fragmentShaderModule = createShaderModule(rendererContent, fragShaderCode);
+    shader->vertexShaderModule = createShaderModule(renderer, vertShaderCode); 
+    shader->fragmentShaderModule = createShaderModule(renderer, fragShaderCode);
     
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -37,7 +37,7 @@ const Shader& createShader(RendererContent& rendererContent, std::string vertexS
     if(geometryShaderPath != "") {
 
         auto geometryShaderCode = readFile(geometryShaderPath);
-        shader->geometryShaderModule = createShaderModule(rendererContent, geometryShaderCode);
+        shader->geometryShaderModule = createShaderModule(renderer, geometryShaderCode);
 
         VkPipelineShaderStageCreateInfo geometryShaderStageInfo{};
         geometryShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -59,9 +59,9 @@ const Shader& createShader(RendererContent& rendererContent, std::string vertexS
     return *shader; 
 }
 
-void freeShader(RendererContent& rendererContent, Shader& shader) {
-    vkDestroyShaderModule(rendererContent.device, shader.vertexShaderModule, nullptr);
-    vkDestroyShaderModule(rendererContent.device, shader.fragmentShaderModule, nullptr);
+void freeShader(Renderer& renderer, Shader& shader) {
+    vkDestroyShaderModule(renderer.device, shader.vertexShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.device, shader.fragmentShaderModule, nullptr);
 
     delete &shader;
 }
@@ -87,7 +87,7 @@ std::vector<char> readFile(const std::string& fileName) {
     return buffer;
 };
 
-VkShaderModule createShaderModule(RendererContent& rendererContent, const std::vector<char>& code) {
+VkShaderModule createShaderModule(Renderer& renderer, const std::vector<char>& code) {
             
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO; 
@@ -96,7 +96,7 @@ VkShaderModule createShaderModule(RendererContent& rendererContent, const std::v
 
     VkShaderModule shaderModule;
 
-    if (vkCreateShaderModule(rendererContent.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+    if (vkCreateShaderModule(renderer.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
         logger(ERROR, "Failed to create shader module");
         throw std::runtime_error("failed to create shader module!"); 
     }

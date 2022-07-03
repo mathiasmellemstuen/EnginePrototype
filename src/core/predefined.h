@@ -36,6 +36,6 @@ extern PredefinedGraphicsEntities predefinedGraphicsEntities;
 extern PredefinedVertexBuffers predefinedVertexBuffers;
 extern PredefinedTextEntities predefinedTextEntities;
 
-void loadPredefined(RendererContent& rendereContent);
+void loadPredefined(Renderer& renderer);
 
 #endif

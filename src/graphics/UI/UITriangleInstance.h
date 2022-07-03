@@ -6,7 +6,7 @@
 
 class UITriangleInstance : public UIInstance {
     public:
-        UITriangleInstance(RendererContent& rendererContent);
+        UITriangleInstance(Renderer& renderer);
         virtual bool hover();
 };
 #endif

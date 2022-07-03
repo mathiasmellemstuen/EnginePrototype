@@ -8,5 +8,5 @@ struct UITextEntity : GraphicsEntity {
     Font* font; 
 };
 
-const UITextEntity& createUITextEntity(RendererContent& rendererContent, Shader* shader, Font* font);
+const UITextEntity& createUITextEntity(Renderer& renderer, Shader* shader, Font* font);
 #endif

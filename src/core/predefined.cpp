@@ -11,12 +11,12 @@ PredefinedGraphicsEntities predefinedGraphicsEntities = {};
 PredefinedVertexBuffers predefinedVertexBuffers = {};
 PredefinedTextEntities predefinedTextEntities = {};
 
-void loadPredefined(RendererContent& rendererContent) {
+void loadPredefined(Renderer& renderer) {
 
     // Loading predefined shaders
-    predefinedShaders.uiShader = createShader(rendererContent, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
-    predefinedShaders.uiCircle = createShader(rendererContent, "assets/shaders/compiled/uiCircle.vert.spv", "assets/shaders/compiled/uiCircle.frag.spv");
-    predefinedShaders.uiText = createShader(rendererContent, "assets/shaders/compiled/uiText.vert.spv", "assets/shaders/compiled/uiText.frag.spv");
+    predefinedShaders.uiShader = createShader(renderer, "assets/shaders/compiled/uiShader.vert.spv", "assets/shaders/compiled/uiShader.frag.spv");
+    predefinedShaders.uiCircle = createShader(renderer, "assets/shaders/compiled/uiCircle.vert.spv", "assets/shaders/compiled/uiCircle.frag.spv");
+    predefinedShaders.uiText = createShader(renderer, "assets/shaders/compiled/uiText.vert.spv", "assets/shaders/compiled/uiText.frag.spv");
 
     // Creating vertex buffers 
     {
@@ -28,7 +28,7 @@ void loadPredefined(RendererContent& rendererContent) {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        predefinedVertexBuffers.triangle = createVertexBuffer(rendererContent, vertices, indices);
+        predefinedVertexBuffers.triangle = createVertexBuffer(renderer, vertices, indices);
     }
     {
         std::vector<Vertex> vertices = {
@@ -40,13 +40,13 @@ void loadPredefined(RendererContent& rendererContent) {
 
         std::vector<uint32_t> indices = {0, 1, 2, 2, 1, 3};
 
-        predefinedVertexBuffers.rectangle = createVertexBuffer(rendererContent, vertices, indices);
+        predefinedVertexBuffers.rectangle = createVertexBuffer(renderer, vertices, indices);
     }
     // Loading predefined graphics entities
-    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
-    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(rendererContent, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
-    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(rendererContent, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
+    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(renderer, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
+    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(renderer, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
+    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(renderer, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
 
     // Loading predefined font entities
-    predefinedTextEntities.roboto = createUITextEntity(rendererContent, &predefinedShaders.uiText, &createFont(rendererContent, "assets/fonts/Roboto.ttf", 150));
+    predefinedTextEntities.roboto = createUITextEntity(renderer, &predefinedShaders.uiText, &createFont(renderer, "assets/fonts/Roboto.ttf", 150));
 }

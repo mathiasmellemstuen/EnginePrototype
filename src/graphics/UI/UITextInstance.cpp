@@ -4,16 +4,16 @@
 #include <string>
 #include <math.h>
 
-UITextInstance::UITextInstance(RendererContent& rendererContent, UITextEntity* entity) : UIInstance(rendererContent, entity) {
+UITextInstance::UITextInstance(Renderer& renderer, UITextEntity* entity) : UIInstance(renderer, entity) {
 };
 
 void UITextInstance::setCharacterSize(float newSize) {
     size.x = 0; 
     size.y = newSize;
 };
-void UITextInstance::render(RendererContent& rendererContent, int currentCommandBufferIndex) {
+void UITextInstance::render(Renderer& renderer, int currentCommandBufferIndex) {
 
-    VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
+    VkCommandBuffer& commandBuffer = renderer.commandBuffers[currentCommandBufferIndex];
     VkDeviceSize offsets[] = {0};
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->graphicsPipeline);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->pipelineLayout, 0, 1, &this->descriptorPool.descriptorSets[currentCommandBufferIndex], 0, nullptr);

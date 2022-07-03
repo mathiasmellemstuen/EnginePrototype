@@ -16,13 +16,13 @@ template<typename T> class GraphicsEntityInstance : public GenericGraphicsEntity
         DescriptorPool descriptorPool;
         T uniformBufferObject;
 
-        virtual void render(RendererContent& rendererContent, int currentCommandBufferIndex);
-        virtual void reCreateGraphics(RendererContent& rendererContent); 
+        virtual void render(Renderer& renderer, int currentCommandBufferIndex);
+        virtual void reCreateGraphics(Renderer& renderer); 
 
-        GraphicsEntityInstance(RendererContent& rendererContent, GraphicsEntity* graphicsEntity) {
+        GraphicsEntityInstance(Renderer& renderer, GraphicsEntity* graphicsEntity) {
             this->graphicsEntity = graphicsEntity; 
-            this->uniformBuffer = createUniformBuffer<T>(rendererContent);
-            this->descriptorPool = createDescriptorPool<T>(rendererContent, *this);
+            this->uniformBuffer = createUniformBuffer<T>(renderer);
+            this->descriptorPool = createDescriptorPool<T>(renderer, *this);
             this->uniformBufferObject = {};
         }
 };

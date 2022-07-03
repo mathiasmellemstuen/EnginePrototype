@@ -12,9 +12,9 @@
 #include "renderer.h"
 
 
-void freeUniformBuffer(RendererContent& rendererContent, UniformBuffer& uniformBuffer) {
-    for (size_t i = 0; i < rendererContent.swapChainImages.size(); i++) {
-        vkDestroyBuffer(rendererContent.device, uniformBuffer.uniformBuffers[i], nullptr);
-        vkFreeMemory(rendererContent.device, uniformBuffer.uniformBuffersMemory[i], nullptr);
+void freeUniformBuffer(Renderer& renderer, UniformBuffer& uniformBuffer) {
+    for (size_t i = 0; i < renderer.swapChainImages.size(); i++) {
+        vkDestroyBuffer(renderer.device, uniformBuffer.uniformBuffers[i], nullptr);
+        vkFreeMemory(renderer.device, uniformBuffer.uniformBuffersMemory[i], nullptr);
     }
 }

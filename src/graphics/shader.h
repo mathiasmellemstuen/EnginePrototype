@@ -16,8 +16,8 @@ struct Shader {
 };
 
 std::vector<char> readFile(const std::string& fileName);
-VkShaderModule createShaderModule(RendererContent& rendererContent, const std::vector<char>& code);
-const Shader& createShader(RendererContent& rendererContent, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
-void freeShader(RendererContent& rendererContent, Shader& shader);
+VkShaderModule createShaderModule(Renderer& renderer, const std::vector<char>& code);
+const Shader& createShader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
+void freeShader(Renderer& renderer, Shader& shader);
 
 #endif

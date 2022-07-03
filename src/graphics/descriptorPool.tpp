@@ -6,23 +6,23 @@
 #include "../utility/logging.h"
 #include <array>
 
-template<typename T> const DescriptorPool& createDescriptorPool(RendererContent& rendererContent, GraphicsEntityInstance<T>& graphicsEntityInstance) {
+template<typename T> const DescriptorPool& createDescriptorPool(Renderer& renderer, GraphicsEntityInstance<T>& graphicsEntityInstance) {
     DescriptorPool* descriptorPool = new DescriptorPool;
     
     logger(INFO, "Creating descriptor pool");
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(rendererContent.swapChainImages.size());
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(renderer.swapChainImages.size());
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(rendererContent.swapChainImages.size());
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(renderer.swapChainImages.size());
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(rendererContent.swapChainImages.size());
+    poolInfo.maxSets = static_cast<uint32_t>(renderer.swapChainImages.size());
 
-    if (vkCreateDescriptorPool(rendererContent.device, &poolInfo, nullptr, &descriptorPool->descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(renderer.device, &poolInfo, nullptr, &descriptorPool->descriptorPool) != VK_SUCCESS) {
 
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -30,20 +30,20 @@ template<typename T> const DescriptorPool& createDescriptorPool(RendererContent&
     logger(SUCCESS, "Successfully created descriptor pool!"); 
     logger(INFO, "Creating descriptor sets"); 
 
-    std::vector<VkDescriptorSetLayout> layouts(rendererContent.swapChainImages.size(), graphicsEntityInstance.graphicsEntity->descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> layouts(renderer.swapChainImages.size(), graphicsEntityInstance.graphicsEntity->descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool->descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(rendererContent.swapChainImages.size());
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(renderer.swapChainImages.size());
     allocInfo.pSetLayouts = layouts.data();
 
-    descriptorPool->descriptorSets.resize(rendererContent.swapChainImages.size());
+    descriptorPool->descriptorSets.resize(renderer.swapChainImages.size());
     
-    if (vkAllocateDescriptorSets(rendererContent.device, &allocInfo, descriptorPool->descriptorSets.data()) != VK_SUCCESS) {
+    if (vkAllocateDescriptorSets(renderer.device, &allocInfo, descriptorPool->descriptorSets.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    for (size_t i = 0; i < rendererContent.swapChainImages.size(); i++) {
+    for (size_t i = 0; i < renderer.swapChainImages.size(); i++) {
             
             int descriptorAmount = 1; 
             if(graphicsEntityInstance.graphicsEntity->texture != nullptr) {
@@ -80,7 +80,7 @@ template<typename T> const DescriptorPool& createDescriptorPool(RendererContent&
                 descriptorWrites[1].pImageInfo = &imageInfo;
             }
 
-            vkUpdateDescriptorSets(rendererContent.device, static_cast<uint32_t>(descriptorAmount), descriptorWrites.data(), 0, nullptr);;
+            vkUpdateDescriptorSets(renderer.device, static_cast<uint32_t>(descriptorAmount), descriptorWrites.data(), 0, nullptr);;
     }
     logger(SUCCESS, "Created descriptor sets!");
 
@@ -89,8 +89,8 @@ template<typename T> const DescriptorPool& createDescriptorPool(RendererContent&
 }
 
 
-template<typename T> void reCreateDescriptorPool(RendererContent& rendererContent, DescriptorPool& descriptorPool, GraphicsEntityInstance<T>& graphicsEntityInstance) {
-    freeDescriptorPool(rendererContent, descriptorPool); 
-    descriptorPool = createDescriptorPool(rendererContent, graphicsEntityInstance); 
+template<typename T> void reCreateDescriptorPool(Renderer& renderer, DescriptorPool& descriptorPool, GraphicsEntityInstance<T>& graphicsEntityInstance) {
+    freeDescriptorPool(renderer, descriptorPool); 
+    descriptorPool = createDescriptorPool(renderer, graphicsEntityInstance); 
 }
 #endif

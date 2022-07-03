@@ -3,11 +3,11 @@
 #include "uniformBuffer.h"
 #include "descriptorPool.h"
 
-template<typename T> void GraphicsEntityInstance<T>::render(RendererContent& rendererContent, int currentCommandBufferIndex) {
+template<typename T> void GraphicsEntityInstance<T>::render(Renderer& renderer, int currentCommandBufferIndex) {
 
-    VkCommandBuffer& commandBuffer = rendererContent.commandBuffers[currentCommandBufferIndex];
+    VkCommandBuffer& commandBuffer = renderer.commandBuffers[currentCommandBufferIndex];
     
-    updateUniformBuffer(rendererContent, this->uniformBuffer, uniformBufferObject, currentCommandBufferIndex);
+    updateUniformBuffer(renderer, this->uniformBuffer, uniformBufferObject, currentCommandBufferIndex);
     
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsEntity->graphicsPipeline);
     
@@ -20,9 +20,9 @@ template<typename T> void GraphicsEntityInstance<T>::render(RendererContent& ren
     
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(graphicsEntity->vertexBuffer->indices.size()), 1, 0, 0, 0);
 }
-template<typename T> void GraphicsEntityInstance<T>::reCreateGraphics(RendererContent& rendererContent) {
-    freeUniformBuffer(rendererContent, this->uniformBuffer); 
-    freeDescriptorPool(rendererContent, this->descriptorPool);
-    this->uniformBuffer = createUniformBuffer<T>(rendererContent);
-    this->descriptorPool = createDescriptorPool<T>(rendererContent, *this);
+template<typename T> void GraphicsEntityInstance<T>::reCreateGraphics(Renderer& renderer) {
+    freeUniformBuffer(renderer, this->uniformBuffer); 
+    freeDescriptorPool(renderer, this->descriptorPool);
+    this->uniformBuffer = createUniformBuffer<T>(renderer);
+    this->descriptorPool = createDescriptorPool<T>(renderer, *this);
 }

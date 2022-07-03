@@ -6,7 +6,7 @@
 class GenericGraphicsEntityInstance : public Component {
     public: 
         virtual void debug();
-        virtual void reCreateGraphics(RendererContent& rendererContent); 
-        virtual void render(RendererContent& rendererContent, int currentCommandBufferIndex);
+        virtual void reCreateGraphics(Renderer& renderer); 
+        virtual void render(Renderer& renderer, int currentCommandBufferIndex);
 };
 #endif
