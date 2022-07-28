@@ -11,7 +11,6 @@
 #include "../utility/debug.h"
 #include "renderer.h"
 
-
 void freeUniformBuffer(Renderer& renderer, UniformBuffer& uniformBuffer) {
     for (size_t i = 0; i < renderer.swapChainImages.size(); i++) {
         vkDestroyBuffer(renderer.device, uniformBuffer.uniformBuffers[i], nullptr);

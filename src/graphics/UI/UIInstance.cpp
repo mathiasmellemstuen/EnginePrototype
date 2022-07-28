@@ -3,7 +3,7 @@
 #include "../../input/mouse.h"
 #include <imgui/imgui.h>
 
-UIInstance::UIInstance(Renderer& renderer, GraphicsEntity* graphicsEntity) : GraphicsEntityInstance<UIInstanceUniformBufferObject>(renderer, graphicsEntity){
+UIInstance::UIInstance(Renderer& renderer, RenderPassObject* renderPassContent, GraphicsEntity* graphicsEntity) : GraphicsEntityInstance<UIInstanceUniformBufferObject>(renderer, renderPassContent, graphicsEntity){
 
 }
 

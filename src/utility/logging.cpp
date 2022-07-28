@@ -1,7 +1,7 @@
 #include "logging.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const std::string& message) {
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const std::string& message) {
 
     std::string formattedFileName = fileName;
     
@@ -33,33 +33,40 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
         default:
         break; 
     }
-    std::cout << "] " << message << std::endl;
+    std::cout << "] " << message;
+
+    // Haulting program flow if hault is enabled. This will block the execution on the current thread.
+    if(flowType == FlowType::HAULT) {
+        std::cout << " " << rang::bg::red << rang::fg::green  << "[HAULT]" << rang::bg::reset << rang::fg::reset;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    }
+    std::cout << std::endl;
 };
 
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const int& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, std::to_string(message));
 };
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const float& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const float& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, std::to_string(message));
 };
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const double& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, std::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const double& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, std::to_string(message));
 };
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec2& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::vec2& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 };
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec3& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::vec3& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 };
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::vec4& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::vec4& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 }
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat2& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat2& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 }
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat3& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat3& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 }
-void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const glm::mat4& message) {
-    logToTerminal(fileName, functionName, lineNumber, logLevel, glm::to_string(message)); 
+void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat4& message) {
+    logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
 }

@@ -5,6 +5,7 @@
 #include <map>
 #include "../utility/debug.h"
 #include "../graphics/UI/UITextEntity.h"
+#include "../utility/logging.h"
 
 PredefinedShaders predefinedShaders = {}; 
 PredefinedGraphicsEntities predefinedGraphicsEntities = {}; 
@@ -42,10 +43,12 @@ void loadPredefined(Renderer& renderer) {
 
         predefinedVertexBuffers.rectangle = createVertexBuffer(renderer, vertices, indices);
     }
+    logger(INFO, "Before exception!");
     // Loading predefined graphics entities
-    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(renderer, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
-    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(renderer, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false); 
-    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(renderer, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
+    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(renderer, renderer.renderPasses.at("UI"), &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
+    logger(INFO, "After exception");
+    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(renderer, renderer.renderPasses.at("UI"), &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false);
+    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(renderer, renderer.renderPasses.at("UI"), &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
 
     // Loading predefined font entities
     predefinedTextEntities.roboto = createUITextEntity(renderer, &predefinedShaders.uiText, &createFont(renderer, "assets/fonts/Roboto.ttf", 150));

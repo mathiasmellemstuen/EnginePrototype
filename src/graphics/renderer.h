@@ -7,6 +7,24 @@
 #include "window.h"
 #include "eventManager.h"
 #include <stdexcept>
+#include <map>
+#include <string>
+
+struct ImageData {
+    VkImage image;
+    VkImageView view;
+    VkDeviceMemory memory;
+};
+
+struct RenderPassObject {
+    VkRenderPass renderPass;
+    VkRenderPassCreateInfo createInfo;
+    std::vector<VkRenderPassBeginInfo> beginInfos;
+    std::vector<ImageData>* attachments; 
+    std::vector<VkFramebuffer> frameBuffers;
+    bool usingSharedResources; 
+    bool usingLayers;
+};
 
 struct Renderer {
     VkInstance instance;
@@ -19,27 +37,30 @@ struct Renderer {
     VkQueue presentQueue;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
+    std::vector<VkImageView> swapChainImageViews;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
-    std::vector<VkImageView> swapChainImageViews;
-    VkRenderPass renderPass;
-    VkRenderPass uiRenderPass; 
     VkCommandPool commandPool; 
-    VkImage colorImage;
-    VkDeviceMemory colorImageMemory;
-    VkImageView colorImageView;
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
     std::vector<VkCommandBuffer> commandBuffers;
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> imagesInFlight;
     std::vector<VkFence> inFlightFences;
     size_t currentFrame = 0;
+    std::map<const char*, RenderPassObject> renderPasses;
+    // VkRenderPass renderPass;
+    // VkRenderPass uiRenderPass; 
+    // VkImage colorImage;
+    // VkDeviceMemory colorImageMemory;
+    // VkImageView colorImageView;
+    // VkImage depthImage;
+    // VkDeviceMemory depthImageMemory;
+    // VkImageView depthImageView;
+    // std::vector<VkFramebuffer> swapChainFramebuffers;
 };
-
+const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags);
+void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject);
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues = {}, RenderPassObject* sharedResources = nullptr, std::vector<ImageData>* attachments = nullptr, bool usingLayers = false);
 void createCommandBuffers(Renderer& renderer, uint32_t currentImage);
 uint32_t findMemoryType(Renderer& renderer, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 void createImage(Renderer& renderer, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);

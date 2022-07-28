@@ -13,6 +13,7 @@ struct GraphicsEntity {
     VertexBuffer* vertexBuffer;
     Texture* texture; 
     Shader* shader;
+    RenderPassObject* renderPassObject;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
@@ -20,7 +21,7 @@ struct GraphicsEntity {
 };
 extern std::vector<GraphicsEntity*> allGraphicsEntities;
 
-const GraphicsEntity& createGraphicsEntity(Renderer& renderer, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
+const GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject& renderPassObject, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
 void freeGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
 void reCreateGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
 

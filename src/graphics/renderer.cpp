@@ -20,6 +20,30 @@
 uint64_t last = 0; 
 uint64_t now = 0; 
 
+void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject) {
+    std::vector<GenericGraphicsEntityInstance*> instances;
+    
+    for(Object* object : Object::objects) {
+        GenericGraphicsEntityInstance* inst = object->getComponent<GenericGraphicsEntityInstance>();
+        
+        if(inst != nullptr)
+            instances.push_back(inst);
+    }
+    
+    // Sorting the list if it is layered
+    if(renderPassObject.usingLayers) {
+        struct {
+            bool operator()(GenericGraphicsEntityInstance* a, GenericGraphicsEntityInstance* b) const {return a->layer < b->layer; }
+        } custom;
+
+        std::sort(instances.begin(), instances.end(), custom);
+    }
+   
+    for(GenericGraphicsEntityInstance* instance : instances) {
+        instance->render(renderer, currentImage);
+    }
+}
+
 // Changed from create to ->
 void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
     
@@ -33,10 +57,28 @@ void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
             throw std::runtime_error("failed to begin recording command buffer!");
         } 
         
+        for(const auto& [key, value] : renderer.renderPasses) {
+            logger(INFO, "Starting " + (std::string)key);
+            vkCmdBeginRenderPass(renderer.commandBuffers[i], &value.beginInfos[i], VK_SUBPASS_CONTENTS_INLINE);
+            logger(INFO, key);
+            logger(INFO, (int)value.beginInfos[i].clearValueCount);
+            createCommandBuffersInlineContentForSingleRenderPass(renderer, i, (RenderPassObject&)value);
+
+            logger(INFO, "Ending");
+            vkCmdEndRenderPass(renderer.commandBuffers[i]);
+            logger(INFO, "Ending done.");
+        }
+        
+        if (vkEndCommandBuffer(renderer.commandBuffers[i]) != VK_SUCCESS) {
+            logger(ERROR, "Failed to record command buffer!");
+            throw std::runtime_error("failed to record command buffer!");
+        }
+    }
+        /*
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderer.renderPass;
-        renderPassInfo.framebuffer = renderer.swapChainFramebuffers[i];
+        renderPassInfo.renderPass = renderPassContent.renderPass;
+        renderPassInfo.framebuffer = renderPassContent.frameBuffers[i];
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = renderer.swapChainExtent;
 
@@ -45,7 +87,6 @@ void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
         clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
-
 
         //TODO: Change rendering of instances to its own rendering virtual function in GenericGraphicsEntityInstance
 
@@ -112,11 +153,7 @@ void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
 
         vkCmdEndRenderPass(renderer.commandBuffers[i]);
 
-        if (vkEndCommandBuffer(renderer.commandBuffers[i]) != VK_SUCCESS) {
-            logger(ERROR, "Failed to record command buffer!"); 
-            throw std::runtime_error("failed to record command buffer!"); 
-        }
-    } 
+        */
 
 }
 
@@ -344,17 +381,20 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, Window
 void cleanupSwapChain(Renderer& renderer) {
 
     logger(INFO, "Starting cleanup of swap chain");
-
-    for (size_t i = 0; i < renderer.swapChainFramebuffers.size(); i++) {
-        vkDestroyFramebuffer(renderer.device, renderer.swapChainFramebuffers[i], nullptr);
+    
+    for(const auto& [key, value] : renderer.renderPasses) {
+        if(!value.usingSharedResources) {
+            for (size_t i = 0; i < value.frameBuffers.size(); i++)
+                vkDestroyFramebuffer(renderer.device, value.frameBuffers[i], nullptr);
+        }
+        
+        vkDestroyRenderPass(renderer.device, value.renderPass, nullptr);
+        
     }
-
+    
     for(int i = allGraphicsEntities.size() - 1; i < 0; i++) {
         freeGraphicsEntity(renderer, *allGraphicsEntities[i]);
     }
-
-    vkDestroyRenderPass(renderer.device, renderer.uiRenderPass, nullptr);
-    vkDestroyRenderPass(renderer.device, renderer.renderPass, nullptr);
 
     for (size_t i = 0; i < renderer.swapChainImageViews.size(); i++) {
         vkDestroyImageView(renderer.device, renderer.swapChainImageViews[i], nullptr);
@@ -500,6 +540,7 @@ void loop(Renderer& renderer, Window& window, EventManager& eventManager) {
         vkDeviceWaitIdle(renderer.device);
     }
 };
+
 void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& window) {
     {
         logger(INFO, "Setting up swap chain"); 
@@ -642,13 +683,21 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
         renderPassInfo.pSubpasses = &subpass;
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
+       
+        std::vector<VkClearValue> clearValues;
+        clearValues.resize(2);
+        clearValues[0].color = {135.0f / 255.0f, 206.0f / 255.0f, 235.0f / 255.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
 
-        if (vkCreateRenderPass(renderer.device, &renderPassInfo, nullptr, &renderer.renderPass) != VK_SUCCESS) {
-            logger(ERROR, "Failed to create render pass!"); 
-            throw std::runtime_error("failed to create render pass!");
-        }
 
-        logger(SUCCESS, "Successfully created render pass!"); 
+        std::vector<ImageData> renderPassImageAttachments = {
+                createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT),
+                createAttachment(renderer, findDepthFormat(renderer), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT)
+        };
+
+        createRenderPass(renderer, "world", renderPassInfo, clearValues, nullptr, &renderPassImageAttachments, false);
+
+        logger(SUCCESS, "successfully created render pass!");
 
     }
     {
@@ -722,54 +771,9 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(renderer.device, &renderPassInfo, nullptr, &renderer.uiRenderPass) != VK_SUCCESS) {
-            logger(ERROR, "Failed to create UI render pass!"); 
-            throw std::runtime_error("failed to create UI render pass!");
-        }
+
+        createRenderPass(renderer, "UI", renderPassInfo, {}, &renderer.renderPasses.at("world"), nullptr, true);
         logger(SUCCESS, "Created UI render pass!");
-    }
-    {
-        logger(INFO, "Creating color resources!");
-        VkFormat colorFormat = renderer.swapChainImageFormat;
-        createImage(renderer, renderer.swapChainExtent.width, renderer.swapChainExtent.height, 1, renderer.msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, renderer.colorImage, renderer.colorImageMemory);
-        renderer.colorImageView = createImageView(renderer, renderer.colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-        logger(SUCCESS, "Color resources created!");
-    }
-    {
-        logger(INFO, "Creating depth resources.");
-        VkFormat depthFormat = findDepthFormat(renderer);
-        createImage(renderer, renderer.swapChainExtent.width, renderer.swapChainExtent.height, 1, renderer.msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, renderer.depthImage, renderer.depthImageMemory);
-        renderer.depthImageView = createImageView(renderer, renderer.depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-        logger(SUCCESS, "Created depth resources!"); 
-    }
-    {
-        logger(INFO, "Creating framebuffers"); 
-
-        renderer.swapChainFramebuffers.resize(renderer.swapChainImageViews.size());
-
-        for (size_t i = 0; i < renderer.swapChainImageViews.size(); i++) {
-            
-            std::array<VkImageView, 3> attachments = {
-                renderer.colorImageView,
-                renderer.depthImageView,
-                renderer.swapChainImageViews[i]
-            };
-
-            VkFramebufferCreateInfo framebufferInfo{}; 
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = renderer.renderPass;
-            framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = renderer.swapChainExtent.width;
-            framebufferInfo.height = renderer.swapChainExtent.height;
-            framebufferInfo.layers = 1;
-            
-            if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &renderer.swapChainFramebuffers[i]) != VK_SUCCESS) {
-                logger(ERROR, "Failed to create framebuffer!"); 
-                throw std::runtime_error("failed to create framebuffer!");
-            }
-        }
-        logger(SUCCESS, "Successfully created all framebuffers.");
     }
 }
 const Renderer& createRenderer(Window& window) {
@@ -848,7 +852,7 @@ const Renderer& createRenderer(Window& window) {
                 renderer->msaaSamples = getMaxUsableSampleCount(*renderer);
                 break; 
             }
-        } 
+        }
 
         if (renderer->physicalDevice == VK_NULL_HANDLE) { 
             
@@ -862,23 +866,23 @@ const Renderer& createRenderer(Window& window) {
         }
     }
     {
-        logger(INFO, "Setting up a logical device"); 
+        logger(INFO, "Setting up a logical device");
 
         QueueFamilyIndices indices = findQueueFamilies(*renderer);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-    
+
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
         queueCreateInfo.queueCount = 1;
-        
+
         float queuePriority = 1.0f;
 
         for (uint32_t queueFamily : uniqueQueueFamilies) {
             VkDeviceQueueCreateInfo queueCreateInfo{};
-            queueCreateInfo.sType =  VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO; 
+            queueCreateInfo.sType =  VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queueCreateInfo.queueFamilyIndex = queueFamily;
             queueCreateInfo.queueCount = 1;
             queueCreateInfo.pQueuePriorities = &queuePriority;
@@ -886,7 +890,7 @@ const Renderer& createRenderer(Window& window) {
         }
 
         VkPhysicalDeviceFeatures deviceFeatures{};
-        deviceFeatures.samplerAnisotropy = VK_TRUE; 
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
         //TODO: Find a way to check for geometry shader support since it's not supported on macs? 
         //deviceFeatures.geometryShader = VK_TRUE;
 
@@ -895,14 +899,14 @@ const Renderer& createRenderer(Window& window) {
         createInfo.pQueueCreateInfos = &queueCreateInfo;
         createInfo.queueCreateInfoCount = 1;
         createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.enabledExtensionCount =  static_cast<uint32_t>(deviceExtensions.size()); 
+        createInfo.enabledExtensionCount =  static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()); 
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
         if (enableValidationLayers) {
-            createInfo.enabledLayerCount = 
-            static_cast<uint32_t>(validationLayers.size());
+            createInfo.enabledLayerCount =
+                    static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data(); 
         } else { 
             createInfo.enabledLayerCount = 0; 
@@ -940,7 +944,7 @@ const Renderer& createRenderer(Window& window) {
 
         logger(INFO, "Allocating command buffers");
 
-        renderer->commandBuffers.resize(renderer->swapChainFramebuffers.size());
+        renderer->commandBuffers.resize(renderer->swapChainImages.size());
         
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -997,18 +1001,18 @@ void destroyRenderer(Renderer& renderer) {
         vkDestroyFence(renderer.device, renderer.inFlightFences[i], nullptr);
     }
 
-    for (auto framebuffer : renderer.swapChainFramebuffers) {
-        vkDestroyFramebuffer(renderer.device, framebuffer, nullptr); 
+    for(const auto& [key, value] : renderer.renderPasses) {
+        if(value.usingSharedResources == false) {
+            for(int i = 0; i < value.frameBuffers.size(); i++) {
+                vkDestroyFramebuffer(renderer.device, value.frameBuffers[i], nullptr);
+            }
+            for(int i = 0; i < value.attachments->size(); i++) {
+                vkDestroyImageView(renderer.device, value.attachments->at(i).view, nullptr);
+                vkDestroyImage(renderer.device, value.attachments->at(i).image, nullptr);
+                vkFreeMemory(renderer.device, value.attachments->at(i).memory, nullptr);
+            }
+        }
     }
-
-    vkDestroyImageView(renderer.device, renderer.depthImageView, nullptr);
-    vkDestroyImage(renderer.device, renderer.depthImage, nullptr);
-    vkFreeMemory(renderer.device, renderer.depthImageMemory, nullptr);
-    vkDestroyImageView(renderer.device, renderer.colorImageView, nullptr);
-    vkDestroyImage(renderer.device, renderer.colorImage, nullptr);
-    vkFreeMemory(renderer.device, renderer.colorImageMemory, nullptr);
-    vkDestroyCommandPool(renderer.device, renderer.commandPool, nullptr);
-    vkDestroyRenderPass(renderer.device, renderer.renderPass, nullptr);
 
     for (auto imageView : renderer.swapChainImageViews) {
         vkDestroyImageView(renderer.device, imageView, nullptr);
@@ -1162,4 +1166,77 @@ void copyBuffer(Renderer& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDe
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     endSingleTimeCommands(renderer, commandBuffer);
+}
+
+
+
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData>* attachments, bool usingLayers) {
+
+    logger(INFO, "Creating renderpass: " + (std::string)renderPassName);
+
+    RenderPassObject* renderPassObject = new RenderPassObject;
+    renderPassObject->createInfo = createInfo;
+    renderPassObject->usingLayers = usingLayers;
+    renderPassObject->usingSharedResources = sharedResources == nullptr  ? false : true;
+
+    if (vkCreateRenderPass(renderer.device, &renderPassObject->createInfo, nullptr, &renderPassObject->renderPass) != VK_SUCCESS) {
+        logger(ERROR, "Failed to create render pass!");
+        throw std::runtime_error("failed to create render pass!");
+    }
+
+    if(renderPassObject->usingSharedResources == true) {
+        renderPassObject->attachments = sharedResources->attachments;
+        renderPassObject->frameBuffers = sharedResources->frameBuffers;
+        renderPassObject->beginInfos = sharedResources->beginInfos;
+    } else {
+        renderPassObject->attachments = attachments;
+        renderPassObject->frameBuffers.resize(renderer.swapChainImages.size());
+        renderPassObject->beginInfos.resize(renderer.swapChainImages.size());
+
+        for (size_t i = 0; i < renderPassObject->frameBuffers.size(); i++) {
+
+            std::vector<VkImageView> finalAttachments;
+            finalAttachments.resize(renderPassObject->attachments->size() + 1);
+
+            for (int j = 0; j < renderPassObject->attachments->size(); j++) {
+                finalAttachments[j] = renderPassObject->attachments->at(j).view;
+            }
+            finalAttachments[finalAttachments.size() - 1] = renderer.swapChainImageViews[i];
+            //finalAttachments[renderPassObject->attachments->size()] = renderer.swapChainImageViews[i];
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = renderPassObject->renderPass;
+            framebufferInfo.attachmentCount = static_cast<uint32_t>(finalAttachments.size());
+            framebufferInfo.pAttachments = finalAttachments.data();
+            framebufferInfo.width = renderer.swapChainExtent.width;
+            framebufferInfo.height = renderer.swapChainExtent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &renderPassObject->frameBuffers[i]) !=
+                VK_SUCCESS) {
+                logger(ERROR, "Failed to create framebuffer!");
+                throw std::runtime_error("failed to create framebuffer!");
+            }
+        }
+    }
+
+    for(int i = 0; i < renderPassObject->frameBuffers.size(); i++) {
+        renderPassObject->beginInfos[i].sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassObject->beginInfos[i].renderPass = renderPassObject->renderPass;
+        renderPassObject->beginInfos[i].framebuffer = renderPassObject->frameBuffers[i];
+        renderPassObject->beginInfos[i].renderArea.offset = {0, 0};
+        renderPassObject->beginInfos[i].renderArea.extent = renderer.swapChainExtent;
+        renderPassObject->beginInfos[i].clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassObject->beginInfos[i].pClearValues = clearValues.size() == 0 ? nullptr : clearValues.data();
+    }
+    renderer.renderPasses.insert(std::pair<const char*, RenderPassObject>(renderPassName, *renderPassObject));
+}
+const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags) {
+    ImageData* imageData = new ImageData; 
+    
+    createImage(renderer, renderer.swapChainExtent.width, renderer.swapChainExtent.height, 1, renderer.msaaSamples, format, VK_IMAGE_TILING_OPTIMAL, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imageData->image, imageData->memory);
+    imageData->view = createImageView(renderer, imageData->image, format, aspectFlags, 1);
+
+    return *imageData;
 }

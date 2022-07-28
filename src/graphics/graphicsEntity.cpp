@@ -7,12 +7,13 @@
 
 std::vector<GraphicsEntity*> allGraphicsEntities;
 
-const GraphicsEntity& createGraphicsEntity(Renderer& renderer, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest, unsigned int pushConstantsSize) {
+const GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject& renderPassObject, Shader* shader, VertexBuffer* vertexBuffer, Texture* texture, bool enableDepthTest, unsigned int pushConstantsSize) {
     GraphicsEntity* graphicsEntity = new GraphicsEntity; 
     graphicsEntity->vertexBuffer = vertexBuffer;
     graphicsEntity->texture = texture;
     graphicsEntity->shader = shader; 
-    graphicsEntity->depthTestEnabled = enableDepthTest; 
+    graphicsEntity->depthTestEnabled = enableDepthTest;
+    graphicsEntity->renderPassObject = &renderPassObject;
     
     //TODO: Handle when vertexbuffer is a nullptr
 
@@ -196,7 +197,7 @@ const GraphicsEntity& createGraphicsEntity(Renderer& renderer, Shader* shader, V
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = graphicsEntity->pipelineLayout;
-    pipelineInfo.renderPass = renderer.renderPass;
+    pipelineInfo.renderPass = renderPassObject.renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
@@ -224,5 +225,5 @@ void freeGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity) {
 }
 
 void reCreateGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity) {
-    graphicsEntity = createGraphicsEntity(renderer, graphicsEntity.shader, graphicsEntity.vertexBuffer, graphicsEntity.texture, graphicsEntity.depthTestEnabled);
+    graphicsEntity = createGraphicsEntity(renderer, *graphicsEntity.renderPassObject, graphicsEntity.shader, graphicsEntity.vertexBuffer, graphicsEntity.texture, graphicsEntity.depthTestEnabled);
 }

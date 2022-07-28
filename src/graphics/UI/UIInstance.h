@@ -5,6 +5,7 @@
 #include <glm/vec3.hpp>
 #include "../graphicsEntityInstance.h"
 #include "../uniformBufferObject.h"
+#include "../renderer.h"
 
 struct UIInstanceUniformBufferObject {
     glm::vec2 position; 
@@ -17,10 +18,9 @@ class UIInstance : public GraphicsEntityInstance<UIInstanceUniformBufferObject> 
         glm::vec2 position; 
         glm::vec2 size; 
         glm::vec4 color;
-        int layer; 
         virtual bool hover();
         virtual void debug();
         virtual void render(Renderer& renderer, int currentCommandBufferIndex);
-        UIInstance(Renderer& renderer, GraphicsEntity* graphicsEntity);
+        UIInstance(Renderer& renderer, RenderPassObject* renderPassContent, GraphicsEntity* graphicsEntity);
 };
 #endif
