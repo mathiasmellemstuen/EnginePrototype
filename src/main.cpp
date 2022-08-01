@@ -56,24 +56,21 @@
 YamlParser* properties = nullptr;
 
 int main(int argc, char *argv[]) {
-    logger(INFO, "Starting application2."); 
+    logger(INFO, "Starting application.");
 
     // Loading properties file
     std::string filePath = "properties.yaml"; 
     properties = new YamlParser(filePath);
     
-
     #ifndef NO_DEBUG_WINDOW
     // Starting debugging
     logger(INFO, "Starting debugging!");
     Debug::setupDebugWindow();
     #endif
 
-
     // Creating a window and attaching a renderer
     Window window;
     Renderer renderer = createRenderer(window);
-
 
     // Loading engine spesific predefined content
     loadPredefined(renderer);
@@ -88,7 +85,7 @@ int main(int argc, char *argv[]) {
     
     // Loading a cube model
     Model cubeModel("assets/models/cube.obj");
-    
+
     // Loading a texture 
     Texture cubeTexture = createTexture(renderer, "assets/textures/gold.png");
 
@@ -127,7 +124,7 @@ int main(int argc, char *argv[]) {
     logger(INFO, "Starting rendering loop!");
     
     // Running rendering loop, this is blocking
-    loop(renderer, window, eventManager);
+	loop(renderer, window, eventManager);
 
     logger(INFO, "Exiting application!"); 
     SDL_Quit();

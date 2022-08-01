@@ -8,7 +8,8 @@ enum LogLevel {
     INFO = 1,
     SUCCESS = 2,
     WARNING = 3,
-    ERROR = 4
+    ERROR = 4,
+	// 5 is reserved for assertion function but should not be visible here
 };
 
 enum FlowType {
@@ -16,6 +17,9 @@ enum FlowType {
     HAULT = 2
 };
 
+
+// The undef - define is a little hacky, should find a better solution for fixing the error from rang.hpp that appears when not doing this
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0A000007
 #include <rang/rang.hpp>
 
@@ -30,6 +34,9 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
 void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat3& message);
 void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat4& message);
 
+void assertToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const bool& expression);
+
+
 #define CAT( A, B ) A ## B
 #define SELECT( NAME, NUM ) CAT( NAME ## _, NUM )
 #define COMPOSE( NAME, ARGS ) NAME ARGS
@@ -43,5 +50,6 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
 #define logger_1(l) logToTerminal(__FILE__, __func__, __LINE__, l, "Generic log message")
 #define logger_2(l, m) logToTerminal(__FILE__, __func__, __LINE__, l, 1, m)
 #define logger_3(l, f, m) logToTerminal(__FILE__, __func__, __LINE__, l, f, m)
+#define loggerAssert(expression) assertToTerminal(__FILE__, __func__, __LINE__, expression)
 
 #endif

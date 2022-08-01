@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 add_definitions(-DSDL_MAIN_HANDLED)
 add_definitions(-Wno-format-security)
-add_definitions(-Wno-return-stack-address)
 
 
 file(GLOB_RECURSE SRC "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOURCE_DIR}/src/*.cpp")
@@ -19,6 +18,8 @@ target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(ENGINEPROTOTYPE PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/SDL/include")
 
 find_package(Vulkan REQUIRED)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 set(SDL2_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/SDL2-2.0.22-windows/x86_64-w64-mingw32/lib")
 set(FREETYPE_LIBRARY_DIR_WINDOWS "${CMAKE_SOURCE_DIR}/thirdparty/freetype-windows-binaries/release dll/win64")

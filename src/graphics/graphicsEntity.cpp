@@ -201,7 +201,7 @@ const GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject&
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
-
+	
     if (vkCreateGraphicsPipelines(renderer.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity->graphicsPipeline) != VK_SUCCESS) {
         
         logger(ERROR, "Failed to create graphics pipeline!"); 

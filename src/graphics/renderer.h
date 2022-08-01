@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <map>
 #include <string>
+#include "genericGraphicsEntityInstance.h"
 
 struct ImageData {
     VkImage image;
@@ -16,14 +17,18 @@ struct ImageData {
     VkDeviceMemory memory;
 };
 
-struct RenderPassObject {
-    VkRenderPass renderPass;
-    VkRenderPassCreateInfo createInfo;
+struct RenderPassResources {
     std::vector<VkRenderPassBeginInfo> beginInfos;
     std::vector<ImageData>* attachments; 
     std::vector<VkFramebuffer> frameBuffers;
-    bool usingSharedResources; 
-    bool usingLayers;
+};
+
+struct RenderPassObject {
+    VkRenderPass renderPass;
+    VkRenderPassCreateInfo createInfo;
+	RenderPassResources* resources;
+	std::vector<GenericGraphicsEntityInstance*> renderInstances;
+	RenderPassObject* nextRenderPass; // TODO: Implement this as a sort of linked list to order the execution of renderpasses in right order.
 };
 
 struct Renderer {
@@ -47,7 +52,7 @@ struct Renderer {
     std::vector<VkFence> imagesInFlight;
     std::vector<VkFence> inFlightFences;
     size_t currentFrame = 0;
-    std::map<const char*, RenderPassObject> renderPasses;
+    std::map<const char*, RenderPassObject*> renderPasses;
     // VkRenderPass renderPass;
     // VkRenderPass uiRenderPass; 
     // VkImage colorImage;
@@ -60,7 +65,7 @@ struct Renderer {
 };
 const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags);
 void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject);
-void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues = {}, RenderPassObject* sharedResources = nullptr, std::vector<ImageData>* attachments = nullptr, bool usingLayers = false);
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues = {}, RenderPassObject* sharedResources = nullptr, std::vector<ImageData>* attachments = nullptr, RenderPassObject* nextRenderPass = nullptr);
 void createCommandBuffers(Renderer& renderer, uint32_t currentImage);
 uint32_t findMemoryType(Renderer& renderer, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 void createImage(Renderer& renderer, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);

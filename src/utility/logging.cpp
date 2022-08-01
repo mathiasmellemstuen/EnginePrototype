@@ -1,6 +1,7 @@
 #include "logging.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
+
 void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const std::string& message) {
 
     std::string formattedFileName = fileName;
@@ -30,6 +31,8 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
         case 4: 
             std::cout << rang::fg::red << "ERROR" << rang::fg::reset; 
         break;
+		case 5:
+			std::cout << rang::fg::magenta << "ASSERTION" << rang::fg::reset;
         default:
         break; 
     }
@@ -69,4 +72,11 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
 }
 void logToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const int& logLevel, const int& flowType, const glm::mat4& message) {
     logToTerminal(fileName, functionName, lineNumber, logLevel, flowType, glm::to_string(message));
+}
+
+void assertToTerminal(const char* fileName, const char* functionName, const int& lineNumber, const bool& expression) {
+	if(!expression) {
+		logToTerminal(fileName, functionName, lineNumber, 5, 1, "Assertion expression is false. Terminating application.");
+		throw std::runtime_error("Termination caused by assertion."); 
+	}
 }

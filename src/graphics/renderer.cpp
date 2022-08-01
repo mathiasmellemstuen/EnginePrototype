@@ -1170,7 +1170,7 @@ void copyBuffer(Renderer& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDe
 
 
 
-void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData>* attachments, bool usingLayers) {
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData>* attachments, bool usingLayers, RenderPassObject* nextRenderPass) {
 
     logger(INFO, "Creating renderpass: " + (std::string)renderPassName);
 
@@ -1178,6 +1178,7 @@ void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPa
     renderPassObject->createInfo = createInfo;
     renderPassObject->usingLayers = usingLayers;
     renderPassObject->usingSharedResources = sharedResources == nullptr  ? false : true;
+	renderPassObject->nextRenderPass = nextRenderPass; 
 
     if (vkCreateRenderPass(renderer.device, &renderPassObject->createInfo, nullptr, &renderPassObject->renderPass) != VK_SUCCESS) {
         logger(ERROR, "Failed to create render pass!");
@@ -1230,8 +1231,9 @@ void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPa
         renderPassObject->beginInfos[i].clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassObject->beginInfos[i].pClearValues = clearValues.size() == 0 ? nullptr : clearValues.data();
     }
-    renderer.renderPasses.insert(std::pair<const char*, RenderPassObject>(renderPassName, *renderPassObject));
+    renderer.renderPasses.insert(std::pair<const char*, RenderPassObject*>(renderPassName, renderPassObject));
 }
+
 const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags) {
     ImageData* imageData = new ImageData; 
     
