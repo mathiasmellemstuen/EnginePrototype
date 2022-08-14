@@ -1,9 +1,10 @@
 #include "genericGraphicsEntityInstance.h"
 #include <imgui/imgui.h>
 #include "renderer.h"
+#include <map>
 
 GenericGraphicsEntityInstance::GenericGraphicsEntityInstance(Renderer& renderer, const std::string& renderPassName) {
-	this->renderPassObject = renderer.renderPasses.find(renderPassName)->second;
+	this->renderPassObject = renderer.renderPasses.find(renderPassName.c_str())->second;
 	this->renderPassObject->renderInstances.push_back(this);
 }
 void setLayer(uint16_t newLayer) {

@@ -4,7 +4,7 @@
 #include <string>
 #include <math.h>
 
-UITextInstance::UITextInstance(Renderer& renderer, UITextEntity* entity) : UIInstance(renderer, &renderer.renderPasses.at("UI"), entity) {
+UITextInstance::UITextInstance(Renderer& renderer, UITextEntity* entity) : UIInstance(renderer, renderer.renderPasses.find("UI")->second, entity) {
 };
 
 void UITextInstance::setCharacterSize(float newSize) {

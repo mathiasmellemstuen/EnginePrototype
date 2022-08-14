@@ -2,8 +2,7 @@
 #define ENGINEPROTOTYPE_GENERIC_GRAPHICS_ENTITY_INSTANCE
 #include "../core/component.h"
 
-struct Renderer;
-struct RenderPassObject;
+#include "renderer.h"
 
 class GenericGraphicsEntityInstance : public Component {
     public:

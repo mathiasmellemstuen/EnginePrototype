@@ -46,9 +46,9 @@ void loadPredefined(Renderer& renderer) {
     logger(INFO, "Before exception!");
     // Loading predefined graphics entities
 	
-    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false);
-    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false);
-    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false);
+    predefinedGraphicsEntities.uiTriangle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiShader, &predefinedVertexBuffers.triangle, nullptr, false, 0);
+    predefinedGraphicsEntities.uiRectangle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiShader, &predefinedVertexBuffers.rectangle, nullptr, false, 0);
+    predefinedGraphicsEntities.uiCircle = createGraphicsEntity(renderer, renderer.renderPasses.find("UI")->second, &predefinedShaders.uiCircle, &predefinedVertexBuffers.rectangle, nullptr, false, 0);
     logger(INFO, "After exception");
 
     // Loading predefined font entities

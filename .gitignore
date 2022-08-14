@@ -18,3 +18,5 @@ thirdparty/
 build-xcode
 sdl2-config
 .vscode/launch.json
+.commander/
+.cache/

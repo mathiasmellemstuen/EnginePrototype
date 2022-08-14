@@ -21,7 +21,7 @@ struct GraphicsEntity {
 };
 extern std::vector<GraphicsEntity*> allGraphicsEntities;
 
-const GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject& renderPassObject, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
+GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject* renderPassObject, Shader* shader, VertexBuffer* vertexBuffer = nullptr, Texture* texture = nullptr, bool enableDepthTest = true, unsigned int pushConstantsSize = 0);
 void freeGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
 void reCreateGraphicsEntity(Renderer& renderer, GraphicsEntity& graphicsEntity);
 

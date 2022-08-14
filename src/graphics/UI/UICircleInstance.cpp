@@ -3,7 +3,7 @@
 #include "../../utility/properties.h"
 #include "../../input/mouse.h"
 
-UICircleInstance::UICircleInstance(Renderer& renderer) : UIInstance(renderer, &renderer.renderPasses.at("UI"), &predefinedGraphicsEntities.uiCircle) {
+UICircleInstance::UICircleInstance(Renderer& renderer) : UIInstance(renderer, renderer.renderPasses.find("UI")->second, &predefinedGraphicsEntities.uiCircle) {
 
 };
 

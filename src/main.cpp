@@ -96,10 +96,10 @@ int main(int argc, char *argv[]) {
     VertexBuffer cubeVertexBuffer = createVertexBuffer(renderer, cubeModel.vertices, cubeModel.indices);
 
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(renderer, renderer.renderPasses.at("world"), &cubeShader, &cubeVertexBuffer, &cubeTexture);
+    GraphicsEntity cubeEntity = createGraphicsEntity(renderer, renderer.renderPasses.find("world")->second, &cubeShader, &cubeVertexBuffer, &cubeTexture);
     
     // Creating a cube instance
-    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(renderer, &renderer.renderPasses.at("world"), &cubeEntity);
+    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(renderer, renderer.renderPasses.find("world")->second, &cubeEntity);
 
     // Creating a transform
     Transform transform({0.0f, 0.0f, 0.0f});

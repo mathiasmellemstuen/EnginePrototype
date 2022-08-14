@@ -1,5 +1,7 @@
+#include "genericGraphicsEntityInstance.h"
 #include "renderer.h"
 #include "window.h"
+#include <vector>
 #include <vulkan/vulkan.h>
 #include "../utility/logging.h"
 #include "../utility/debug.h"
@@ -12,17 +14,19 @@
 #include "eventManager.h"
 #include "../core/object.h"
 #include "graphicsEntityInstance.h"
-#include "genericGraphicsEntityInstance.h"
 #include <string>
 #include "UI/UIInstance.h"
 #include "camera.h"
+#include <iterator>
+#include <algorithm>
+#include <vulkan/vulkan_core.h>
 
 uint64_t last = 0; 
 uint64_t now = 0; 
 
 void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject) {
     std::vector<GenericGraphicsEntityInstance*> instances;
-    
+	
     for(Object* object : Object::objects) {
         GenericGraphicsEntityInstance* inst = object->getComponent<GenericGraphicsEntityInstance>();
         
@@ -59,14 +63,11 @@ void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
         
         for(const auto& [key, value] : renderer.renderPasses) {
             logger(INFO, "Starting " + (std::string)key);
-            vkCmdBeginRenderPass(renderer.commandBuffers[i], &value.beginInfos[i], VK_SUBPASS_CONTENTS_INLINE);
-            logger(INFO, key);
-            logger(INFO, (int)value.beginInfos[i].clearValueCount);
+            vkCmdBeginRenderPass(renderer.commandBuffers[i], &value->resources->beginInfos[i], VK_SUBPASS_CONTENTS_INLINE);
+
             createCommandBuffersInlineContentForSingleRenderPass(renderer, i, (RenderPassObject&)value);
 
-            logger(INFO, "Ending");
             vkCmdEndRenderPass(renderer.commandBuffers[i]);
-            logger(INFO, "Ending done.");
         }
         
         if (vkEndCommandBuffer(renderer.commandBuffers[i]) != VK_SUCCESS) {
@@ -383,12 +384,12 @@ void cleanupSwapChain(Renderer& renderer) {
     logger(INFO, "Starting cleanup of swap chain");
     
     for(const auto& [key, value] : renderer.renderPasses) {
-        if(!value.usingSharedResources) {
-            for (size_t i = 0; i < value.frameBuffers.size(); i++)
-                vkDestroyFramebuffer(renderer.device, value.frameBuffers[i], nullptr);
+        if(!value->usingSharedResources) {
+            for (size_t i = 0; i < value->resources->frameBuffers.size(); i++)
+                vkDestroyFramebuffer(renderer.device, value->resources->frameBuffers[i], nullptr);
         }
         
-        vkDestroyRenderPass(renderer.device, value.renderPass, nullptr);
+        vkDestroyRenderPass(renderer.device, value->renderPass, nullptr);
         
     }
     
@@ -694,8 +695,7 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
                 createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT),
                 createAttachment(renderer, findDepthFormat(renderer), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT)
         };
-
-        createRenderPass(renderer, "world", renderPassInfo, clearValues, nullptr, &renderPassImageAttachments, false);
+        createRenderPass(renderer, "world", renderPassInfo, clearValues, nullptr, renderPassImageAttachments, false, nullptr);
 
         logger(SUCCESS, "successfully created render pass!");
 
@@ -771,8 +771,12 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
+        std::vector<VkClearValue> clearValues;
+        clearValues.resize(2);
+        clearValues[0].color = {135.0f / 255.0f, 206.0f / 255.0f, 235.0f / 255.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
 
-        createRenderPass(renderer, "UI", renderPassInfo, {}, &renderer.renderPasses.at("world"), nullptr, true);
+        createRenderPass(renderer, "UI", renderPassInfo, clearValues, renderer.renderPasses.find("world")->second, {}, true, nullptr);
         logger(SUCCESS, "Created UI render pass!");
     }
 }
@@ -1002,14 +1006,14 @@ void destroyRenderer(Renderer& renderer) {
     }
 
     for(const auto& [key, value] : renderer.renderPasses) {
-        if(value.usingSharedResources == false) {
-            for(int i = 0; i < value.frameBuffers.size(); i++) {
-                vkDestroyFramebuffer(renderer.device, value.frameBuffers[i], nullptr);
+        if(value->usingSharedResources == false) {
+            for(int i = 0; i < value->resources->frameBuffers.size(); i++) {
+                vkDestroyFramebuffer(renderer.device, value->resources->frameBuffers[i], nullptr);
             }
-            for(int i = 0; i < value.attachments->size(); i++) {
-                vkDestroyImageView(renderer.device, value.attachments->at(i).view, nullptr);
-                vkDestroyImage(renderer.device, value.attachments->at(i).image, nullptr);
-                vkFreeMemory(renderer.device, value.attachments->at(i).memory, nullptr);
+            for(int i = 0; i < value->resources->attachments.size(); i++) {
+                vkDestroyImageView(renderer.device, value->resources->attachments.at(i).view, nullptr);
+                vkDestroyImage(renderer.device, value->resources->attachments.at(i).image, nullptr);
+                vkFreeMemory(renderer.device, value->resources->attachments.at(i).memory, nullptr);
             }
         }
     }
@@ -1170,11 +1174,12 @@ void copyBuffer(Renderer& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDe
 
 
 
-void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData>* attachments, bool usingLayers, RenderPassObject* nextRenderPass) {
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData> attachments, bool usingLayers, RenderPassObject* nextRenderPass) {
 
     logger(INFO, "Creating renderpass: " + (std::string)renderPassName);
 
     RenderPassObject* renderPassObject = new RenderPassObject;
+	renderPassObject->name = renderPassName;
     renderPassObject->createInfo = createInfo;
     renderPassObject->usingLayers = usingLayers;
     renderPassObject->usingSharedResources = sharedResources == nullptr  ? false : true;
@@ -1184,23 +1189,24 @@ void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPa
         logger(ERROR, "Failed to create render pass!");
         throw std::runtime_error("failed to create render pass!");
     }
-
+	
+	
     if(renderPassObject->usingSharedResources == true) {
-        renderPassObject->attachments = sharedResources->attachments;
-        renderPassObject->frameBuffers = sharedResources->frameBuffers;
-        renderPassObject->beginInfos = sharedResources->beginInfos;
+		renderPassObject->resources = sharedResources->resources;
     } else {
-        renderPassObject->attachments = attachments;
-        renderPassObject->frameBuffers.resize(renderer.swapChainImages.size());
-        renderPassObject->beginInfos.resize(renderer.swapChainImages.size());
+		renderPassObject->resources = new RenderPassResources;
+		renderPassObject->resources->attachments = attachments;
+        renderPassObject->resources->frameBuffers.resize(renderer.swapChainImages.size());
+        renderPassObject->resources->beginInfos.resize(renderer.swapChainImages.size());
+		
 
-        for (size_t i = 0; i < renderPassObject->frameBuffers.size(); i++) {
+        for (size_t i = 0; i < renderPassObject->resources->frameBuffers.size(); i++) {
 
             std::vector<VkImageView> finalAttachments;
-            finalAttachments.resize(renderPassObject->attachments->size() + 1);
+            finalAttachments.resize(renderPassObject->resources->attachments.size() + 1);
 
-            for (int j = 0; j < renderPassObject->attachments->size(); j++) {
-                finalAttachments[j] = renderPassObject->attachments->at(j).view;
+            for (int j = 0; j < renderPassObject->resources->attachments.size(); j++) {
+                finalAttachments[j] = renderPassObject->resources->attachments.at(j).view;
             }
             finalAttachments[finalAttachments.size() - 1] = renderer.swapChainImageViews[i];
             //finalAttachments[renderPassObject->attachments->size()] = renderer.swapChainImageViews[i];
@@ -1214,7 +1220,7 @@ void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPa
             framebufferInfo.height = renderer.swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &renderPassObject->frameBuffers[i]) !=
+            if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &renderPassObject->resources->frameBuffers[i]) !=
                 VK_SUCCESS) {
                 logger(ERROR, "Failed to create framebuffer!");
                 throw std::runtime_error("failed to create framebuffer!");
@@ -1222,14 +1228,14 @@ void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPa
         }
     }
 
-    for(int i = 0; i < renderPassObject->frameBuffers.size(); i++) {
-        renderPassObject->beginInfos[i].sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassObject->beginInfos[i].renderPass = renderPassObject->renderPass;
-        renderPassObject->beginInfos[i].framebuffer = renderPassObject->frameBuffers[i];
-        renderPassObject->beginInfos[i].renderArea.offset = {0, 0};
-        renderPassObject->beginInfos[i].renderArea.extent = renderer.swapChainExtent;
-        renderPassObject->beginInfos[i].clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassObject->beginInfos[i].pClearValues = clearValues.size() == 0 ? nullptr : clearValues.data();
+    for(int i = 0; i < renderPassObject->resources->frameBuffers.size(); i++) {
+        renderPassObject->resources->beginInfos[i].sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassObject->resources->beginInfos[i].renderPass = renderPassObject->renderPass;
+        renderPassObject->resources->beginInfos[i].framebuffer = renderPassObject->resources->frameBuffers[i];
+        renderPassObject->resources->beginInfos[i].renderArea.offset = {0, 0};
+        renderPassObject->resources->beginInfos[i].renderArea.extent = renderer.swapChainExtent;
+        renderPassObject->resources->beginInfos[i].clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassObject->resources->beginInfos[i].pClearValues = clearValues.size() == 0 ? nullptr : clearValues.data();
     }
     renderer.renderPasses.insert(std::pair<const char*, RenderPassObject*>(renderPassName, renderPassObject));
 }

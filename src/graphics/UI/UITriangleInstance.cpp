@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string>
 
-UITriangleInstance::UITriangleInstance(Renderer& renderer) : UIInstance(renderer, &renderer.renderPasses.at("UI"), &predefinedGraphicsEntities.uiTriangle) {
+UITriangleInstance::UITriangleInstance(Renderer& renderer) : UIInstance(renderer, renderer.renderPasses.find("UI")->second, &predefinedGraphicsEntities.uiTriangle) {
 
 };
 

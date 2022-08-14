@@ -2,7 +2,7 @@
 #include "../../core/predefined.h"
 #include "../../input/mouse.h"
 
-UIRectangleInstance::UIRectangleInstance(Renderer& renderer) : UIInstance(renderer, &renderer.renderPasses.at("UI"), &predefinedGraphicsEntities.uiRectangle) {
+UIRectangleInstance::UIRectangleInstance(Renderer& renderer) : UIInstance(renderer, renderer.renderPasses.find("UI")->second, &predefinedGraphicsEntities.uiRectangle) {
 };
 
 bool UIRectangleInstance::hover() {
