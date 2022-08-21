@@ -4,7 +4,7 @@
 #include <map>
 
 GenericGraphicsEntityInstance::GenericGraphicsEntityInstance(Renderer& renderer, const std::string& renderPassName) {
-	this->renderPassObject = renderer.renderPasses.find(renderPassName.c_str())->second;
+	this->renderPassObject = getRenderPassObject(renderer, renderPassName.c_str());
 	this->renderPassObject->renderInstances.push_back(this);
 }
 void setLayer(uint16_t newLayer) {

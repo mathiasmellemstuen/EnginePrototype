@@ -24,26 +24,154 @@
 uint64_t last = 0; 
 uint64_t now = 0; 
 
-void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject) {
-    std::vector<GenericGraphicsEntityInstance*> instances;
+void combineImages(Renderer& renderer, uint32_t currentImage, VkImage& backgroundImage, VkImage& foregroundImage) {
 	
-    for(Object* object : Object::objects) {
-        GenericGraphicsEntityInstance* inst = object->getComponent<GenericGraphicsEntityInstance>();
-        
-        if(inst != nullptr)
-            instances.push_back(inst);
-    }
-    
-    // Sorting the list if it is layered
-    if(renderPassObject.usingLayers) {
-        struct {
-            bool operator()(GenericGraphicsEntityInstance* a, GenericGraphicsEntityInstance* b) const {return a->layer < b->layer; }
-        } custom;
 
-        std::sort(instances.begin(), instances.end(), custom);
+	VkAttachmentDescription colorAttachment{};
+	colorAttachment.format = renderer.swapChainImageFormat; 
+	colorAttachment.samples = renderer.msaaSamples;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
+
+	VkAttachmentReference colorAttachmentRef{};
+	colorAttachmentRef.attachment = 0; 
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentDescription colorAttachmentResolve{};
+	colorAttachmentResolve.format = renderer.swapChainImageFormat;
+	colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Changing this to go to the next render pass instead of present src khr
+
+	VkAttachmentReference colorAttachmentResolveRef{};
+	colorAttachmentResolveRef.attachment = 1;
+	colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	
+
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+	VkSubpassDescription subpass{};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pResolveAttachments = &colorAttachmentResolveRef;
+
+	std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, colorAttachmentResolve};
+
+	VkRenderPassCreateInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
+
+	VkRenderPass renderPass;
+
+    if (vkCreateRenderPass(renderer.device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        logger(ERROR, "Failed to create render pass!");
+        throw std::runtime_error("failed to create render pass!");
     }
+	
+	ImageData target = createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+	
+	VkFramebufferCreateInfo framebufferInfo{};
+	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	framebufferInfo.renderPass = renderPass;
+	framebufferInfo.attachmentCount = 1;
+	framebufferInfo.pAttachments = &target.view;
+	framebufferInfo.width = renderer.swapChainExtent.width;
+	framebufferInfo.height = renderer.swapChainExtent.height;
+	framebufferInfo.layers = 1;
+
+	VkFramebuffer framebuffer;
+
+	if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) {
+		logger(ERROR, "Failed to create framebuffer!");
+		throw std::runtime_error("failed to create framebuffer!");
+	}
+	
+	VkRenderPassBeginInfo beginInfo;
+	beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	beginInfo.renderPass = renderPass;
+	beginInfo.framebuffer = framebuffer;
+	beginInfo.renderArea.offset = {0, 0};
+	beginInfo.renderArea.extent = renderer.swapChainExtent;
+	beginInfo.clearValueCount = 0;
+	beginInfo.pClearValues = nullptr;
+
+	// Create descriptor set with textures
+	// Creating a graphics pipeline
+	// Draw call to graphics pipline with the images
+	// Output image should go to khr src
+	
+	VkDescriptorSetLayoutBinding binding;
+	binding.binding = 0;
+	binding.descriptorCount = 1;
+	binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	binding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo;
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = static_cast<uint32_t>(1);
+	layoutInfo.pBindings = &binding;
+	
+	VkDescriptorSetLayout descriptorSetLayout;
+    if (vkCreateDescriptorSetLayout(renderer.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
+
+	VkDescriptorPoolSize poolSize;
+	poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSize.descriptorCount = static_cast<uint32_t>(renderer.swapChainImages.size());
+
+	VkDescriptorPoolCreateInfo poolInfo;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(1);
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = static_cast<uint32_t>(renderer.swapChainImages.size()); 
+	
+	VkDescriptorPool descriptorPool;
+    if (vkCreateDescriptorPool(renderer.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+
+	vkCmdBeginRenderPass(renderer.commandBuffers[currentImage], &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	
+
+	vkCmdEndRenderPass(renderer.commandBuffers[currentImage]);
+}
+
+void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject) {
+	// TODO: Place this sorting in creation / adding of a new generic graphics entity instance so it sorts the renderpasses list when its created instead of sorting it for every frame.
+	
+    // Sorting the list if it is layered
+    //if(renderPassObject.usingLayers) {
+    //    struct {
+    //        bool operator()(GenericGraphicsEntityInstance* a, GenericGraphicsEntityInstance* b) const {return a->layer < b->layer; }
+    //    } custom;
+//
+ //       std::sort(instances.begin(), instances.end(), custom);
+  //  }
    
-    for(GenericGraphicsEntityInstance* instance : instances) {
+    for(GenericGraphicsEntityInstance* instance : renderPassObject.renderInstances) {
         instance->render(renderer, currentImage);
     }
 }
@@ -60,16 +188,22 @@ void createCommandBuffers(Renderer& renderer, uint32_t currentImage) {
             logger(ERROR, "Failed to begin recording command buffers!"); 
             throw std::runtime_error("failed to begin recording command buffer!");
         } 
-        
-        for(const auto& [key, value] : renderer.renderPasses) {
-            logger(INFO, "Starting " + (std::string)key);
-            vkCmdBeginRenderPass(renderer.commandBuffers[i], &value->resources->beginInfos[i], VK_SUBPASS_CONTENTS_INLINE);
 
-            createCommandBuffersInlineContentForSingleRenderPass(renderer, i, (RenderPassObject&)value);
-
+		// Running every renderpass!
+		RenderPassObject* currentPass = renderer.renderPasses[0];
+		
+		while(currentPass != nullptr) {
+            //logger(INFO, "Starting " + (std::string)currentPass->name.c_str());
+            vkCmdBeginRenderPass(renderer.commandBuffers[i], &currentPass->resources->beginInfos[i], VK_SUBPASS_CONTENTS_INLINE);
+			
+            createCommandBuffersInlineContentForSingleRenderPass(renderer, i, *currentPass);
+			
             vkCmdEndRenderPass(renderer.commandBuffers[i]);
-        }
-        
+			
+			// Setting the next renderpass as the current renderpass
+			currentPass = currentPass->nextRenderPass; 
+		}
+		
         if (vkEndCommandBuffer(renderer.commandBuffers[i]) != VK_SUCCESS) {
             logger(ERROR, "Failed to record command buffer!");
             throw std::runtime_error("failed to record command buffer!");
@@ -382,16 +516,13 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, Window
 void cleanupSwapChain(Renderer& renderer) {
 
     logger(INFO, "Starting cleanup of swap chain");
-    
-    for(const auto& [key, value] : renderer.renderPasses) {
-        if(!value->usingSharedResources) {
-            for (size_t i = 0; i < value->resources->frameBuffers.size(); i++)
-                vkDestroyFramebuffer(renderer.device, value->resources->frameBuffers[i], nullptr);
-        }
-        
-        vkDestroyRenderPass(renderer.device, value->renderPass, nullptr);
-        
-    }
+	
+	for(RenderPassObject* current : renderer.renderPasses) {
+            for (size_t i = 0; i < current->resources->frameBuffers.size(); i++)
+                vkDestroyFramebuffer(renderer.device, current->resources->frameBuffers[i], nullptr);
+
+        vkDestroyRenderPass(renderer.device, current->renderPass, nullptr);
+	}
     
     for(int i = allGraphicsEntities.size() - 1; i < 0; i++) {
         freeGraphicsEntity(renderer, *allGraphicsEntities[i]);
@@ -532,6 +663,7 @@ void loop(Renderer& renderer, Window& window, EventManager& eventManager) {
         #endif
 
         eventManager.update(window);
+		
 
         for(Object* object : Object::objects) {
             object->update(deltaTime);
@@ -653,7 +785,7 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
         colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this to go to the next render pass instead of present src khr
+        colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Changing this to go to the next render pass instead of present src khr
 
         VkAttachmentReference colorAttachmentResolveRef{};
         colorAttachmentResolveRef.attachment = 2;
@@ -693,66 +825,57 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
 
         std::vector<ImageData> renderPassImageAttachments = {
                 createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT),
-                createAttachment(renderer, findDepthFormat(renderer), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT)
+                createAttachment(renderer, findDepthFormat(renderer), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT),
         };
-        createRenderPass(renderer, "world", renderPassInfo, clearValues, nullptr, renderPassImageAttachments, false, nullptr);
+
+		createRenderPass(renderer, "world", renderPassInfo);
+		RenderPassResources* resources = createRenderPassResources(renderer, *getRenderPassObject(renderer, "world"), renderPassImageAttachments, clearValues, true);
+		
+		getRenderPassObject(renderer, "world")->resources = resources;
 
         logger(SUCCESS, "successfully created render pass!");
 
     }
+
     {
         logger(INFO, "Creating UI render pass!");
 
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = renderer.swapChainImageFormat; 
         colorAttachment.samples = renderer.msaaSamples;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // Changing this to not have clear color
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Changing this to not have clear color
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this because we have a previous render pass
+        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Changing this because we have a previous render pass
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0; 
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentDescription depthAttachment{};
-        depthAttachment.format = findDepthFormat(renderer);
-        depthAttachment.samples = renderer.msaaSamples;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        VkAttachmentReference depthAttachmentRef{};
-        depthAttachmentRef.attachment = 1;
-        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
         VkAttachmentDescription colorAttachmentResolve{};
         colorAttachmentResolve.format = renderer.swapChainImageFormat;
         colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // Changing this to not have clear color
+        colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Changing this to not have clear color
         colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Changing this because we have a previous render pass
+        colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Changing this because we have a previous render pass
         colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         
         VkAttachmentReference colorAttachmentResolveRef{};
-        colorAttachmentResolveRef.attachment = 2;
+        colorAttachmentResolveRef.attachment = 1;
         colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        std::array<VkAttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
+        //std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, colorAttachmentResolve};
+        std::array<VkAttachmentDescription, 1> attachments = {colorAttachment};
         
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        subpass.pDepthStencilAttachment = &depthAttachmentRef;
-        subpass.pResolveAttachments = &colorAttachmentResolveRef;
+        //subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -772,11 +895,18 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
         renderPassInfo.pDependencies = &dependency;
 
         std::vector<VkClearValue> clearValues;
-        clearValues.resize(2);
-        clearValues[0].color = {135.0f / 255.0f, 206.0f / 255.0f, 235.0f / 255.0f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0};
+        clearValues.resize(1);
+        clearValues[0].color = {0.0f / 255.0f, 206.0f / 255.0f, 235.0f / 255.0f, 0.0f};
+		
+        std::vector<ImageData> renderPassImageAttachments = {
+                createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT)};
 
-        createRenderPass(renderer, "UI", renderPassInfo, clearValues, renderer.renderPasses.find("world")->second, {}, true, nullptr);
+		createRenderPass(renderer, "UI", renderPassInfo);
+
+		RenderPassResources* resources = createRenderPassResources(renderer, *getRenderPassObject(renderer, "UI"), renderPassImageAttachments, clearValues, false);
+		
+		getRenderPassObject(renderer, "UI")->resources = resources;
+
         logger(SUCCESS, "Created UI render pass!");
     }
 }
@@ -1004,19 +1134,18 @@ void destroyRenderer(Renderer& renderer) {
         vkDestroySemaphore(renderer.device, renderer.imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(renderer.device, renderer.inFlightFences[i], nullptr);
     }
-
-    for(const auto& [key, value] : renderer.renderPasses) {
-        if(value->usingSharedResources == false) {
-            for(int i = 0; i < value->resources->frameBuffers.size(); i++) {
-                vkDestroyFramebuffer(renderer.device, value->resources->frameBuffers[i], nullptr);
-            }
-            for(int i = 0; i < value->resources->attachments.size(); i++) {
-                vkDestroyImageView(renderer.device, value->resources->attachments.at(i).view, nullptr);
-                vkDestroyImage(renderer.device, value->resources->attachments.at(i).image, nullptr);
-                vkFreeMemory(renderer.device, value->resources->attachments.at(i).memory, nullptr);
+	
+	for(RenderPassObject* currentPass : renderer.renderPasses) {
+            for(int i = 0; i < currentPass->resources->frameBuffers.size(); i++) {
+                vkDestroyFramebuffer(renderer.device, currentPass->resources->frameBuffers[i], nullptr);
+		
+	}
+            for(int i = 0; i < currentPass->resources->attachments.size(); i++) {
+                vkDestroyImageView(renderer.device, currentPass->resources->attachments.at(i).view, nullptr);
+                vkDestroyImage(renderer.device, currentPass->resources->attachments.at(i).image, nullptr);
+                vkFreeMemory(renderer.device, currentPass->resources->attachments.at(i).memory, nullptr);
             }
         }
-    }
 
     for (auto imageView : renderer.swapChainImageViews) {
         vkDestroyImageView(renderer.device, imageView, nullptr);
@@ -1174,70 +1303,97 @@ void copyBuffer(Renderer& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDe
 
 
 
-void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues, RenderPassObject* sharedResources, std::vector<ImageData> attachments, bool usingLayers, RenderPassObject* nextRenderPass) {
+RenderPassResources* createRenderPassResources(Renderer& renderer, RenderPassObject& renderPassObject, std::vector<ImageData> attachments, std::vector<VkClearValue> clearValues, bool attachSwapChainImageViews) {
+
+	RenderPassResources* resources = new RenderPassResources;
+	resources->attachments = attachments; 
+	resources->clearValues = clearValues;
+	resources->frameBuffers.resize(renderer.swapChainImages.size());
+	resources->beginInfos.resize(renderer.swapChainImages.size());
+        
+	for (size_t i = 0; i < resources->frameBuffers.size(); i++) {
+		
+		std::vector<VkImageView> finalAttachments;
+		size_t finalAttachmentsSize = attachSwapChainImageViews ? resources->attachments.size() + 1 : resources->attachments.size(); 
+		finalAttachments.resize(finalAttachmentsSize);
+
+		for (int j = 0; j < resources->attachments.size(); j++) {
+			finalAttachments[j] = resources->attachments.at(j).view;
+		}
+		
+		if(attachSwapChainImageViews == true)
+			finalAttachments[resources->attachments.size()] = renderer.swapChainImageViews[i]; // Adding the swap chain image view if told so
+		
+		logger(INFO, (int)finalAttachmentsSize);
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = renderPassObject.renderPass;
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(finalAttachments.size());
+		framebufferInfo.pAttachments = finalAttachments.data();
+		framebufferInfo.width = renderer.swapChainExtent.width;
+		framebufferInfo.height = renderer.swapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &resources->frameBuffers[i]) != VK_SUCCESS) {
+			logger(ERROR, "Failed to create framebuffer!");
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+        
+		resources->beginInfos[i].sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        resources->beginInfos[i].renderPass = renderPassObject.renderPass;
+        resources->beginInfos[i].framebuffer = resources->frameBuffers[i];
+        resources->beginInfos[i].renderArea.offset = {0, 0};
+        resources->beginInfos[i].renderArea.extent = renderer.swapChainExtent;
+        resources->beginInfos[i].clearValueCount = static_cast<uint32_t>(resources->clearValues.size());
+        resources->beginInfos[i].pClearValues = resources->clearValues.size() == 0 ? nullptr : resources->clearValues.data();
+	}
+
+	return resources; 
+}
+
+RenderPassObject* getRenderPassObject(Renderer& renderer, const char* renderPassName) {
+
+	for(size_t i = 0; i < renderer.renderPasses.size(); i++) {
+		if(strcmp(renderer.renderPasses.at(i)->name.c_str(), renderPassName) == 0) {
+			return renderer.renderPasses.at(i);
+		}
+	}
+	logger(ERROR, "Could not find renderpass with renderpass name: "); 
+	logger(ERROR, renderPassName); 
+
+	return nullptr; 
+}
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo) {
 
     logger(INFO, "Creating renderpass: " + (std::string)renderPassName);
 
     RenderPassObject* renderPassObject = new RenderPassObject;
 	renderPassObject->name = renderPassName;
     renderPassObject->createInfo = createInfo;
-    renderPassObject->usingLayers = usingLayers;
-    renderPassObject->usingSharedResources = sharedResources == nullptr  ? false : true;
-	renderPassObject->nextRenderPass = nextRenderPass; 
-
+	
+	// Creating the renderpass object. 
     if (vkCreateRenderPass(renderer.device, &renderPassObject->createInfo, nullptr, &renderPassObject->renderPass) != VK_SUCCESS) {
         logger(ERROR, "Failed to create render pass!");
         throw std::runtime_error("failed to create render pass!");
     }
 	
+	if(renderer.renderPasses.size() != 0) {
+
+		// Assigning this renderpass as the next renderpass for the previous renderpass.
+		renderer.renderPasses.at(renderer.renderPasses.size() - 1)->nextRenderPass = renderPassObject; 
+	}
+
+	// Adding renderpass to the list of renderpasses. 
+	renderer.renderPasses.push_back(renderPassObject);
 	
-    if(renderPassObject->usingSharedResources == true) {
-		renderPassObject->resources = sharedResources->resources;
-    } else {
-		renderPassObject->resources = new RenderPassResources;
-		renderPassObject->resources->attachments = attachments;
-        renderPassObject->resources->frameBuffers.resize(renderer.swapChainImages.size());
-        renderPassObject->resources->beginInfos.resize(renderer.swapChainImages.size());
-		
+	logger(SUCCESS, "Successfully created renderpass!");
+}
 
-        for (size_t i = 0; i < renderPassObject->resources->frameBuffers.size(); i++) {
-
-            std::vector<VkImageView> finalAttachments;
-            finalAttachments.resize(renderPassObject->resources->attachments.size() + 1);
-
-            for (int j = 0; j < renderPassObject->resources->attachments.size(); j++) {
-                finalAttachments[j] = renderPassObject->resources->attachments.at(j).view;
-            }
-            finalAttachments[finalAttachments.size() - 1] = renderer.swapChainImageViews[i];
-            //finalAttachments[renderPassObject->attachments->size()] = renderer.swapChainImageViews[i];
-
-            VkFramebufferCreateInfo framebufferInfo{};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = renderPassObject->renderPass;
-            framebufferInfo.attachmentCount = static_cast<uint32_t>(finalAttachments.size());
-            framebufferInfo.pAttachments = finalAttachments.data();
-            framebufferInfo.width = renderer.swapChainExtent.width;
-            framebufferInfo.height = renderer.swapChainExtent.height;
-            framebufferInfo.layers = 1;
-
-            if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &renderPassObject->resources->frameBuffers[i]) !=
-                VK_SUCCESS) {
-                logger(ERROR, "Failed to create framebuffer!");
-                throw std::runtime_error("failed to create framebuffer!");
-            }
-        }
-    }
-
-    for(int i = 0; i < renderPassObject->resources->frameBuffers.size(); i++) {
-        renderPassObject->resources->beginInfos[i].sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassObject->resources->beginInfos[i].renderPass = renderPassObject->renderPass;
-        renderPassObject->resources->beginInfos[i].framebuffer = renderPassObject->resources->frameBuffers[i];
-        renderPassObject->resources->beginInfos[i].renderArea.offset = {0, 0};
-        renderPassObject->resources->beginInfos[i].renderArea.extent = renderer.swapChainExtent;
-        renderPassObject->resources->beginInfos[i].clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassObject->resources->beginInfos[i].pClearValues = clearValues.size() == 0 ? nullptr : clearValues.data();
-    }
-    renderer.renderPasses.insert(std::pair<const char*, RenderPassObject*>(renderPassName, renderPassObject));
+void bindRenderPassObjectToResources(RenderPassObject* renderPassObject, RenderPassResources* resources) {
+	logger(INFO, "Binding resources to renderpass object.");
+	loggerAssert(resources == nullptr);
+	renderPassObject->resources = resources;
 }
 
 const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags) {

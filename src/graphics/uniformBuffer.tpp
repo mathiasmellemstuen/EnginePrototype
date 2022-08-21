@@ -7,7 +7,7 @@
 
 template<typename T> const UniformBuffer& createUniformBuffer(Renderer& renderer) {
     UniformBuffer* uniformBuffer = new UniformBuffer; 
-    
+	
     logger(INFO, "Starting creation of uniform buffers.");
     VkDeviceSize bufferSize = sizeof(T);
     uniformBuffer->uniformBuffers.resize(renderer.swapChainImages.size());

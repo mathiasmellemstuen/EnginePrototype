@@ -4,6 +4,7 @@
 #include "../utility/logging.h"
 #include "../core/predefined.h"
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 std::vector<GraphicsEntity*> allGraphicsEntities;
 
@@ -202,6 +203,9 @@ GraphicsEntity& createGraphicsEntity(Renderer& renderer, RenderPassObject* rende
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.pDepthStencilState = &depthStencil;
 	
+	loggerAssert(renderPassObject != nullptr);
+	loggerAssert(renderPassObject->renderPass != nullptr);
+
     if (vkCreateGraphicsPipelines(renderer.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsEntity->graphicsPipeline) != VK_SUCCESS) {
         
         logger(ERROR, "Failed to create graphics pipeline!"); 

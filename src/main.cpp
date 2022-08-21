@@ -47,6 +47,7 @@
 #include "core/object.h"
 #include "core/transform.h"
 #include "core/predefined.h"
+#include"core/standardGraphicsObject.h"
 
 #include "utility/xml.h"
 #include "utility/properties.h"
@@ -86,6 +87,7 @@ int main(int argc, char *argv[]) {
     // Loading a cube model
     Model cubeModel("assets/models/cube.obj");
 
+
     // Loading a texture 
     Texture cubeTexture = createTexture(renderer, "assets/textures/gold.png");
 
@@ -96,19 +98,11 @@ int main(int argc, char *argv[]) {
     VertexBuffer cubeVertexBuffer = createVertexBuffer(renderer, cubeModel.vertices, cubeModel.indices);
 
     // Creating a graphics entity
-    GraphicsEntity cubeEntity = createGraphicsEntity(renderer, renderer.renderPasses.find("world")->second, &cubeShader, &cubeVertexBuffer, &cubeTexture);
-    
-    // Creating a cube instance
-    GraphicsEntityInstance<UniformBufferObject> cubeEntityInstance(renderer, renderer.renderPasses.find("world")->second, &cubeEntity);
+    GraphicsEntity cubeEntity = createGraphicsEntity(renderer, getRenderPassObject(renderer, "world"), &cubeShader, &cubeVertexBuffer, &cubeTexture);
+	
+	// Creating a instance of a standard graphics object
+	StandardGraphicsObject standardCubeObj("Cube 3", renderer, cubeEntity);
 
-    // Creating a transform
-    Transform transform({0.0f, 0.0f, 0.0f});
-
-    // Creating a cube object
-    Object cube("Cube");
-    cube.addComponent(&transform);
-    cube.addComponent(&cubeEntityInstance);
-    
     // Creating a text
     UITextInstance uiTextInstance(renderer, &predefinedTextEntities.roboto);
     uiTextInstance.text = "Text rendering!";

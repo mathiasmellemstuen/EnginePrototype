@@ -4,6 +4,7 @@
 #include "descriptorPool.h"
 
 template<typename T> void GraphicsEntityInstance<T>::render(Renderer& renderer, int currentCommandBufferIndex) {
+	
 
     VkCommandBuffer& commandBuffer = renderer.commandBuffers[currentCommandBufferIndex];
     

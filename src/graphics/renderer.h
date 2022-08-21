@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <map>
 #include <string>
+#include <vulkan/vulkan_core.h>
 
 class GenericGraphicsEntityInstance; 
 
@@ -31,9 +32,8 @@ struct RenderPassObject {
     VkRenderPassCreateInfo createInfo;
 	RenderPassResources* resources;
 	std::vector<GenericGraphicsEntityInstance*> renderInstances;
-	bool usingLayers; 
-	bool usingSharedResources;
-	RenderPassObject* nextRenderPass; // TODO: Implement this as a sort of linked list to order the execution of renderpasses in right order.
+	bool usingLayers = false; 
+	RenderPassObject* nextRenderPass = nullptr; // TODO: Implement this as a sort of linked list to order the execution of renderpasses in right order.
 };
 
 struct Renderer {
@@ -57,13 +57,15 @@ struct Renderer {
     std::vector<VkFence> imagesInFlight;
     std::vector<VkFence> inFlightFences;
     size_t currentFrame = 0;
-    std::map<const char*, RenderPassObject*> renderPasses;
+	std::vector<RenderPassObject*> renderPasses;
 };
 const ImageData& createAttachment(Renderer& renderer, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlagBits aspectFlags);
 void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject);
-//RenderPassResources createRenderPassResources(Renderer& renderer, std::vector<VkRenderPassBeginInfo> 
-void createRenderPass(Renderer& renderer, const char* renderPassName, RenderPassResources* resources, bool usingLayers = false, RenderPassObject* nextRenderPass = nullptr);
-void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo, std::vector<VkClearValue> clearValues = {}, RenderPassObject* sharedResources = nullptr, std::vector<ImageData> attachments = {}, bool usingLayers = false, RenderPassObject* nextRenderPass = nullptr);
+RenderPassResources* createRenderPassResources(Renderer& renderer, RenderPassObject& renderPassObject, std::vector<ImageData> attachments, std::vector<VkClearValue> clearValues, bool attachSwapchainImageViews);
+RenderPassObject* getRenderPassObject(Renderer& renderer, const char* renderPassName);
+
+void createRenderPass(Renderer& renderer, const char* renderPassName, VkRenderPassCreateInfo& createInfo);
+void bindRenderPassObjectToResources(RenderPassObject* renderPassObject, RenderPassResources* resources);
 void createCommandBuffers(Renderer& renderer, uint32_t currentImage);
 uint32_t findMemoryType(Renderer& renderer, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 void createImage(Renderer& renderer, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);

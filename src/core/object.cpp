@@ -24,6 +24,7 @@ void Object::debug() {
     }
 }
 void Object::update(float& deltaTime) {
+
     for(Component* component : components) {
         component->update(deltaTime);
     }

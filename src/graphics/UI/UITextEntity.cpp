@@ -8,7 +8,7 @@
 
 const UITextEntity& createUITextEntity(Renderer& renderer, Shader* shader, Font* font) {
 
-    const GraphicsEntity& graphicsEntity = createGraphicsEntity(renderer, renderer.renderPasses.at("UI"), shader, nullptr, &font->texture, false, sizeof(UIInstanceUniformBufferObject));
+    const GraphicsEntity& graphicsEntity = createGraphicsEntity(renderer, getRenderPassObject(renderer, "UI"), shader, nullptr, &font->texture, false, sizeof(UIInstanceUniformBufferObject));
     UITextEntity* entity = new UITextEntity; 
     entity->font = font; 
     entity->vertexBuffer = graphicsEntity.vertexBuffer; 
