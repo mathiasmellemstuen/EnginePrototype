@@ -9,4 +9,5 @@ C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiCircle.vert -o compiled/uiCircle.vert.spv
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiCircle.frag -o compiled/uiCircle.frag.spv
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiText.vert -o compiled/uiText.vert.spv
 C:/VulkanSDK/1.3.211.0/Bin/glslc.exe uiText.frag -o compiled/uiText.frag.spv
+C:/VulkanSDK/1.3.211.0/Bin/glslc.exe image_blender.comp -o compiled/image_blender.comp.spv
 cd ../../

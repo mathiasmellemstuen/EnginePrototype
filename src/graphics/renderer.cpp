@@ -20,144 +20,10 @@
 #include <iterator>
 #include <algorithm>
 #include <vulkan/vulkan_core.h>
+#include "imageBlender.h"
 
 uint64_t last = 0; 
 uint64_t now = 0; 
-
-void combineImages(Renderer& renderer, uint32_t currentImage, VkImage& backgroundImage, VkImage& foregroundImage) {
-	
-
-	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = renderer.swapChainImageFormat; 
-	colorAttachment.samples = renderer.msaaSamples;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
-
-	VkAttachmentReference colorAttachmentRef{};
-	colorAttachmentRef.attachment = 0; 
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentDescription colorAttachmentResolve{};
-	colorAttachmentResolve.format = renderer.swapChainImageFormat;
-	colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Changing this to go to the next render pass instead of present src khr
-
-	VkAttachmentReference colorAttachmentResolveRef{};
-	colorAttachmentResolveRef.attachment = 1;
-	colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	
-
-	VkSubpassDependency dependency{};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-	VkSubpassDescription subpass{};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-	subpass.pResolveAttachments = &colorAttachmentResolveRef;
-
-	std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, colorAttachmentResolve};
-
-	VkRenderPassCreateInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = 1;
-	renderPassInfo.pDependencies = &dependency;
-
-	VkRenderPass renderPass;
-
-    if (vkCreateRenderPass(renderer.device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
-        logger(ERROR, "Failed to create render pass!");
-        throw std::runtime_error("failed to create render pass!");
-    }
-	
-	ImageData target = createAttachment(renderer, renderer.swapChainImageFormat, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
-	
-	VkFramebufferCreateInfo framebufferInfo{};
-	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = renderPass;
-	framebufferInfo.attachmentCount = 1;
-	framebufferInfo.pAttachments = &target.view;
-	framebufferInfo.width = renderer.swapChainExtent.width;
-	framebufferInfo.height = renderer.swapChainExtent.height;
-	framebufferInfo.layers = 1;
-
-	VkFramebuffer framebuffer;
-
-	if (vkCreateFramebuffer(renderer.device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) {
-		logger(ERROR, "Failed to create framebuffer!");
-		throw std::runtime_error("failed to create framebuffer!");
-	}
-	
-	VkRenderPassBeginInfo beginInfo;
-	beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	beginInfo.renderPass = renderPass;
-	beginInfo.framebuffer = framebuffer;
-	beginInfo.renderArea.offset = {0, 0};
-	beginInfo.renderArea.extent = renderer.swapChainExtent;
-	beginInfo.clearValueCount = 0;
-	beginInfo.pClearValues = nullptr;
-
-	// Create descriptor set with textures
-	// Creating a graphics pipeline
-	// Draw call to graphics pipline with the images
-	// Output image should go to khr src
-	
-	VkDescriptorSetLayoutBinding binding;
-	binding.binding = 0;
-	binding.descriptorCount = 1;
-	binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	binding.pImmutableSamplers = nullptr;
-
-	VkDescriptorSetLayoutCreateInfo layoutInfo;
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(1);
-	layoutInfo.pBindings = &binding;
-	
-	VkDescriptorSetLayout descriptorSetLayout;
-    if (vkCreateDescriptorSetLayout(renderer.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
-
-	VkDescriptorPoolSize poolSize;
-	poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSize.descriptorCount = static_cast<uint32_t>(renderer.swapChainImages.size());
-
-	VkDescriptorPoolCreateInfo poolInfo;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(1);
-	poolInfo.pPoolSizes = &poolSize;
-	poolInfo.maxSets = static_cast<uint32_t>(renderer.swapChainImages.size()); 
-	
-	VkDescriptorPool descriptorPool;
-    if (vkCreateDescriptorPool(renderer.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-
-        throw std::runtime_error("failed to create descriptor pool!");
-    }
-
-	vkCmdBeginRenderPass(renderer.commandBuffers[currentImage], &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	
-
-	vkCmdEndRenderPass(renderer.commandBuffers[currentImage]);
-}
 
 void createCommandBuffersInlineContentForSingleRenderPass(Renderer& renderer, uint32_t currentImage, RenderPassObject& renderPassObject) {
 	// TODO: Place this sorting in creation / adding of a new generic graphics entity instance so it sorts the renderpasses list when its created instead of sorting it for every frame.
@@ -908,7 +774,14 @@ void allocateSwapchainDependentRendererContent(Renderer& renderer, Window& windo
 		getRenderPassObject(renderer, "UI")->resources = resources;
 
         logger(SUCCESS, "Created UI render pass!");
+
+		logger(INFO, "Setting up image blender.");
+
     }
+	RenderPassResources& background = *(getRenderPassObject(renderer, "world")->resources);
+	RenderPassResources& foreground  = *(getRenderPassObject(renderer, "UI")->resources);
+	
+	setupImageBlender(renderer, (uint32_t)0, background, foreground);
 }
 const Renderer& createRenderer(Window& window) {
     Renderer* renderer = new Renderer;

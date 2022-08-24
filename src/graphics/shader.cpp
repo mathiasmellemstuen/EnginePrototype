@@ -6,31 +6,40 @@
 #include <string>
 #include "../utility/logging.h"
 #include <iostream>
+#include <vulkan/vulkan_core.h>
 #include "renderer.h"
 
-const Shader& createShader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) {
-    Shader* shader = new Shader; 
-    shader->shaderCount = 2; 
+const Shader& createShader(Renderer& renderer, std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath, std::string computeShaderPath) {
+
+    Shader* shader = new Shader;
+	shader->shaderCount = 0; 
 
     logger(INFO, "Creating shader"); 
+	
+	if(vertexShaderPath != "" && fragmentShaderPath != "") {
+		shader->shaderCount += 2; 
+		auto vertShaderCode = readFile(vertexShaderPath);
+		auto fragShaderCode = readFile(fragmentShaderPath);
+		
+		shader->vertexShaderModule = createShaderModule(renderer, vertShaderCode); 
+		shader->fragmentShaderModule = createShaderModule(renderer, fragShaderCode);
+		
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertShaderStageInfo.module = shader->vertexShaderModule;
+		vertShaderStageInfo.pName = "main";
 
-    auto vertShaderCode = readFile(vertexShaderPath);
-    auto fragShaderCode = readFile(fragmentShaderPath);
-    
-    shader->vertexShaderModule = createShaderModule(renderer, vertShaderCode); 
-    shader->fragmentShaderModule = createShaderModule(renderer, fragShaderCode);
-    
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = shader->vertexShaderModule;
-    vertShaderStageInfo.pName = "main";
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragShaderStageInfo.module = shader->fragmentShaderModule;
+		fragShaderStageInfo.pName = "main";
 
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = shader->fragmentShaderModule;
-    fragShaderStageInfo.pName = "main";
+		// Assigning vertex and fragment shaders
+		shader->shaderStages[0] = vertShaderStageInfo;
+		shader->shaderStages[1] = fragShaderStageInfo; 
+	}
 
     // Geometry shader is optional. Checking if we should add it.
     //TODO: This feature is for now not supported since geometry shaders don't work on mac. Will be supported once a crossplatform solution is created
@@ -47,12 +56,25 @@ const Shader& createShader(Renderer& renderer, std::string vertexShaderPath, std
 
         shader->shaderStages[2] = geometryShaderStageInfo;
 
-        shader->shaderCount = 3; 
+        shader->shaderCount += 1; 
     }
 
-    // Assigning vertex and fragment shaders
-    shader->shaderStages[0] = vertShaderStageInfo;
-    shader->shaderStages[1] = fragShaderStageInfo; 
+	if(computeShaderPath != "") {
+		
+		auto computeShaderCode = readFile(computeShaderPath);
+		shader->computeShaderModule = createShaderModule(renderer, computeShaderCode);
+
+		VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+		computeShaderStageInfo.module = shader->computeShaderModule;
+		computeShaderStageInfo.pName = "main";
+		
+		shader->shaderStages[3] = computeShaderStageInfo; 
+		shader->shaderCount += 1;
+
+	}
+
 
     logger(SUCCESS, "Successfully created shader!"); 
 

@@ -16,6 +16,16 @@ void logToTerminal(const char* fileName, const char* functionName, const int& li
         }
     }
 
+    if(formattedFileName.find("\\src\\")) {
+        try
+        {
+            formattedFileName = formattedFileName.substr(formattedFileName.find("\\src\\") + 5, formattedFileName.length() - 1);
+        }
+        catch(const std::exception& e) {
+            formattedFileName = fileName;
+        }
+    }
+
     std::cout << "[" << rang::fg::cyan << formattedFileName << rang::fg::reset << "][" << rang::fg::green << functionName << rang::fg::reset << "][" <<  rang::fg::magenta << lineNumber << rang::fg::reset << "]";
     std::cout << "["; 
     switch (logLevel) {

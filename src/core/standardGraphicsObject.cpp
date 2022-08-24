@@ -18,7 +18,7 @@ StandardGraphicsObject::StandardGraphicsObject(const std::string& name, Renderer
 
 
 void StandardGraphicsObject::debug() {
-
+	Object::debug();
 }
 
 void StandardGraphicsObject::update(float& deltaTime) {
